@@ -21,8 +21,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: dorumdorum.contact@gmail.com          # 발신 계정
-    password: oimocacgnayltxey      # 2단계 인증용 앱 비밀번호
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
