@@ -1,0 +1,59 @@
+spring:
+  datasource:
+    username: ${USERNAME}
+    url: ${URL}
+    password: ${password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6379
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/dorumdorum}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+
+
+jwt:
+  key: fdsafdsafdsafdsafdsafdsafdsafdsafdsafdsafda
+  access:
+    expiration: 360000
+
+exclude-auth-path-patterns:
+  paths:
+    - path-pattern: /api/users/sign-up
+      method: POST
+    - path-pattern: /api/users/login
+      method: POST
+
+exclude-blacklist-path-patterns:
+  paths:
+    - path-pattern: /api/users/sign-up
+      method: POST
+    - path-pattern: /api/users/login
+      method: POST
+
+exclude-whitelist-path-patterns:
+  paths:
+    - path-pattern: /api/users/sign-up
+      method: POST
+    - pathPattern: /api/users/login
+      method: POST
+    - path-pattern: /api/users/logout
+      method: DELETE
+    - path-pattern: /api/token/reissue
+      method: POST
+    - path-pattern: /api/email/send
+      method: POST
+    - path-pattern: /api/email/verify
+      method: POST
+
+
+include-email-domains:
+  domains:
+    - gachon.ac.kr
