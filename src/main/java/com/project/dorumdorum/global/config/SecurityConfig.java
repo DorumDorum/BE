@@ -2,6 +2,7 @@ package com.project.dorumdorum.global.config;
 
 import com.project.dorumdorum.domain.user.domain.service.TokenWhitelistService;
 import com.project.dorumdorum.global.properties.ExcludeAuthPathProperties;
+import com.project.dorumdorum.global.properties.ExcludeWhitelistPathProperties;
 import com.project.dorumdorum.global.security.JwtAuthenticationFilter;
 import com.project.dorumdorum.global.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final ExcludeAuthPathProperties excludeAuthPathProperties;
     private final TokenWhitelistService tokenWhitelistService;
+    private final ExcludeWhitelistPathProperties excludeWhitelistPathProperties;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -64,7 +66,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(tokenProvider, excludeAuthPathProperties, tokenWhitelistService);
+        return new JwtAuthenticationFilter(tokenProvider, excludeAuthPathProperties, tokenWhitelistService, excludeWhitelistPathProperties);
     }
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
