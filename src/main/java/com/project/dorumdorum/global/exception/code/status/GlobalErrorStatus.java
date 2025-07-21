@@ -29,6 +29,9 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
 
     // For test
     TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "예외처리 테스트입니다."),
+
+    // Mail
+    FAILED_SEND_VERIFY_CODE(HttpStatus.INTERNAL_SERVER_ERROR, "MAIL001", "인증번호 전송에 실패하였습니다.")
     ;
 
     private final HttpStatus httpStatus;

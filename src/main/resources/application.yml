@@ -1,8 +1,8 @@
 spring:
   datasource:
-    username: ${USERNAME}
-    url: ${URL}
-    password: ${password}
+    username: ${RDB_USERNAME}
+    url: ${RDB_URL}
+    password: ${RDB_password}
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
@@ -18,6 +18,15 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     open-in-view: false
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dorumdorum.contact@gmail.com          # 발신 계정
+    password: oimocacgnayltxey      # 2단계 인증용 앱 비밀번호
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.timeout: 5000
 
 jwt:
   key: fdsafdsafdsafdsafdsafdsafdsafdsafdsafdsafda
@@ -30,12 +39,20 @@ exclude-auth-path-patterns:
       method: POST
     - path-pattern: /api/users/login
       method: POST
+    - path-pattern: /api/email/send
+      method: POST
+    - path-pattern: /api/email/verify
+      method: POST
 
 exclude-blacklist-path-patterns:
   paths:
     - path-pattern: /api/users/sign-up
       method: POST
     - path-pattern: /api/users/login
+      method: POST
+    - path-pattern: /api/email/send
+      method: POST
+    - path-pattern: /api/email/verify
       method: POST
 
 exclude-whitelist-path-patterns:

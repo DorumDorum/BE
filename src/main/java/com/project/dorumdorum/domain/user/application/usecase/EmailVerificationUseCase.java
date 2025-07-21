@@ -22,7 +22,7 @@ public class EmailVerificationUseCase {
         if (userService.isAlreadyRegistered(email))
             throw new RestApiException(_EXIST_ENTITY);
 
-        if(emailVerificationService.isAllowedUniversityEmail(email))
+        if(!emailVerificationService.isAllowedUniversityEmail(email))
             throw new RestApiException(INVALID_EMAIL_DOMAIN);
 
         String code = secureRandomGenerator.generate();
