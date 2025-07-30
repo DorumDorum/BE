@@ -1,6 +1,11 @@
 package com.project.dorumdorum.domain.user.ui;
 
+import com.project.dorumdorum.domain.user.application.dto.response.ProfileResponse;
+import com.project.dorumdorum.domain.user.application.usecase.UserProfileUseCase;
+import com.project.dorumdorum.global.common.BaseResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -8,4 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/users/profile")
 public class UserProfileController {
+
+    private final UserProfileUseCase userProfileUseCase;
+
+    @GetMapping("/me")
+    public BaseResponse<ProfileResponse> me(HttpServletRequest request) {
+        return BaseResponse.onSuccess(userProfileUseCase.me(request));
+    }
 }

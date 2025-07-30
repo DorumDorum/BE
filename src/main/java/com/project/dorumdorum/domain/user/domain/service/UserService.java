@@ -45,4 +45,10 @@ public class UserService {
         return userRepository.findById(userNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
+
+    public ProfileResponse getProfile(Long userNo) {
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+        return ProfileResponse.create(user);
+    }
 }
