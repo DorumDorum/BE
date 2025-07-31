@@ -36,4 +36,16 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    public void changedNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void changedName(String name) {
+        this.name = name;
+    }
+
+    public void changedEmail(String email) {
+        this.email = email;
+    }
+
 }

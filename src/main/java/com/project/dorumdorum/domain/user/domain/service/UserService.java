@@ -1,7 +1,6 @@
 package com.project.dorumdorum.domain.user.domain.service;
 
 import com.project.dorumdorum.domain.user.application.dto.request.SignUpRequest;
-import com.project.dorumdorum.domain.user.application.dto.response.ProfileResponse;
 import com.project.dorumdorum.domain.user.domain.entity.Role;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
@@ -44,11 +43,5 @@ public class UserService {
     public User findUser(Long userNo) {
         return userRepository.findById(userNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
-    }
-
-    public ProfileResponse getProfile(Long userNo) {
-        User user = userRepository.findById(userNo)
-                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
-        return ProfileResponse.create(user);
     }
 }

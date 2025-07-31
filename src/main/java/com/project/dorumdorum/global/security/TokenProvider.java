@@ -121,6 +121,12 @@ public class TokenProvider {
                 .map(token -> token.replace(BEARER, ""));
     }
 
+    public Optional<String> getToken(String authoriazation) {
+        return Optional.ofNullable(authoriazation)
+                .filter(token -> token.startsWith(BEARER))
+                .map(token -> token.replace(BEARER, ""));
+    }
+
     private Claims getClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getKey().getBytes(StandardCharsets.UTF_8)))
                 .build()
