@@ -26,4 +26,8 @@ public class UserProfileUseCase {
 
         return userService.getProfile(userNo);
     }
+
+    public ProfileResponse getProfile(Long userNo) {
+        return userService.getProfile(userNo);
+    }
 }
