@@ -3,8 +3,8 @@ package com.project.dorumdorum.domain.user.ui;
 import com.project.dorumdorum.domain.user.application.dto.request.UpdateProfileRequest;
 import com.project.dorumdorum.domain.user.application.dto.response.ProfileResponse;
 import com.project.dorumdorum.domain.user.application.usecase.UserProfileUseCase;
+import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +17,8 @@ public class UserProfileController {
     private final UserProfileUseCase userProfileUseCase;
 
     @GetMapping("/me")
-    public BaseResponse<ProfileResponse> me(HttpServletRequest request) {
-        return BaseResponse.onSuccess(userProfileUseCase.me(request));
+    public BaseResponse<ProfileResponse> me(@CurrentUser Long userNo) {
+        return BaseResponse.onSuccess(userProfileUseCase.me(userNo));
     }
 
     @GetMapping("{userNo}")
@@ -27,10 +27,7 @@ public class UserProfileController {
     }
 
     @PatchMapping("")
-    public BaseResponse<ProfileResponse> updateProfile(
-            @RequestHeader String authorization,
-            @RequestBody @Valid UpdateProfileRequest body
-            ) {
-        return BaseResponse.onSuccess(userProfileUseCase.updateProfile(authorization, body));
+    public BaseResponse<ProfileResponse> updateProfile(@CurrentUser Long userNo, @RequestBody @Valid UpdateProfileRequest body) {
+        return BaseResponse.onSuccess(userProfileUseCase.updateProfile(userNo, body));
     }
 }

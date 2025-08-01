@@ -22,15 +22,12 @@ public class UserProfileService {
         return ProfileResponse.create(user);
     }
 
-    public ProfileResponse updateProfile(Long userNo, UpdateProfileRequest body) {
+    public ProfileResponse updateProfile(Long userNo, UpdateProfileRequest updateProfileRequest) {
         User user = userRepository.findById(userNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
 
-        user.changedName(body.name());
-        user.changedNickname(body.nickname());
-        user.changedEmail(body.email());
+        user.updateProfile(updateProfileRequest);
 
-        userRepository.saveAndFlush(user);
         return ProfileResponse.create(user);
     }
 }
