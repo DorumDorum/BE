@@ -14,7 +14,7 @@ public class JoinRoomRequestController {
 
     private final JoinRoomRequestUseCase joinRoomRequestUseCase;
 
-    @PostMapping("/api/room/{roomNo}/join")
+    @PostMapping("/api/room/{roomNo}/join-request")
     public BaseResponse<Void> join(
             @CurrentUser Long userNo,
             @PathVariable Long roomNo,
