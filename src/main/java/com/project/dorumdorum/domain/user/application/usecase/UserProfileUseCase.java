@@ -15,7 +15,7 @@ public class UserProfileUseCase {
 
     private final UserProfileService userProfileService;
 
-    public ProfileResponse me(Long userNo) {
+    public ProfileResponse getMyProfile(Long userNo) {
         return userProfileService.getProfile(userNo);
     }
 

@@ -17,11 +17,11 @@ public class UserProfileController {
     private final UserProfileUseCase userProfileUseCase;
 
     @GetMapping("/me")
-    public BaseResponse<ProfileResponse> me(@CurrentUser Long userNo) {
-        return BaseResponse.onSuccess(userProfileUseCase.me(userNo));
+    public BaseResponse<ProfileResponse> getMyProfile(@CurrentUser Long userNo) {
+        return BaseResponse.onSuccess(userProfileUseCase.getMyProfile(userNo));
     }
 
-    @GetMapping("{userNo}")
+    @GetMapping("/{userNo}")
     public BaseResponse<ProfileResponse> getProfile(@PathVariable("userNo") Long userNo) {
         return BaseResponse.onSuccess(userProfileUseCase.getProfile(userNo));
     }
