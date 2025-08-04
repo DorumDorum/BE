@@ -31,4 +31,8 @@ public class Room {
     public void init() {
         this.current_mate_count = 1;
     }
+
+    public void plusCurrentMate() {
+        this.current_mate_count++;
+    }
 }

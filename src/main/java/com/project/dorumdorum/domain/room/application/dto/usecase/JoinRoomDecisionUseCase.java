@@ -25,12 +25,19 @@ public class JoinRoomDecisionUseCase {
         userService.validateExistsById(userNo);
 
         Room room = roomService.findById(roomNo);
-        roomRequestService.deleteById(roomRequestNo);
+        room.plusCurrentMate();
+
         roommateService.create(userNo, room, RoomRole.MEMBER);
+
+        RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
+        // 지원자에게 알림 roomRequest.getUserNo()
+        roomRequestService.delete(roomRequest);
     }
 
     public void reject(Long userNo, Long roomRequestNo) {
         userService.validateExistsById(userNo);
-        roomRequestService.deleteById(roomRequestNo);
+        RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
+        // 지원자에게 알림 roomRequest.getUserNo()
+        roomRequestService.delete(roomRequest);
     }
 }
