@@ -28,7 +28,7 @@ public class TokenReissueService {
 
         refreshTokenService.deleteRefreshToken(userNo);
 
-        User user = userService.findUser(userNo);
+        User user = userService.findById(userNo);
         String newAccessToken = tokenProvider.createAccessToken(userNo, user.getRole());
         String newRefreshToken = tokenProvider.createRefreshToken(userNo, user.getRole());
         Duration duration = tokenProvider.getRemainingDuration(refreshToken)

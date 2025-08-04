@@ -40,8 +40,13 @@ public class UserService {
         );
     }
 
-    public User findUser(Long userNo) {
+    public User findById(Long userNo) {
         return userRepository.findById(userNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+    }
+
+    public void validateExistsById(Long userNo) {
+        if (!userRepository.existsById(userNo))
+            throw new RestApiException(_NOT_FOUND);
     }
 }

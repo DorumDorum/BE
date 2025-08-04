@@ -31,7 +31,13 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
     TEMP_EXCEPTION(HttpStatus.BAD_REQUEST, "TEMP4001", "예외처리 테스트입니다."),
 
     // Mail
-    FAILED_SEND_VERIFY_CODE(HttpStatus.INTERNAL_SERVER_ERROR, "MAIL001", "인증번호 전송에 실패하였습니다.")
+    FAILED_SEND_VERIFY_CODE(HttpStatus.INTERNAL_SERVER_ERROR, "MAIL001", "인증번호 전송에 실패하였습니다."),
+
+    // Room
+    USER_IN_ROOM(HttpStatus.BAD_REQUEST, "ROOM001", "이미 속한 방입니다."),
+    DUPLICATE_JOIN_REQUEST(HttpStatus.BAD_REQUEST, "ROOM002", "이미 전송한 요청입니다."),
+    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "ROOM003", "존재하지 않는 방입니다."),
+    COMPLETED_ROOM_EXISTS(HttpStatus.BAD_REQUEST, "ROOM004", "이미 확정된 방이 존재하는 유저입니다.")
     ;
 
     private final HttpStatus httpStatus;
