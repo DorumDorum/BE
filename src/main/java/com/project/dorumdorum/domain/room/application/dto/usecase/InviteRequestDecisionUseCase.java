@@ -1,29 +1,25 @@
 package com.project.dorumdorum.domain.room.application.dto.usecase;
 
-import com.project.dorumdorum.domain.room.application.dto.request.InviteRoomRequest;
-import com.project.dorumdorum.domain.room.domain.entity.Direction;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
-import com.project.dorumdorum.domain.room.domain.service.RoomRequestService;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
+import com.project.dorumdorum.domain.room.domain.service.RoommateService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class InviteRoomRequestUseCase {
+public class InviteRequestDecisionUseCase {
 
     private final UserService userService;
     private final RoomService roomService;
-    private final RoomRequestService roomRequestService;
+    private final RoommateService roommateService;
 
-    public void execute(Long userNo, Long roomNo, Long toUser, InviteRoomRequest request) {
+    public void approve(Long userNo, Long roomRequestNo, Long roomNo) {
         userService.validateExistsById(userNo);
-        userService.validateExistsById(toUser);
 
         Room room = roomService.findById(roomNo);
 
-        roomRequestService.create(toUser, room, request, Direction.ROOM_TO_USER);
-        // todo: toUser에게 알림
+        // 모레 이어서 개발해둘테니 여긴 신경쓰지 말아줘요 .. 졸려서 뇌사왔네요
     }
 }

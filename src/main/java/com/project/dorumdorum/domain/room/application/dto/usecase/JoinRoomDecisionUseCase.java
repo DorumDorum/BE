@@ -30,14 +30,14 @@ public class JoinRoomDecisionUseCase {
         roommateService.create(userNo, room, RoomRole.MEMBER);
 
         RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
-        // 지원자에게 알림 roomRequest.getUserNo()
+        // todo: 지원자에게 알림 roomRequest.getUserNo()
         roomRequestService.delete(roomRequest);
     }
 
     public void reject(Long userNo, Long roomRequestNo) {
         userService.validateExistsById(userNo);
         RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
-        // 지원자에게 알림 roomRequest.getUserNo()
+        // todo: 지원자에게 알림 roomRequest.getUserNo()
         roomRequestService.delete(roomRequest);
     }
 }

@@ -37,6 +37,6 @@ public class JoinRoomRequestUseCase {
             throw new RestApiException(DUPLICATE_JOIN_REQUEST);
 
         roomRequestService.create(userNo, room, request, Direction.USER_TO_ROOM);
-        // 방장에게 알림
+        // todo: 방장에게 알림
     }
 }
