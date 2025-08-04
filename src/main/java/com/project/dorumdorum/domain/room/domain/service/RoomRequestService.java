@@ -5,8 +5,11 @@ import com.project.dorumdorum.domain.room.domain.entity.Direction;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomRequest;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRequestRepository;
+import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.ROOM_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -28,5 +31,14 @@ public class RoomRequestService {
 
     public Boolean isDuplicateJoinRequest(Long userNo, Room room) {
         return roomRequestRepository.existsByUserNoAndRoom(userNo, room);
+    }
+
+    public RoomRequest findById(Long requestNo) {
+        return roomRequestRepository.findById(requestNo)
+                .orElseThrow(() -> new RestApiException(ROOM_NOT_FOUND));
+    }
+
+    public void deleteById(Long roomRequestNo) {
+        roomRequestRepository.deleteById(roomRequestNo);
     }
 }
