@@ -24,4 +24,8 @@ public class RoommateService {
 
         return roommateRepository.save(entity);
     }
+
+    public Boolean isUserInRoom(Long userNo, Room room) {
+        return roommateRepository.existsByUserNoAndRoom(userNo, room);
+    }
 }

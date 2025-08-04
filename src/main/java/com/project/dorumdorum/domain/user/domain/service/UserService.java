@@ -45,7 +45,8 @@ public class UserService {
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
-    public Boolean existsById(Long userNo) {
-        return userRepository.existsById(userNo);
+    public void validateExistsById(Long userNo) {
+        if (userRepository.existsById(userNo))
+            throw new RestApiException(_NOT_FOUND);
     }
 }

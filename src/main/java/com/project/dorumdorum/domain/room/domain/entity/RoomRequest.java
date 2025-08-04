@@ -19,7 +19,7 @@ public class RoomRequest {
     private Room room;
 
     @Column(nullable = false)
-    private String userNo;
+    private Long userNo;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
