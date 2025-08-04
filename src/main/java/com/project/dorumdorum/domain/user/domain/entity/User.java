@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.user.domain.entity;
 
+import com.project.dorumdorum.domain.user.application.dto.request.UpdateProfileRequest;
 import com.project.dorumdorum.global.common.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
@@ -35,5 +36,11 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
+
+    public void updateProfile(UpdateProfileRequest updateProfileRequest) {
+        this.name = updateProfileRequest.name();
+        this.nickname = updateProfileRequest.nickname();
+        this.email = updateProfileRequest.email();
+    }
 
 }

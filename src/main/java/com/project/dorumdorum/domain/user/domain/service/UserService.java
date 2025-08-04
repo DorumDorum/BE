@@ -1,7 +1,6 @@
 package com.project.dorumdorum.domain.user.domain.service;
 
 import com.project.dorumdorum.domain.user.application.dto.request.SignUpRequest;
-import com.project.dorumdorum.domain.user.application.dto.response.ProfileResponse;
 import com.project.dorumdorum.domain.user.domain.entity.Role;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
