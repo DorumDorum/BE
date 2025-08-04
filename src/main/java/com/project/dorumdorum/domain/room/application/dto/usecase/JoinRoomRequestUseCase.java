@@ -25,17 +25,22 @@ public class JoinRoomRequestUseCase {
     private final RoommateService roommateService;
 
     public void execute(Long userNo, Long roomNo, JoinRoomRequest request) {
+        // 유저 존재 유무 검증
         userService.validateExistsById(userNo);
 
         Room room = roomService.findById(roomNo);
 
+        // 확정된 방이 있는 유저인가 검증
         if(roommateService.isCompletedRoomExists(userNo))
             throw new RestApiException(COMPLETED_ROOM_EXISTS);
+        // 이미 속한 방인지 검증
         if (roommateService.isUserInRoom(userNo, room))
             throw new RestApiException(USER_IN_ROOM);
+        // 이미 보낸 요청인지 검증
         if (roomRequestService.isDuplicateJoinRequest(userNo, room))
             throw new RestApiException(DUPLICATE_JOIN_REQUEST);
 
+        // 요청 생성
         roomRequestService.create(userNo, room, request, Direction.USER_TO_ROOM);
         // todo: 방장에게 알림
     }

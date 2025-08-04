@@ -7,9 +7,12 @@ import com.project.dorumdorum.domain.room.domain.service.RoomRequestService;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.domain.room.domain.service.RoommateService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
+import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.COMPLETED_ROOM_EXISTS;
 
 @Service
 @Transactional
@@ -22,20 +25,31 @@ public class JoinRoomDecisionUseCase {
     private final RoommateService roommateService;
 
     public void approve(Long userNo, Long roomNo, Long roomRequestNo) {
+        // 유저 존재 유무 검증
         userService.validateExistsById(userNo);
 
+        // 지원자에게 확정된 방이 존재하는지 검증
+        RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
+        if(roommateService.isCompletedRoomExists(userNo))
+            throw new RestApiException(COMPLETED_ROOM_EXISTS);
+
+        // 방 인원수 +1
         Room room = roomService.findById(roomNo);
         room.plusCurrentMate();
 
+        // 요청 생성
         roommateService.create(userNo, room, RoomRole.MEMBER);
 
-        RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
         // todo: 지원자에게 알림 roomRequest.getUserNo()
+
+        // 모든 플로우를 거쳤다면 요청은 삭제
         roomRequestService.delete(roomRequest);
     }
 
     public void reject(Long userNo, Long roomRequestNo) {
+        // 유저 존재 유무 검증
         userService.validateExistsById(userNo);
+
         RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
         // todo: 지원자에게 알림 roomRequest.getUserNo()
         roomRequestService.delete(roomRequest);
