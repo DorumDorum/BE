@@ -28,4 +28,8 @@ public class Roommate {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RoomRole roomRole;
+
+    public Boolean isCompleted() {
+        return this.confirmStatus.equals(ConfirmStatus.COMPLETED);
+    }
 }

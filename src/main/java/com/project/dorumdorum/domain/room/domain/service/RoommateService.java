@@ -8,6 +8,8 @@ import com.project.dorumdorum.domain.room.domain.repository.RoommateRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class RoommateService {
@@ -27,5 +29,14 @@ public class RoommateService {
 
     public Boolean isUserInRoom(Long userNo, Room room) {
         return roommateRepository.existsByUserNoAndRoom(userNo, room);
+    }
+
+    public Boolean isCompletedRoomExists(Long userNo) {
+        for (Roommate roommate : roommateRepository.findByUserNo(userNo)) {
+            if (roommate.isCompleted())
+                return true;
+        }
+
+        return false;
     }
 }
