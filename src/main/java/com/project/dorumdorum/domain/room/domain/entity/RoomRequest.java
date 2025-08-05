@@ -14,7 +14,7 @@ public class RoomRequest {
     @Id @Tsid
     private Long roomRequestNo;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_no", nullable = false)
     private Room room;
 

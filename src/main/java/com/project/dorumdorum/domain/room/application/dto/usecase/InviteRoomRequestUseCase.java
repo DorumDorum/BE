@@ -29,6 +29,9 @@ public class InviteRoomRequestUseCase {
 
         Room room = roomService.findById(roomNo);
 
+        // 방장인지 확인
+        if(!roommateService.isHost(userNo, room))
+            throw new RestApiException(NO_PERMISSION_ON_ROOM);
         // 확정된 방이 있는 유저인가 검증
         if(roommateService.isCompletedRoomExists(toUser))
             throw new RestApiException(COMPLETED_ROOM_EXISTS);

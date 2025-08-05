@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.COMPLETED_ROOM_EXISTS;
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.NO_PERMISSION_ON_ROOM;
 
 @Service
 @Transactional
@@ -33,8 +34,12 @@ public class JoinRoomDecisionUseCase {
         if(roommateService.isCompletedRoomExists(userNo))
             throw new RestApiException(COMPLETED_ROOM_EXISTS);
 
-        // 방 인원수 +1
+        // 방장인지 확인
         Room room = roomService.findById(roomNo);
+        if(!roommateService.isHost(userNo, room))
+            throw new RestApiException(NO_PERMISSION_ON_ROOM);
+
+        // 방 인원수 +1
         room.plusCurrentMate();
 
         // 요청 생성
@@ -51,6 +56,9 @@ public class JoinRoomDecisionUseCase {
         userService.validateExistsById(userNo);
 
         RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
+        if(!roommateService.isHost(userNo, roomRequest.getRoom()))
+            throw new RestApiException(NO_PERMISSION_ON_ROOM);
+
         // todo: 지원자에게 알림 roomRequest.getUserNo()
         roomRequestService.delete(roomRequest);
     }

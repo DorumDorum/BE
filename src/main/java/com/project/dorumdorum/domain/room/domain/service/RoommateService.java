@@ -5,10 +5,13 @@ import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomRole;
 import com.project.dorumdorum.domain.room.domain.entity.Roommate;
 import com.project.dorumdorum.domain.room.domain.repository.RoommateRepository;
+import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -38,5 +41,15 @@ public class RoommateService {
         }
 
         return false;
+    }
+
+    public Boolean isHost(Long userNo, Room room) {
+        Roommate roommate = findByUserNoAndRoom(userNo, room);
+        return RoomRole.HOST.equals(roommate.getRoomRole());
+    }
+
+    public Roommate findByUserNoAndRoom(Long userNo, Room room) {
+        return roommateRepository.findByUserNoAndRoom(userNo, room)
+                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 }
