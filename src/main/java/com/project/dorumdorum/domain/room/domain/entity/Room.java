@@ -19,6 +19,9 @@ public class Room {
     @Enumerated(EnumType.STRING)
     private RoomType roomType;
 
+    @Enumerated(EnumType.STRING)
+    private RoomStatus roomStatus;
+
     private Integer capacity;
 
     private Integer current_mate_count;
@@ -30,9 +33,22 @@ public class Room {
     @PrePersist
     public void init() {
         this.current_mate_count = 1;
+        this.roomStatus = RoomStatus.CONFIRM_PENDING;
     }
 
     public void plusCurrentMate() {
         this.current_mate_count++;
+    }
+
+    public boolean isFull() {
+        return this.current_mate_count.equals(capacity);
+    }
+
+    public boolean isPending() {
+        return RoomStatus.CONFIRM_PENDING.equals(this.roomStatus);
+    }
+
+    public void updateStatus(RoomStatus roomStatus) {
+        this.roomStatus = roomStatus;
     }
 }

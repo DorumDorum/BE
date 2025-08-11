@@ -52,4 +52,8 @@ public class RoommateService {
         return roommateRepository.findByUserNoAndRoom(userNo, room)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
+
+    public List<Roommate> findByRoom(Room room) {
+        return roommateRepository.findByRoom(room);
+    }
 }

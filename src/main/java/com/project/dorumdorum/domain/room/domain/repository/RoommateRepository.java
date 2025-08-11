@@ -13,4 +13,5 @@ public interface RoommateRepository extends JpaRepository<Roommate, Long> {
     List<Roommate> findByUserNo(Long userNo);
     Optional<Roommate> findByUserNoAndRoom(Long userNo, Room room);
 
+    List<Roommate> findByRoom(Room room);
 }
