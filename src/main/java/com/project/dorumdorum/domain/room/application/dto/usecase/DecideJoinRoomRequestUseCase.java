@@ -18,7 +18,7 @@ import static com.project.dorumdorum.global.exception.code.status.GlobalErrorSta
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class JoinRoomDecisionUseCase {
+public class DecideJoinRoomRequestUseCase {
 
     private final RoomRequestService roomRequestService;
     private final UserService userService;

@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.room.ui;
 
-import com.project.dorumdorum.domain.room.application.dto.usecase.JoinRoomDecisionUseCase;
+import com.project.dorumdorum.domain.room.application.dto.usecase.DecideJoinRoomRequestUseCase;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class JoinRequestDecisionController {
+public class DecideJoinRoomRequestController {
 
-    private final JoinRoomDecisionUseCase joinRoomDecisionUseCase;
+    private final DecideJoinRoomRequestUseCase decideJoinRoomRequestUseCase;
 
     @PostMapping("/api/rooms/{roomNo}/join-request/{requestNo}/approve")
     public BaseResponse<Void> approve(
@@ -20,7 +20,7 @@ public class JoinRequestDecisionController {
             @PathVariable Long roomNo,
             @PathVariable Long requestNo
     ) {
-        joinRoomDecisionUseCase.approve(userNo, roomNo, requestNo);
+        decideJoinRoomRequestUseCase.approve(userNo, roomNo, requestNo);
         return BaseResponse.onSuccess();
     }
 
@@ -29,7 +29,7 @@ public class JoinRequestDecisionController {
             @CurrentUser Long userNo,
             @PathVariable Long requestNo
     ) {
-        joinRoomDecisionUseCase.reject(userNo, requestNo);
+        decideJoinRoomRequestUseCase.reject(userNo, requestNo);
         return BaseResponse.onSuccess();
     }
 }
