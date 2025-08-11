@@ -14,7 +14,7 @@ public class InviteRequestDecisionController {
 
     private final InviteRequestDecisionUseCase inviteRequestDecisionUseCase;
 
-    @PostMapping("/api/room/{roomNo}/invite-request/{requestNo}/approve")
+    @PostMapping("/api/rooms/{roomNo}/invite-request/{requestNo}/approve")
     public BaseResponse<Void> approve(
             @CurrentUser Long userNo,
             @PathVariable Long requestNo,

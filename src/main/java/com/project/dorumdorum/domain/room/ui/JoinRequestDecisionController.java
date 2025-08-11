@@ -14,7 +14,7 @@ public class JoinRequestDecisionController {
 
     private final JoinRoomDecisionUseCase joinRoomDecisionUseCase;
 
-    @PostMapping("/api/room/{roomNo}/join-request/{requestNo}/approve")
+    @PostMapping("/api/rooms/{roomNo}/join-request/{requestNo}/approve")
     public BaseResponse<Void> approve(
             @CurrentUser Long userNo,
             @PathVariable Long roomNo,
