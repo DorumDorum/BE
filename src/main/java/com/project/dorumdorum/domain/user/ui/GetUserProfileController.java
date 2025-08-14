@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/users/profile")
-public class UserProfileController {
+public class GetUserProfileController {
 
     private final UserProfileUseCase userProfileUseCase;
 

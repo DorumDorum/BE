@@ -1,0 +1,23 @@
+package com.project.dorumdorum.domain.user.ui;
+
+import com.project.dorumdorum.domain.user.application.dto.request.UpdateProfileRequest;
+import com.project.dorumdorum.domain.user.application.dto.response.ProfileResponse;
+import com.project.dorumdorum.domain.user.application.usecase.UserProfileUseCase;
+import com.project.dorumdorum.global.annotation.CurrentUser;
+import com.project.dorumdorum.global.common.BaseResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/users/profile")
+public class UpdateUserProfileController {
+
+    private final UserProfileUseCase userProfileUseCase;
+
+    @PatchMapping("")
+    public BaseResponse<ProfileResponse> updateProfile(@CurrentUser Long userNo, @RequestBody @Valid UpdateProfileRequest body) {
+        return BaseResponse.onSuccess(userProfileUseCase.updateProfile(userNo, body));
+    }
+}
