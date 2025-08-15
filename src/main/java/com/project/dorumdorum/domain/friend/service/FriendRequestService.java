@@ -4,6 +4,7 @@ import com.project.dorumdorum.domain.friend.application.dto.response.FriendReque
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequest;
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequestStatus;
 import com.project.dorumdorum.domain.friend.domain.repository.FriendRequestRepository;
+import com.project.dorumdorum.domain.friend.domain.repository.FriendshipRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import static com.project.dorumdorum.global.exception.code.status.GlobalErrorSta
 @Service
 @RequiredArgsConstructor
 public class FriendRequestService {
+
     private final FriendRequestRepository friendRequestRepository;
 
     public void saveRequest(Long fromUser, Long toUser) {
@@ -26,19 +28,25 @@ public class FriendRequestService {
         friendRequestRepository.save(newFriendRequest);
     }
 
-    public void acceptRequest(Long toUser, Long requestNo) {
+    public FriendRequest acceptRequest(Long toUser, Long requestNo) {
         FriendRequest friendRequest = friendRequestRepository.findById(requestNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
-        if(friendRequest.getToUser().equals(toUser)) {
+        if(friendRequest.getToUser().equals(toUser) && friendRequest.getStatus().equals(FriendRequestStatus.PENDING)) {
             friendRequest.acceptRequest();
+            return friendRequest;
+        } else {
+            throw new RestApiException(_NOT_FOUND);
         }
     }
 
-    public void rejectRequest(Long toUser, Long requestNo) {
+    public FriendRequest rejectRequest(Long toUser, Long requestNo) {
         FriendRequest friendRequest = friendRequestRepository.findById(requestNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
-        if(friendRequest.getToUser().equals(toUser)) {
+        if(friendRequest.getToUser().equals(toUser) && friendRequest.getStatus().equals(FriendRequestStatus.PENDING)) {
             friendRequest.rejectRequest();
+            return friendRequest;
+        } else {
+            throw new RestApiException(_NOT_FOUND);
         }
     }
 

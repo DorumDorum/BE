@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.friend.domain.entity;
 
-
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
