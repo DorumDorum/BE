@@ -6,9 +6,12 @@ import com.project.dorumdorum.domain.friend.domain.entity.FriendRequestStatus;
 import com.project.dorumdorum.domain.friend.domain.repository.FriendRequestRepository;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 
+import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +27,31 @@ public class FriendRequestService {
         friendRequestRepository.save(newFriendRequest);
     }
 
-    public boolean existFriendRequest(User fromUser) {
+    public void acceptRequest(User toUser, Long requestNo) {
+        FriendRequest friendRequest = friendRequestRepository.findById(requestNo)
+                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+        if(friendRequest.getToUser().equals(toUser)) {
+            friendRequest.acceptRequest(requestNo);
+        }
+    }
+
+    public void rejectRequest(User toUser, Long requestNo) {
+        FriendRequest friendRequest = friendRequestRepository.findById(requestNo)
+                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+        if(friendRequest.getToUser().equals(toUser)) {
+            friendRequest.rejectRequest(requestNo);
+        }
+    }
+
+    public boolean existFriendRequestByFromUser(User fromUser) {
+        return (!friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING).isEmpty());
+    }
+
+    public boolean existFriendRequestByRequestNo(Long requestNo) {
+        return (!friendRequestRepository.findByFriendRequestNo(requestNo).isEmpty());
+    }
+
+    public boolean existFriendRequestByToUser(User fromUser) {
         return (!friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING).isEmpty());
     }
 
@@ -33,6 +60,8 @@ public class FriendRequestService {
     }
 
     public List<FriendRequestListResponse> getReceivedFriendRequestList(User toUser) {
-        return FriendRequestListResponse.create(friendRequestRepository.findByToUser(toUser));
+        return FriendRequestListResponse.create(friendRequestRepository.findByToUserAndStatus(toUser, FriendRequestStatus.PENDING));
     }
+
+
 }

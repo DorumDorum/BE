@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class FriendRequestOutboxController {
 
-    private final SendFriendRequestUseCase friendRequestUseCase;
+    private final SendFriendRequestUseCase sendfriendRequestUseCase;
 
     @PostMapping("/api/friend-request")
     public BaseResponse<Void> sendFriendRequest(
             @CurrentUser Long userNo,
             @RequestBody @Valid FriendRequestRequest request
     ) {
-        friendRequestUseCase.execute(userNo, request);
+        sendfriendRequestUseCase.execute(userNo, request);
         return BaseResponse.onSuccess();
     }
 

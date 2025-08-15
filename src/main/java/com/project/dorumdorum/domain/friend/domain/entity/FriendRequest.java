@@ -27,5 +27,12 @@ public class FriendRequest {
     @Column(nullable = false)
     private FriendRequestStatus status;
 
+    public void acceptRequest(Long requestNo) {
+        this.status = FriendRequestStatus.ACCEPTED;
+    }
+
+    public void rejectRequest(Long requestNo) {
+        this.status = FriendRequestStatus.REJECTED;
+    }
 
 }

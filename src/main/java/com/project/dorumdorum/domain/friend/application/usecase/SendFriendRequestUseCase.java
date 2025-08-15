@@ -24,7 +24,7 @@ public class SendFriendRequestUseCase {
         User toUser = userService.findByEmail(request.email());
 
         if(fromUser.equals(toUser)) { throw new RestApiException(GlobalErrorStatus.FRIEND_SELF_REQUEST); }
-        if(friendshipRequestService.existFriendRequest(fromUser)) { throw new RestApiException(GlobalErrorStatus.DUPLICATE_FRIEND_REQUEST); }
+        if(friendshipRequestService.existFriendRequestByFromUser(fromUser)) { throw new RestApiException(GlobalErrorStatus.DUPLICATE_FRIEND_REQUEST); }
         if(friendshipRequestService.areAlreadyFriends(fromUser, toUser)) { throw new RestApiException(GlobalErrorStatus.ALREADY_FRIEND); }
 
         friendshipRequestService.saveRequest(fromUser, toUser);
