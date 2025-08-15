@@ -14,7 +14,7 @@ public class InitiateRoomConfirmationController {
 
     private final InitiateRoomConfirmationUseCase initiateRoomConfirmationUseCase;
 
-    @PostMapping("/api/room/{roomNo}")
+    @PostMapping("/api/room/{roomNo}/confirm")
     public BaseResponse<Void> init(
             @CurrentUser Long userNo,
             @PathVariable Long roomNo

@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.room.domain.entity;
 
+import com.project.dorumdorum.global.common.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class Room {
+public class Room extends BaseEntity {
 
     @Id @Tsid
     private Long roomNo;
@@ -24,7 +25,9 @@ public class Room {
 
     private Integer capacity;
 
-    private Integer current_mate_count;
+    private Integer currentMateCount;
+
+    private Integer confirmMateCount;
 
     private List<Tag> tags;
 
@@ -32,16 +35,29 @@ public class Room {
 
     @PrePersist
     public void init() {
-        this.current_mate_count = 1;
+        this.currentMateCount = 1;
+        this.confirmMateCount = 0;
         this.roomStatus = RoomStatus.CONFIRM_PENDING;
     }
 
     public void plusCurrentMate() {
-        this.current_mate_count++;
+        this.currentMateCount++;
+    }
+
+    public void plusConfirmMate() {
+        this.confirmMateCount++;
+    }
+
+    public void minusCurrentMate() {
+        this.currentMateCount--;
+    }
+
+    public void clearConfirmMate() {
+        this.confirmMateCount = 0;
     }
 
     public boolean isFull() {
-        return this.current_mate_count.equals(capacity);
+        return this.currentMateCount.equals(capacity);
     }
 
     public boolean isPending() {
