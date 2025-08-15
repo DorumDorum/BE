@@ -2,11 +2,10 @@ package com.project.dorumdorum.domain.friend.application.usecase;
 
 import com.project.dorumdorum.domain.friend.service.FriendRequestService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
-import com.project.dorumdorum.domain.friend.application.dto.request.FriendRequestRequest;
-import com.project.dorumdorum.domain.user.domain.entity.User;
-
+import com.project.dorumdorum.domain.friend.application.dto.request.SendFriendRequest;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,9 +18,9 @@ public class SendFriendRequestUseCase {
     private final FriendRequestService friendshipRequestService;
 
     @Transactional
-    public void execute(Long userNo, FriendRequestRequest request) {
-        User fromUser = userService.findById(userNo);
-        User toUser = userService.findByEmail(request.email());
+    public void execute(Long fromUser, SendFriendRequest request) {
+        userService.validateExistsById(fromUser);
+        Long toUser = request.toUser();
 
         if(fromUser.equals(toUser)) { throw new RestApiException(GlobalErrorStatus.FRIEND_SELF_REQUEST); }
         if(friendshipRequestService.existFriendRequestByFromUser(fromUser)) { throw new RestApiException(GlobalErrorStatus.DUPLICATE_FRIEND_REQUEST); }

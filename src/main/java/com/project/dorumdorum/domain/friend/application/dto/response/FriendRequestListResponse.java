@@ -15,8 +15,8 @@ public record FriendRequestListResponse(
     public static List<FriendRequestListResponse> create(List<FriendRequest> requests) {
         return requests.stream().map(request -> new FriendRequestListResponse(
                 request.getFriendRequestNo(),
-                request.getFromUser().getUserNo(),
-                request.getToUser().getUserNo(),
+                request.getFromUser(),
+                request.getToUser(),
                 request.getStatus()
         )).collect(Collectors.toList());
     }

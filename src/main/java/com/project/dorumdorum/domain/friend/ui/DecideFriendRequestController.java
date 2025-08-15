@@ -1,28 +1,23 @@
 package com.project.dorumdorum.domain.friend.ui;
 
 
-import com.project.dorumdorum.domain.friend.application.dto.response.FriendRequestListResponse;
-import com.project.dorumdorum.domain.friend.application.usecase.FriendRequestDecisionUseCase;
+import com.project.dorumdorum.domain.friend.application.usecase.DecideFriendRequestUseCase;
 import com.project.dorumdorum.domain.friend.application.usecase.GetFriendRequestListUseCase;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/friend-requests")
-public class FriendRequestInboxController {
+public class DecideFriendRequestController {
 
     private final GetFriendRequestListUseCase getFriendRequestListUseCase;
-    private final FriendRequestDecisionUseCase friendRequestDecisionUseCase;
+    private final DecideFriendRequestUseCase friendRequestDecisionUseCase;
 
-    @GetMapping("/received")
-    public BaseResponse<List<FriendRequestListResponse>> getReceivedFriendRequestList(@CurrentUser Long userNo) {
-        return BaseResponse.onSuccess(getFriendRequestListUseCase.execute(userNo));
-    }
+
 
     @PostMapping("/{requestNo}/accept")
     public BaseResponse<Void> acceptFriendRequest(

@@ -1,14 +1,12 @@
 package com.project.dorumdorum.domain.friend.domain.entity;
 
-
-import com.project.dorumdorum.domain.user.domain.entity.User;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(
-        name = "frinedship",
+        name = "friendship",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "unique_friendship_pair",
@@ -28,11 +26,9 @@ public class Friendship {
     @Id @Tsid
     private Long friendshipNo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_no", nullable = false)
-    private User userNo;
+    @Column(name = "user_no", nullable = false)
+    private Long userNo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "friend_user_no", nullable = false)
-    private User friendUserNo;
+    @Column(name = "friend_user_no", nullable = false)
+    private Long friendUserNo;
 }

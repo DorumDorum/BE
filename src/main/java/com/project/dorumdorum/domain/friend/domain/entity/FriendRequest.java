@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.friend.domain.entity;
 
-import com.project.dorumdorum.domain.user.domain.entity.User;
+
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,23 +15,21 @@ public class FriendRequest {
     @Id @Tsid
     private Long friendRequestNo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "from_user", nullable = false)
-    private User fromUser;
+    @Column(name = "from_user", nullable = false)
+    private Long fromUser;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to_user", nullable = false)
-    private User toUser;
+    @Column(name = "to_user", nullable = false)
+    private Long toUser;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FriendRequestStatus status;
 
-    public void acceptRequest(Long requestNo) {
+    public void acceptRequest() {
         this.status = FriendRequestStatus.ACCEPTED;
     }
 
-    public void rejectRequest(Long requestNo) {
+    public void rejectRequest() {
         this.status = FriendRequestStatus.REJECTED;
     }
 

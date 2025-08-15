@@ -4,9 +4,8 @@ import com.project.dorumdorum.domain.friend.application.dto.response.FriendReque
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequest;
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequestStatus;
 import com.project.dorumdorum.domain.friend.domain.repository.FriendRequestRepository;
-import com.project.dorumdorum.domain.user.domain.entity.User;
-
 import com.project.dorumdorum.global.exception.RestApiException;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -18,7 +17,7 @@ import static com.project.dorumdorum.global.exception.code.status.GlobalErrorSta
 public class FriendRequestService {
     private final FriendRequestRepository friendRequestRepository;
 
-    public void saveRequest(User fromUser, User toUser) {
+    public void saveRequest(Long fromUser, Long toUser) {
         FriendRequest newFriendRequest = FriendRequest.builder()
                 .fromUser(fromUser)
                 .toUser(toUser)
@@ -27,23 +26,23 @@ public class FriendRequestService {
         friendRequestRepository.save(newFriendRequest);
     }
 
-    public void acceptRequest(User toUser, Long requestNo) {
+    public void acceptRequest(Long toUser, Long requestNo) {
         FriendRequest friendRequest = friendRequestRepository.findById(requestNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
         if(friendRequest.getToUser().equals(toUser)) {
-            friendRequest.acceptRequest(requestNo);
+            friendRequest.acceptRequest();
         }
     }
 
-    public void rejectRequest(User toUser, Long requestNo) {
+    public void rejectRequest(Long toUser, Long requestNo) {
         FriendRequest friendRequest = friendRequestRepository.findById(requestNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
         if(friendRequest.getToUser().equals(toUser)) {
-            friendRequest.rejectRequest(requestNo);
+            friendRequest.rejectRequest();
         }
     }
 
-    public boolean existFriendRequestByFromUser(User fromUser) {
+    public boolean existFriendRequestByFromUser(Long fromUser) {
         return (!friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING).isEmpty());
     }
 
@@ -51,15 +50,15 @@ public class FriendRequestService {
         return (!friendRequestRepository.findByFriendRequestNo(requestNo).isEmpty());
     }
 
-    public boolean existFriendRequestByToUser(User fromUser) {
+    public boolean existFriendRequestByToUser(Long fromUser) {
         return (!friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING).isEmpty());
     }
 
-    public boolean areAlreadyFriends(User fromUser, User toUser) {
+    public boolean areAlreadyFriends(Long fromUser, Long toUser) {
         return (!friendRequestRepository.findByFromUserAndToUser(fromUser, toUser).isEmpty());
     }
 
-    public List<FriendRequestListResponse> getReceivedFriendRequestList(User toUser) {
+    public List<FriendRequestListResponse> getReceivedFriendRequestList(Long toUser) {
         return FriendRequestListResponse.create(friendRequestRepository.findByToUserAndStatus(toUser, FriendRequestStatus.PENDING));
     }
 
