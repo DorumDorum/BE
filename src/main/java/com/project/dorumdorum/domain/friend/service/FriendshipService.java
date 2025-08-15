@@ -1,10 +1,12 @@
 package com.project.dorumdorum.domain.friend.service;
 
+import com.project.dorumdorum.domain.friend.application.dto.response.GetFriendListResponse;
 import com.project.dorumdorum.domain.friend.domain.entity.Friendship;
 import com.project.dorumdorum.domain.friend.domain.repository.FriendshipRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,5 +28,9 @@ public class FriendshipService {
 
     public boolean areAlreadyFriends(Long fromUser, Long toUser) {
         return (!friendshipRepository.findByUserNoAndFriendUserNo(fromUser, toUser).isEmpty());
+    }
+
+    public List<GetFriendListResponse> getFriendList(Long userNo) {
+        return GetFriendListResponse.create(friendshipRepository.getFriendListByUserNo(userNo));
     }
 }

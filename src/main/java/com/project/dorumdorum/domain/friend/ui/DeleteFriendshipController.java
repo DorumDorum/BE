@@ -15,7 +15,7 @@ public class DeleteFriendshipController {
 
     private final DeleteFriendshipUseCase deleteFriendshipUseCase;
 
-    @DeleteMapping("/api/friend-requests/{friendUserNo}")
+    @DeleteMapping("/api/friend/{friendUserNo}")
     public BaseResponse<Void> deleteFriendship(
             @CurrentUser Long userNo,
             @PathVariable Long friendUserNo
