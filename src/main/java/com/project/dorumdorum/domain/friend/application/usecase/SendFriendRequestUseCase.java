@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class FriendRequestUseCase {
+public class SendFriendRequestUseCase {
 
     private final UserService userService;
     private final FriendRequestService friendshipRequestService;
