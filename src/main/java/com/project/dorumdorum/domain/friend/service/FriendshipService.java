@@ -20,7 +20,11 @@ public class FriendshipService {
         friendshipRepository.save(newFriendship);
     }
 
-    public void removeFriendship(Long fromUser, Long toUser) {
-        
+    public void deleteFriendship(Long fromUser, Long toUser) {
+        friendshipRepository.deleteByUserNoAndFriendUserNo(fromUser, toUser);
+    }
+
+    public boolean areAlreadyFriends(Long fromUser, Long toUser) {
+        return (!friendshipRepository.findByUserNoAndFriendUserNo(fromUser, toUser).isEmpty());
     }
 }

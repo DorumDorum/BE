@@ -4,7 +4,6 @@ import com.project.dorumdorum.domain.friend.application.dto.response.FriendReque
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequest;
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequestStatus;
 import com.project.dorumdorum.domain.friend.domain.repository.FriendRequestRepository;
-import com.project.dorumdorum.domain.friend.domain.repository.FriendshipRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 
 import lombok.RequiredArgsConstructor;
@@ -39,12 +38,11 @@ public class FriendRequestService {
         }
     }
 
-    public FriendRequest rejectRequest(Long toUser, Long requestNo) {
+    public void rejectRequest(Long toUser, Long requestNo) {
         FriendRequest friendRequest = friendRequestRepository.findById(requestNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
         if(friendRequest.getToUser().equals(toUser) && friendRequest.getStatus().equals(FriendRequestStatus.PENDING)) {
             friendRequest.rejectRequest();
-            return friendRequest;
         } else {
             throw new RestApiException(_NOT_FOUND);
         }
@@ -60,10 +58,6 @@ public class FriendRequestService {
 
     public boolean existFriendRequestByToUser(Long fromUser) {
         return (!friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING).isEmpty());
-    }
-
-    public boolean areAlreadyFriends(Long fromUser, Long toUser) {
-        return (!friendRequestRepository.findByFromUserAndToUser(fromUser, toUser).isEmpty());
     }
 
     public List<FriendRequestListResponse> getReceivedFriendRequestList(Long toUser) {

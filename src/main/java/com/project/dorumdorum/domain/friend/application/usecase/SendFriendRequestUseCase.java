@@ -1,6 +1,7 @@
 package com.project.dorumdorum.domain.friend.application.usecase;
 
 import com.project.dorumdorum.domain.friend.service.FriendRequestService;
+import com.project.dorumdorum.domain.friend.service.FriendshipService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.domain.friend.application.dto.request.SendFriendRequest;
 import com.project.dorumdorum.global.exception.RestApiException;
@@ -15,7 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class SendFriendRequestUseCase {
 
     private final UserService userService;
-    private final FriendRequestService friendshipRequestService;
+    private final FriendRequestService friendRequestService;
+    private final FriendshipService friendshipService;
 
     @Transactional
     public void execute(Long fromUser, SendFriendRequest request) {
@@ -23,10 +25,10 @@ public class SendFriendRequestUseCase {
         Long toUser = request.toUser();
 
         if(fromUser.equals(toUser)) { throw new RestApiException(GlobalErrorStatus.FRIEND_SELF_REQUEST); }
-        if(friendshipRequestService.existFriendRequestByFromUser(fromUser)) { throw new RestApiException(GlobalErrorStatus.DUPLICATE_FRIEND_REQUEST); }
-        if(friendshipRequestService.areAlreadyFriends(fromUser, toUser)) { throw new RestApiException(GlobalErrorStatus.ALREADY_FRIEND); }
+        if(friendRequestService.existFriendRequestByFromUser(fromUser)) { throw new RestApiException(GlobalErrorStatus.DUPLICATE_FRIEND_REQUEST); }
+        if(friendshipService.areAlreadyFriends(fromUser, toUser)) { throw new RestApiException(GlobalErrorStatus.ALREADY_FRIEND); }
 
-        friendshipRequestService.saveRequest(fromUser, toUser);
+        friendRequestService.saveRequest(fromUser, toUser);
     }
 
 }
