@@ -21,4 +21,12 @@ public class FriendRequestService {
                 .build();
         friendRequestRepository.save(newFriendRequest);
     }
+
+    public boolean existFriendRequest(User fromUser) {
+        return (!friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING).isEmpty());
+    }
+
+    public boolean areAlreadyFriends(User fromUser, User toUser) {
+        return (!friendRequestRepository.findByFromUserAndToUser(fromUser, toUser).isEmpty());
+    }
 }

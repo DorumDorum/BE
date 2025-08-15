@@ -5,6 +5,8 @@ import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.domain.friend.application.dto.request.FriendRequestRequest;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 
+import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +23,10 @@ public class FriendRequestUseCase {
         User fromUser = userService.findById(userNo);
         User toUser = userService.findByEmail(request.email());
 
-        if(fromUser.equals(toUser)) { /* 요청을 보낸 이와 받는 이가 같을 때 exception 처리*/ }
+        if(fromUser.equals(toUser)) { throw new RestApiException(GlobalErrorStatus.FRIEND_SELF_REQUEST); }
+        if(friendshipRequestService.existFriendRequest(fromUser)) { throw new RestApiException(GlobalErrorStatus.DUPLICATE_FRIEND_REQUEST); }
+        if(friendshipRequestService.areAlreadyFriends(fromUser, toUser)) { throw new RestApiException(GlobalErrorStatus.ALREADY_FRIEND); }
+
         friendshipRequestService.saveRequest(fromUser, toUser);
     }
 
