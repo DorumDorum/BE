@@ -27,9 +27,10 @@ public class FriendRequestService {
         friendRequestRepository.save(newFriendRequest);
     }
 
-    public FriendRequest acceptRequest(Long toUser, Long requestNo) {
-        FriendRequest friendRequest = friendRequestRepository.findById(requestNo)
+    public FriendRequest acceptRequest(Long toUser, Long friendRequestNo) {
+        FriendRequest friendRequest = friendRequestRepository.findById(friendRequestNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+        //
         if(friendRequest.getToUser().equals(toUser) && friendRequest.getStatus().equals(FriendRequestStatus.PENDING)) {
             friendRequest.acceptRequest();
             return friendRequest;
@@ -38,8 +39,8 @@ public class FriendRequestService {
         }
     }
 
-    public void rejectRequest(Long toUser, Long requestNo) {
-        FriendRequest friendRequest = friendRequestRepository.findById(requestNo)
+    public void rejectRequest(Long toUser, Long friendRequestNo) {
+        FriendRequest friendRequest = friendRequestRepository.findById(friendRequestNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
         if(friendRequest.getToUser().equals(toUser) && friendRequest.getStatus().equals(FriendRequestStatus.PENDING)) {
             friendRequest.rejectRequest();
@@ -52,8 +53,8 @@ public class FriendRequestService {
         return (!friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING).isEmpty());
     }
 
-    public boolean existFriendRequestByRequestNo(Long requestNo) {
-        return (!friendRequestRepository.findByFriendRequestNo(requestNo).isEmpty());
+    public boolean existFriendRequestByRequestNo(Long friendRequestNo) {
+        return (!friendRequestRepository.findByFriendRequestNo(friendRequestNo).isEmpty());
     }
 
     public boolean existFriendRequestByToUser(Long fromUser) {

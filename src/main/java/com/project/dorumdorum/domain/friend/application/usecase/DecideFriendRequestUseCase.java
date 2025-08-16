@@ -18,17 +18,17 @@ public class DecideFriendRequestUseCase {
     private final FriendshipService friendshipService;
 
     @Transactional
-    public void acceptFriendRequest(Long toUser, Long friendUserNo) {
+    public void acceptFriendRequest(Long toUser, Long friendRequestNo) {
         userService.validateExistsById(toUser);
         // 수락 상태로 변경 후 friendship 테이블에 추가
-        FriendRequest acceptedRequest = friendRequestService.acceptRequest(toUser, friendUserNo);
+        FriendRequest acceptedRequest = friendRequestService.acceptRequest(toUser, friendRequestNo);
         friendshipService.addFriendship(acceptedRequest.getFromUser(), acceptedRequest.getToUser());
     }
 
     @Transactional
-    public void rejectFriendRequest(Long toUser, Long friendUserNo) {
+    public void rejectFriendRequest(Long toUser, Long friendRequestNo) {
         userService.validateExistsById(toUser);
 
-        friendRequestService.rejectRequest(toUser, friendUserNo);
+        friendRequestService.rejectRequest(toUser, friendRequestNo);
     }
 }
