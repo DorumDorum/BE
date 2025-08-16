@@ -37,7 +37,19 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
     USER_IN_ROOM(HttpStatus.BAD_REQUEST, "ROOM001", "이미 속한 방입니다."),
     DUPLICATE_JOIN_REQUEST(HttpStatus.BAD_REQUEST, "ROOM002", "이미 전송한 요청입니다."),
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "ROOM003", "존재하지 않는 방입니다."),
-    COMPLETED_ROOM_EXISTS(HttpStatus.BAD_REQUEST, "ROOM004", "이미 확정된 방이 존재하는 유저입니다.")
+    COMPLETED_ROOM_EXISTS(HttpStatus.BAD_REQUEST, "ROOM004", "이미 확정된 방이 존재하는 유저입니다."),
+
+
+    // Friend
+    FRIEND_SELF_REQUEST(HttpStatus.BAD_REQUEST, "FRIEND001", "요청자와 대상자가 같습니다."),
+    DUPLICATE_FRIEND_REQUEST(HttpStatus.BAD_REQUEST, "FRIEND002", "이미 친구 요청을 보냈습니다."),
+    ALREADY_FRIEND(HttpStatus.BAD_REQUEST, "FRIEND003", "이미 친구입니다."),
+    REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "FRIEND004", "존재하지 않는 친구 추가 요청입니다."),
+    FRIENDSHIP_NOT_FOUND(HttpStatus.NOT_FOUND, "FRIEND005", "친구가 아닙니다."),
+    REQUEST_NOT_RECEIVER(HttpStatus.FORBIDDEN, "FRIEND006", "해당 친구추가 요청의 수신자가 아닙니다."),
+    REQUEST_NOT_SENDER(HttpStatus.FORBIDDEN, "FRIEND007", "해당 친구추가 요청의 발신자가 아닙니다."),
+    REQUEST_NOT_PENDING(HttpStatus.BAD_REQUEST, "FRIEND008", "해당 친구추가 요청이 대기 상태가 아닙니다.")
+
     ;
 
     private final HttpStatus httpStatus;
