@@ -41,6 +41,17 @@ public class FriendRequestService {
         friendRequest.rejectRequest();
     }
 
+    public void cancelRequest(FriendRequest friendRequest) {
+        friendRequestRepository.deleteByFriendRequestNo(friendRequest.getFriendRequestNo());
+    }
+
+    public List<FriendRequestListResponse> getReceivedFriendRequestList(Long toUser) {
+        return FriendRequestListResponse.create(friendRequestRepository.findByToUserAndStatus(toUser, FriendRequestStatus.PENDING));
+    }
+
+    public List<FriendRequestListResponse> getSentFriendRequestList(Long fromUser) {
+        return FriendRequestListResponse.create(friendRequestRepository.findByFromUserAndStatus(fromUser,  FriendRequestStatus.PENDING));
+    }
 
     public boolean existFriendRequestByFromUser(Long fromUser) {
         return (!friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING).isEmpty());
@@ -53,10 +64,4 @@ public class FriendRequestService {
     public boolean existFriendRequestByToUser(Long fromUser) {
         return (!friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING).isEmpty());
     }
-
-    public List<FriendRequestListResponse> getReceivedFriendRequestList(Long toUser) {
-        return FriendRequestListResponse.create(friendRequestRepository.findByToUserAndStatus(toUser, FriendRequestStatus.PENDING));
-    }
-
-
 }

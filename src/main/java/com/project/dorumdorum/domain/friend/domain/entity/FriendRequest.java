@@ -32,6 +32,7 @@ public class FriendRequest {
         this.status = FriendRequestStatus.REJECTED;
     }
 
+
     public boolean isReceiver(Long toUser) {
         return this.toUser.equals(toUser);
     }
@@ -40,4 +41,7 @@ public class FriendRequest {
         return this.status.equals(FriendRequestStatus.PENDING);
     }
 
+    public boolean isSender(Long fromUser) {
+        return this.fromUser.equals(fromUser);
+    }
 }
