@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.friend.ui;
 
 import com.project.dorumdorum.domain.friend.application.dto.response.FriendRequestListResponse;
-import com.project.dorumdorum.domain.friend.application.usecase.GetFriendRequestListUseCase;
+import com.project.dorumdorum.domain.friend.application.usecase.GetReceivedFriendRequestListUseCase;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 
@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GetReceivedFriendRequestListController {
 
-    private final GetFriendRequestListUseCase getFriendRequestListUseCase;
+    private final GetReceivedFriendRequestListUseCase getFriendRequestListUseCase;
 
     @GetMapping("/api/friend-requests/received")
     public BaseResponse<List<FriendRequestListResponse>> getReceivedFriendRequestList(@CurrentUser Long userNo) {

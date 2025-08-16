@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetFriendRequestListUseCase {
+public class GetReceivedFriendRequestListUseCase {
 
     private final UserService userService;
     private final FriendRequestService friendRequestService;

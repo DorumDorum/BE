@@ -22,13 +22,18 @@ public class SendFriendRequestUseCase {
     @Transactional
     public void execute(Long fromUser, SendFriendRequest request) {
         userService.validateExistsById(fromUser);
-        Long toUser = request.toUser();
+        Long toUserNo = request.toUser();
 
-        if(fromUser.equals(toUser)) { throw new RestApiException(GlobalErrorStatus.FRIEND_SELF_REQUEST); }
-        if(friendRequestService.existFriendRequestByFromUser(fromUser)) { throw new RestApiException(GlobalErrorStatus.DUPLICATE_FRIEND_REQUEST); }
-        if(friendshipService.areAlreadyFriends(fromUser, toUser)) { throw new RestApiException(GlobalErrorStatus.ALREADY_FRIEND); }
+        if(fromUser.equals(toUserNo))
+            throw new RestApiException(GlobalErrorStatus.FRIEND_SELF_REQUEST);
 
-        friendRequestService.saveRequest(fromUser, toUser);
+        if(friendRequestService.existFriendRequestByFromUser(fromUser))
+            throw new RestApiException(GlobalErrorStatus.DUPLICATE_FRIEND_REQUEST);
+
+        if(friendshipService.areAlreadyFriends(fromUser, toUserNo))
+            throw new RestApiException(GlobalErrorStatus.ALREADY_FRIEND);
+
+        friendRequestService.saveRequest(fromUser, toUserNo);
     }
 
 }

@@ -17,6 +17,7 @@ public class GetFriendshipUseCase {
 
     public List<GetFriendListResponse> execute(long userNo) {
         userService.validateExistsById(userNo);
+
         return friendshipService.getFriendList(userNo);
     }
 }

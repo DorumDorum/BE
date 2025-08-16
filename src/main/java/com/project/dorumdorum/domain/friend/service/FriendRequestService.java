@@ -41,15 +41,6 @@ public class FriendRequestService {
         friendRequest.rejectRequest();
     }
 
-    public void validateRequest(Long currentUserNo, FriendRequest friendRequest) {
-        // 현재 유저가 요청을 받은 유저가 맞는지 확인 및 요청이 PENDING 상태인지 확인
-        if(friendRequest.getToUser().equals(currentUserNo)) {
-            throw new RestApiException(GlobalErrorStatus.REQUEST_NOT_RECEIVER);
-        }
-        if(friendRequest.getStatus().equals(FriendRequestStatus.PENDING)) {
-            throw new RestApiException(GlobalErrorStatus.REQUEST_NOT_PENDING);
-        }
-    }
 
     public boolean existFriendRequestByFromUser(Long fromUser) {
         return (!friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING).isEmpty());

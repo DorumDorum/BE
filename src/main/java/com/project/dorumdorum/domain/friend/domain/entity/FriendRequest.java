@@ -32,4 +32,12 @@ public class FriendRequest {
         this.status = FriendRequestStatus.REJECTED;
     }
 
+    public boolean isReceiver(Long toUser) {
+        return this.toUser.equals(toUser);
+    }
+
+    public boolean isPendingStatus() {
+        return this.status.equals(FriendRequestStatus.PENDING);
+    }
+
 }

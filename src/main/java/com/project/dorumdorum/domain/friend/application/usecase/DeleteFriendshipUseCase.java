@@ -20,11 +20,12 @@ public class DeleteFriendshipUseCase {
     public void execute(Long userNo, Long friendUserNo) {
         userService.validateExistsById(friendUserNo);
 
-        if (friendshipService.areAlreadyFriends(userNo, friendUserNo)) {
-            friendshipService.deleteFriendship(userNo, friendUserNo);
-        } else {
-            throw new RestApiException(GlobalErrorStatus.FRIENDSHIP_NOT_FOUND);
-        }
+        if(userNo.equals(friendUserNo))
+            throw new RestApiException(GlobalErrorStatus.FRIEND_SELF_REQUEST);
 
+        if (!friendshipService.areAlreadyFriends(userNo, friendUserNo))
+            throw new RestApiException(GlobalErrorStatus.FRIENDSHIP_NOT_FOUND);
+
+        friendshipService.deleteFriendship(userNo, friendUserNo);
     }
 }
