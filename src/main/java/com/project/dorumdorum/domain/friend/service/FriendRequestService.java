@@ -5,18 +5,24 @@ import com.project.dorumdorum.domain.friend.domain.entity.FriendRequest;
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequestStatus;
 import com.project.dorumdorum.domain.friend.domain.repository.FriendRequestRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class FriendRequestService {
 
     private final FriendRequestRepository friendRequestRepository;
+
+    public FriendRequest findById(Long friendRequestNo) {
+        return friendRequestRepository.findById(friendRequestNo)
+                .orElseThrow(() -> new RestApiException(GlobalErrorStatus._NOT_FOUND));
+    }
 
     public void saveRequest(Long fromUser, Long toUser) {
         FriendRequest newFriendRequest = FriendRequest.builder()
@@ -27,25 +33,21 @@ public class FriendRequestService {
         friendRequestRepository.save(newFriendRequest);
     }
 
-    public FriendRequest acceptRequest(Long toUser, Long friendRequestNo) {
-        FriendRequest friendRequest = friendRequestRepository.findById(friendRequestNo)
-                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
-        //
-        if(friendRequest.getToUser().equals(toUser) && friendRequest.getStatus().equals(FriendRequestStatus.PENDING)) {
-            friendRequest.acceptRequest();
-            return friendRequest;
-        } else {
-            throw new RestApiException(_NOT_FOUND);
-        }
+    public void acceptRequest(FriendRequest friendRequest) {
+        friendRequest.acceptRequest();
     }
 
-    public void rejectRequest(Long toUser, Long friendRequestNo) {
-        FriendRequest friendRequest = friendRequestRepository.findById(friendRequestNo)
-                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
-        if(friendRequest.getToUser().equals(toUser) && friendRequest.getStatus().equals(FriendRequestStatus.PENDING)) {
-            friendRequest.rejectRequest();
-        } else {
-            throw new RestApiException(_NOT_FOUND);
+    public void rejectRequest(FriendRequest friendRequest) {
+        friendRequest.rejectRequest();
+    }
+
+    public void validateRequest(Long currentUserNo, FriendRequest friendRequest) {
+        // 현재 유저가 요청을 받은 유저가 맞는지 확인 및 요청이 PENDING 상태인지 확인
+        if(friendRequest.getToUser().equals(currentUserNo)) {
+            throw new RestApiException(GlobalErrorStatus.REQUEST_NOT_RECEIVER);
+        }
+        if(friendRequest.getStatus().equals(FriendRequestStatus.PENDING)) {
+            throw new RestApiException(GlobalErrorStatus.REQUEST_NOT_PENDING);
         }
     }
 

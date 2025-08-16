@@ -20,15 +20,29 @@ public class DecideFriendRequestUseCase {
     @Transactional
     public void acceptFriendRequest(Long toUser, Long friendRequestNo) {
         userService.validateExistsById(toUser);
-        // 수락 상태로 변경 후 friendship 테이블에 추가
-        FriendRequest acceptedRequest = friendRequestService.acceptRequest(toUser, friendRequestNo);
-        friendshipService.addFriendship(acceptedRequest.getFromUser(), acceptedRequest.getToUser());
+        // 친구 요청 객체 받기 (검증 후)
+        FriendRequest friendRequest = friendRequestService.findById(friendRequestNo);
+
+        // 친구 요청 검증 (현재 유저가 수락할 권한이 있는지, 친구추가 요청이 PENDING 상태인지)
+        friendRequestService.validateRequest(toUser, friendRequest);
+
+        // 친구 수락
+        friendRequestService.acceptRequest(friendRequest);
+
+        // Friendship 테이블에 친구 등록
+        friendshipService.addFriendship(friendRequest.getFromUser(), friendRequest.getToUser());
     }
 
     @Transactional
     public void rejectFriendRequest(Long toUser, Long friendRequestNo) {
         userService.validateExistsById(toUser);
+        // 친구 요청 객체 받기 (검증 후)
+        FriendRequest friendRequest = friendRequestService.findById(friendRequestNo);
 
-        friendRequestService.rejectRequest(toUser, friendRequestNo);
+        // 친구 요청 검증 (현재 유저가 수락할 권한이 있는지, 친구추가 요청이 PENDING 상태인지)
+        friendRequestService.validateRequest(toUser, friendRequest);
+
+        // 친구 거절
+        friendRequestService.rejectRequest(friendRequest);
     }
 }

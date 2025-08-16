@@ -45,7 +45,9 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
     DUPLICATE_FRIEND_REQUEST(HttpStatus.BAD_REQUEST, "FRIEND002", "이미 친구 요청을 보냈습니다."),
     ALREADY_FRIEND(HttpStatus.BAD_REQUEST, "FRIEND003", "이미 친구입니다."),
     REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "FRIEND004", "존재하지 않는 친구 추가 요청입니다."),
-    FRIENDSHIP_NOT_FOUND(HttpStatus.NOT_FOUND, "FRIEND005", "친구가 아닙니다.")
+    FRIENDSHIP_NOT_FOUND(HttpStatus.NOT_FOUND, "FRIEND005", "친구가 아닙니다."),
+    REQUEST_NOT_RECEIVER(HttpStatus.FORBIDDEN, "FRIEND006", "해당 친구추가 요청의 수신자가 아닙니다."),
+    REQUEST_NOT_PENDING(HttpStatus.BAD_REQUEST, "FRIEND007", "해당 친구추가 요청이 대기 상태가 아닙니다.")
 
     ;
 
