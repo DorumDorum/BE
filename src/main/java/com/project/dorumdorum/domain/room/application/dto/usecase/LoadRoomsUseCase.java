@@ -32,7 +32,8 @@ public class LoadRoomsUseCase {
             Integer cursor
     ) {
         int limitPlusOne = PaginationHelper.limitPlusOne(limit);
-        List<Room> rooms = roomService.findByCursor(relation, tags, type, capacity, sort, cursor);
+//        List<Room> rooms = roomService.findByCursor(relation, tags, type, capacity, sort, cursor);
+        List<Room> rooms = null;
 
         String nextCursor = rooms.isEmpty() ? null :
                 CursorCodec.encode(rooms.get(rooms.size() - 1).getCreatedAt(),
@@ -42,5 +43,6 @@ public class LoadRoomsUseCase {
                 rooms.stream().map(LoadRoomsResponse::from).toList(),
                 limit,
                 nextCursor
+        );
     }
 }

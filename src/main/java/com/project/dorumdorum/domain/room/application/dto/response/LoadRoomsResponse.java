@@ -2,6 +2,7 @@ package com.project.dorumdorum.domain.room.application.dto.response;
 
 import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
+import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.entity.Tag;
@@ -14,13 +15,19 @@ public record LoadRoomsResponse (
         boolean hasNext,             // 다음 페이지 여부
         Meta meta                    // 메타데이터 (limit, 필터 정보, summary 등)
 ) {
+    public static LoadRoomsResponse from(Room room) {
+        return null;
+    }
+
     public record RoomSummary(
             Long roomNo,
+            RoomType roomType,
+            Integer capacity,
+            Integer currentMateCount,
+            String createdAt,
             String title,
-            String description,
-            Integer remaining,       // 남은 인원
-            List<Tag> additionalTag,
-            String createdAt
+            String hostNickname,
+            List<Tag> additionalTag
     ) {}
 
     public record Meta(
