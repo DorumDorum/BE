@@ -16,7 +16,7 @@ public class CreateRoomController {
 
     private final CreateRoomUseCase createRoomUseCase;
 
-    @PostMapping("/api/room")
+    @PostMapping("/api/rooms")
     public BaseResponse<Void> create(
             @CurrentUser Long userNo,
             @RequestBody @Valid RoomCreateRequest request

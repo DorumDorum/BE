@@ -9,7 +9,7 @@ import java.util.List;
 
 public record RoomCreateRequest(
         @NotNull RoomType roomType,
-        @NotBlank Integer capacity,
+        @NotNull Integer capacity,
         @NotBlank String title,
         @NotNull List<Tag> tags
 ) {}
