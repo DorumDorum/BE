@@ -16,7 +16,7 @@ public class InviteRoomRequestController {
 
     private final InviteRoomRequestUseCase inviteRoomRequestUseCase;
 
-    @PostMapping("/api/room/{roomNo}/invite-request/user/{toUser}")
+    @PostMapping("/api/rooms/{roomNo}/invite-request/user/{toUser}")
     public BaseResponse<Void> invite(
             @CurrentUser Long userNo,
             @PathVariable Long roomNo,

@@ -29,7 +29,20 @@ public class Roommate {
     @Enumerated(EnumType.STRING)
     private RoomRole roomRole;
 
+    @PrePersist
+    public void init() {
+        this.confirmStatus = ConfirmStatus.PENDING;
+    }
+
     public Boolean isCompleted() {
         return this.confirmStatus.equals(ConfirmStatus.COMPLETED);
+    }
+
+    public void cancelConfirm() {
+        this.confirmStatus = ConfirmStatus.PENDING;
+    }
+
+    public void approve() {
+        this.confirmStatus = ConfirmStatus.ACCEPTED;
     }
 }
