@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.friend.application.usecase;
 
-
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequest;
 import com.project.dorumdorum.domain.friend.service.FriendRequestService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;

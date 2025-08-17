@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.friend.application.usecase;
 
-import com.project.dorumdorum.domain.friend.application.dto.response.GetFriendListResponse;
+import com.project.dorumdorum.domain.friend.application.dto.response.LoadFriendshipResponse;
 import com.project.dorumdorum.domain.friend.service.FriendshipService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 
@@ -10,14 +10,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GetFriendshipUseCase {
+public class LoadFriendshipUseCase {
 
     private final UserService userService;
     private final FriendshipService friendshipService;
 
-    public List<GetFriendListResponse> execute(long userNo) {
+    public List<LoadFriendshipResponse> execute(long userNo) {
         userService.validateExistsById(userNo);
 
-        return friendshipService.getFriendList(userNo);
+        return friendshipService.loadFriendList(userNo);
     }
 }

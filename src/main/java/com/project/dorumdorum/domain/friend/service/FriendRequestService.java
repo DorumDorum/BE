@@ -1,15 +1,14 @@
 package com.project.dorumdorum.domain.friend.service;
 
-import com.project.dorumdorum.domain.friend.application.dto.response.FriendRequestListResponse;
+import com.project.dorumdorum.domain.friend.application.dto.response.LoadFriendRequestResponse;
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequest;
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequestStatus;
 import com.project.dorumdorum.domain.friend.domain.repository.FriendRequestRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 
@@ -21,7 +20,7 @@ public class FriendRequestService {
 
     public FriendRequest findById(Long friendRequestNo) {
         return friendRequestRepository.findById(friendRequestNo)
-                .orElseThrow(() -> new RestApiException(GlobalErrorStatus._NOT_FOUND));
+                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
     public void saveRequest(Long fromUser, Long toUser) {
@@ -42,15 +41,21 @@ public class FriendRequestService {
     }
 
     public void cancelRequest(FriendRequest friendRequest) {
-        friendRequestRepository.deleteByFriendRequestNo(friendRequest.getFriendRequestNo());
+        friendRequestRepository.deleteById(friendRequest.getFriendRequestNo());
     }
 
-    public List<FriendRequestListResponse> getReceivedFriendRequestList(Long toUser) {
-        return FriendRequestListResponse.create(friendRequestRepository.findByToUserAndStatus(toUser, FriendRequestStatus.PENDING));
+    public List<LoadFriendRequestResponse> loadReceivedFriendRequestList(Long toUser) {
+        List<FriendRequest> requests = friendRequestRepository.findByToUserAndStatus(toUser, FriendRequestStatus.PENDING);
+        return requests.stream()
+                .map(LoadFriendRequestResponse::create)
+                .toList();
     }
 
-    public List<FriendRequestListResponse> getSentFriendRequestList(Long fromUser) {
-        return FriendRequestListResponse.create(friendRequestRepository.findByFromUserAndStatus(fromUser,  FriendRequestStatus.PENDING));
+    public List<LoadFriendRequestResponse> loadSentFriendRequestList(Long fromUser) {
+        List<FriendRequest> requests = friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING);
+        return requests.stream()
+                .map(LoadFriendRequestResponse::create)
+                .toList();
     }
 
     public boolean existFriendRequestByFromUser(Long fromUser) {

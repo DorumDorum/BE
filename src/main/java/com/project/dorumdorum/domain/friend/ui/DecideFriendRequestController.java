@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.friend.ui;
 
-
 import com.project.dorumdorum.domain.friend.application.usecase.DecideFriendRequestUseCase;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;

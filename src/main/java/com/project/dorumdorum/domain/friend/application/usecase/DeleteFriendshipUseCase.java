@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.friend.application.usecase;
 
+import com.project.dorumdorum.domain.friend.domain.entity.Friendship;
 import com.project.dorumdorum.domain.friend.service.FriendshipService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
@@ -17,15 +18,16 @@ public class DeleteFriendshipUseCase {
     private final FriendshipService friendshipService;
 
     @Transactional
-    public void execute(Long userNo, Long friendUserNo) {
-        userService.validateExistsById(friendUserNo);
+    public void execute(Long userNo, Long friendshipNo) {
+        userService.validateExistsById(userNo);
 
-        if(userNo.equals(friendUserNo))
-            throw new RestApiException(GlobalErrorStatus.FRIEND_SELF_REQUEST);
+        Friendship friendship = friendshipService.findById(friendshipNo);
 
-        if (!friendshipService.areAlreadyFriends(userNo, friendUserNo))
+        // 보낸 친구 pk가 본인의 친구 관계가 아님
+        if(!(friendship.getUserNo().equals(userNo) || friendship.getFriendUserNo().equals(userNo))) {
             throw new RestApiException(GlobalErrorStatus.FRIENDSHIP_NOT_FOUND);
+        }
 
-        friendshipService.deleteFriendship(userNo, friendUserNo);
+        friendshipService.deleteFriendship(friendship);
     }
 }
