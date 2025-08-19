@@ -4,6 +4,7 @@ import com.project.dorumdorum.domain.friend.application.dto.response.LoadFriendR
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequest;
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequestStatus;
 import com.project.dorumdorum.domain.friend.domain.repository.FriendRequestRepository;
+import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
 
@@ -16,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FriendRequestService {
 
+    private final UserService userService;
     private final FriendRequestRepository friendRequestRepository;
 
     public FriendRequest findById(Long friendRequestNo) {
@@ -47,14 +49,14 @@ public class FriendRequestService {
     public List<LoadFriendRequestResponse> loadReceivedFriendRequestList(Long toUser) {
         List<FriendRequest> requests = friendRequestRepository.findByToUserAndStatus(toUser, FriendRequestStatus.PENDING);
         return requests.stream()
-                .map(LoadFriendRequestResponse::create)
+                .map(request -> LoadFriendRequestResponse.create(request, userService.findById(request.getFromUser())))
                 .toList();
     }
 
     public List<LoadFriendRequestResponse> loadSentFriendRequestList(Long fromUser) {
         List<FriendRequest> requests = friendRequestRepository.findByFromUserAndStatus(fromUser, FriendRequestStatus.PENDING);
         return requests.stream()
-                .map(LoadFriendRequestResponse::create)
+                .map(request -> LoadFriendRequestResponse.create(request, userService.findById(request.getToUser())))
                 .toList();
     }
 

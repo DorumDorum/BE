@@ -3,20 +3,23 @@ package com.project.dorumdorum.domain.friend.application.dto.response;
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequest;
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequestStatus;
 
+import com.project.dorumdorum.domain.user.domain.entity.User;
 import lombok.Builder;
 
 @Builder
 public record LoadFriendRequestResponse(
         Long requestNo,
-        Long fromUser,
-        Long toUser,
+        String profileImageURL,
+        String nickname,
+        int age,
+        int grade,
+        String major,
         FriendRequestStatus status
 ) {
-    public static LoadFriendRequestResponse create(FriendRequest request) {
+    public static LoadFriendRequestResponse create(FriendRequest request, User user) {
         return LoadFriendRequestResponse.builder()
                 .requestNo(request.getFriendRequestNo())
-                .fromUser(request.getFromUser())
-                .toUser(request.getToUser())
+                .nickname(user.getNickname())
                 .status(request.getStatus())
                 .build();
     }
