@@ -9,6 +9,7 @@ import com.project.dorumdorum.domain.room.domain.entity.Tag;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.global.pagination.CursorCodec;
 import com.project.dorumdorum.global.pagination.CursorPage;
+import com.project.dorumdorum.global.pagination.DecodedCursor;
 import com.project.dorumdorum.global.pagination.PaginationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,18 +30,38 @@ public class LoadRoomsUseCase {
             RoomType type,
             Integer capacity,
             RoomSort sort,
-            Integer cursor
+            String cursor
     ) {
         int limitPlusOne = PaginationHelper.limitPlusOne(limit);
-//        List<Room> rooms = roomService.findByCursor(relation, tags, type, capacity, sort, cursor);
-        List<Room> rooms = null;
+        DecodedCursor decodedCursor = cursor == null
+                ? null
+                : CursorCodec.decode(cursor);
 
-        String nextCursor = rooms.isEmpty() ? null :
-                CursorCodec.encode(rooms.get(rooms.size() - 1).getCreatedAt(),
-                        rooms.get(rooms.size() - 1).getRoomNo());
+        List<LoadRoomsResponse> responses = roomService.findByCursor(
+                userNo, relation, tags, type, capacity, sort, decodedCursor, limitPlusOne
+        );
 
+        boolean hasNext = responses.size() > limit;
+        List<LoadRoomsResponse> slice = hasNext ? responses.subList(0, limit) : responses;
+
+        String nextCursor = null;
+        if (!slice.isEmpty()) {
+            LoadRoomsResponse last = slice.get(slice.size() - 1);
+            if (sort == RoomSort.REMAINING) {
+                nextCursor = CursorCodec.encodeWithRemaining(
+                    last.capacity() - last.currentMateCount(),
+                    last.createdAt(),
+                    last.roomNo()
+                );
+            } else {
+                nextCursor = CursorCodec.encode(
+                    last.createdAt(),
+                    last.roomNo()
+                );
+            }
+        }
         return PaginationHelper.toCursorPage(
-                rooms.stream().map(LoadRoomsResponse::from).toList(),
+                responses,
                 limit,
                 nextCursor
         );
