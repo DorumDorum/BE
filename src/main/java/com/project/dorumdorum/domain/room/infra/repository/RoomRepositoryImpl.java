@@ -76,16 +76,16 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     private BooleanExpression relationPredicate(Long userNo, RoomRelation relation) {
         if (relation == null) return null;
         return switch (relation) {
-            case APPLIED -> room.roomNo.in(
-                    query.select(roomRequest.room.roomNo)
-                            .from(roomRequest)
-                            .where(roomRequest.userNo.eq(userNo))
-            );
-            case JOINED -> room.roomNo.in(
-                    query.select(roommate.room.roomNo)
-                            .from(roommate)
-                            .where(roommate.userNo.eq(userNo))
-            );
+            case APPLIED -> JPAExpressions
+                    .selectOne()
+                    .from(roomRequest)
+                    .where(roomRequest.room.eq(room), roomRequest.userNo.eq(userNo))
+                    .exists();
+            case JOINED -> JPAExpressions
+                    .selectOne()
+                    .from(roommate)
+                    .where(roommate.room.eq(room), roommate.userNo.eq(userNo))
+                    .exists();
             case RECRUITING -> room.roomStatus.eq(RoomStatus.CONFIRM_PENDING);
         };
     }
