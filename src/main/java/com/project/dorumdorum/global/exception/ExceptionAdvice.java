@@ -3,6 +3,7 @@ package com.project.dorumdorum.global.exception;
 import com.project.dorumdorum.global.common.BaseResponse;
 import com.project.dorumdorum.global.exception.code.BaseCode;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
+@Hidden
 @RestControllerAdvice(annotations = {RestController.class})
 @RequiredArgsConstructor
 public class ExceptionAdvice extends ResponseEntityExceptionHandler {
