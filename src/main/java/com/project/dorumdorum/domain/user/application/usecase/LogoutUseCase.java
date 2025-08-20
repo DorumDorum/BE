@@ -1,0 +1,38 @@
+package com.project.dorumdorum.domain.user.application.usecase;
+
+import com.project.dorumdorum.domain.user.domain.service.RefreshTokenService;
+import com.project.dorumdorum.domain.user.domain.service.TokenBlacklistService;
+import com.project.dorumdorum.domain.user.domain.service.TokenWhitelistService;
+import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.security.TokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+
+import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.*;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class LogoutUseCase {
+
+    private final TokenProvider tokenProvider;
+    private final RefreshTokenService refreshTokenService;
+    private final TokenBlacklistService tokenBlacklistService;
+    private final TokenWhitelistService tokenWhitelistService;
+
+    public void execute(String accessToken) {
+        Long userNo = tokenProvider.getId(accessToken)
+                .orElseThrow(() -> new RestApiException(INVALID_ID_TOKEN));
+
+        Duration expiration = tokenProvider.getRemainingDuration(accessToken)
+                .orElseThrow(() -> new RestApiException(INVALID_ACCESS_TOKEN));
+
+        tokenWhitelistService.deleteWhitelistToken(accessToken);
+        refreshTokenService.deleteRefreshToken(userNo);
+        tokenBlacklistService.blacklist(accessToken, expiration);
+    }
+}

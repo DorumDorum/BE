@@ -12,7 +12,7 @@ import static com.project.dorumdorum.global.exception.code.status.GlobalErrorSta
 
 @Service
 @RequiredArgsConstructor
-public class EmailVerificationUseCase {
+public class SendVerificationEmailUseCase {
 
     private final UserService userService;
     private final EmailVerificationService emailVerificationService;
@@ -27,10 +27,5 @@ public class EmailVerificationUseCase {
 
         String code = secureRandomGenerator.generate();
         emailVerificationService.sendCode(email, code);
-    }
-
-
-    public void verify(String email, String code) {
-        emailVerificationService.verifyCode(email, code);
     }
 }

@@ -7,24 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 @Service
-@RequiredArgsConstructor
 @Transactional
-public class UserProfileUseCase {
+@RequiredArgsConstructor
+public class UpdateUserProfileUseCase {
 
     private final UserProfileService userProfileService;
 
-    public ProfileResponse getMyProfile(Long userNo) {
-        return userProfileService.getProfile(userNo);
-    }
-
-    public ProfileResponse getProfile(Long userNo) {
-        return userProfileService.getProfile(userNo);
-    }
-
-    @Transactional
-    public ProfileResponse updateProfile(Long userNo, UpdateProfileRequest updateProfileRequest) {
+    public ProfileResponse execute(Long userNo, UpdateProfileRequest updateProfileRequest) {
         return userProfileService.updateProfile(userNo, updateProfileRequest);
     }
 }
