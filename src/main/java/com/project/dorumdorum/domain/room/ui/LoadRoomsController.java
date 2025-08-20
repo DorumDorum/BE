@@ -26,11 +26,11 @@ public class LoadRoomsController {
     public BaseResponse<CursorPage<LoadRoomsResponse>> loadAll(
             @CurrentUser Long userNo,
             @RequestParam RoomRelation relation,
-            @RequestParam List<Tag> tags,
-            @RequestParam RoomType type,
-            @RequestParam Integer capacity,
-            @RequestParam RoomSort sort,
-            @RequestParam Integer cursor
+            @RequestParam(required = false) List<Tag> tags,
+            @RequestParam(required = false) RoomType type,
+            @RequestParam(required = false) Integer capacity,
+            @RequestParam(required = false) RoomSort sort,
+            @RequestParam(required = false) String cursor
     ) {
         return BaseResponse.onSuccess(loadRoomsUseCase.execute(
                 userNo, relation, tags, type, capacity, sort, cursor
