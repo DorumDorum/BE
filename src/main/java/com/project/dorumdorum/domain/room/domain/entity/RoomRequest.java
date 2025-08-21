@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.room.domain.entity;
 
+import com.project.dorumdorum.global.common.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class RoomRequest {
+public class RoomRequest extends BaseEntity {
 
     @Id @Tsid
     private Long roomRequestNo;

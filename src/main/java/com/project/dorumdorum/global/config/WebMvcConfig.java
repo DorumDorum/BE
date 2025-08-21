@@ -1,6 +1,7 @@
 package com.project.dorumdorum.global.config;
 
 import com.project.dorumdorum.global.interceptor.JwtBlacklistInterceptor;
+import com.project.dorumdorum.global.resolver.AccessTokenArgumentResolver;
 import com.project.dorumdorum.global.resolver.CurrentUserArgumentResolver;
 import com.project.dorumdorum.global.resolver.RefreshTokenArgumentResolver;
 import com.project.dorumdorum.global.properties.ExcludeBlacklistPathProperties;
@@ -25,7 +26,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.addAll(List.of(
                 new CurrentUserArgumentResolver(tokenProvider),
-                new RefreshTokenArgumentResolver(tokenProvider)
+                new RefreshTokenArgumentResolver(tokenProvider),
+                new AccessTokenArgumentResolver(tokenProvider)
         ));
     }
 

@@ -6,6 +6,7 @@ import com.project.dorumdorum.domain.room.application.dto.response.LoadRoomsResp
 import com.project.dorumdorum.domain.room.application.dto.usecase.LoadRoomsUseCase;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.entity.Tag;
+import com.project.dorumdorum.domain.room.ui.spec.LoadRoomsApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 import com.project.dorumdorum.global.pagination.CursorPage;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class LoadRoomsController {
+public class LoadRoomsController implements LoadRoomsApiSpec {
 
     private final LoadRoomsUseCase loadRoomsUseCase;
 
