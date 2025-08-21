@@ -1,4 +1,4 @@
-package com.project.dorumdorum.domain.message.domain.entity;
+package com.project.dorumdorum.domain.chat.domain.entity;
 
 import com.project.dorumdorum.domain.user.domain.entity.Role;
 import com.project.dorumdorum.domain.user.domain.entity.User;
