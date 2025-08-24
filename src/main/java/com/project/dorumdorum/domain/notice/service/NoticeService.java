@@ -1,11 +1,14 @@
 package com.project.dorumdorum.domain.notice.service;
 
 import com.project.dorumdorum.domain.notice.application.dto.request.WriteNoticeRequest;
+import com.project.dorumdorum.domain.notice.application.dto.response.LoadNoticesResponse;
 import com.project.dorumdorum.domain.notice.domain.entity.Notice;
 import com.project.dorumdorum.domain.notice.domain.repository.NoticeRepository;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,5 +29,11 @@ public class NoticeService {
     }
 
 
+    public List<LoadNoticesResponse> loadNoticeList(Room room) {
+        List<Notice> notices = noticeRepository.findByRoom(room);
 
+        return notices.stream()
+                .map(LoadNoticesResponse::create)
+                .toList();
+    }
 }

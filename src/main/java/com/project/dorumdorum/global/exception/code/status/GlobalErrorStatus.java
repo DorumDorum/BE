@@ -42,6 +42,7 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
     ROOM_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "ROOM006", "존재하지 않는 요청입니다."),
     ROOM_IS_NOT_FULL(HttpStatus.BAD_REQUEST, "ROOM007", "방이 가득차지 않았습니다."),
     ALREADY_CONFIRM_REQUEST(HttpStatus.BAD_REQUEST, "ROOM008", "이미 처리된 요청입니다."),
+    USER_NOT_IN_ROOM(HttpStatus.BAD_REQUEST, "ROOM009", "멤버가 아닙니다."), // 이거 추가해도 될까요?
 
 
     // Friend
