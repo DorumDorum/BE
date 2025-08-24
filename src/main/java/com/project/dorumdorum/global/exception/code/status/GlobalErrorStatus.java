@@ -52,9 +52,11 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
     FRIENDSHIP_NOT_FOUND(HttpStatus.NOT_FOUND, "FRIEND005", "친구가 아닙니다."),
     REQUEST_NOT_RECEIVER(HttpStatus.FORBIDDEN, "FRIEND006", "해당 친구추가 요청의 수신자가 아닙니다."),
     REQUEST_NOT_SENDER(HttpStatus.FORBIDDEN, "FRIEND007", "해당 친구추가 요청의 발신자가 아닙니다."),
-    REQUEST_NOT_PENDING(HttpStatus.BAD_REQUEST, "FRIEND008", "해당 친구추가 요청이 대기 상태가 아닙니다.")
+    REQUEST_NOT_PENDING(HttpStatus.BAD_REQUEST, "FRIEND008", "해당 친구추가 요청이 대기 상태가 아닙니다."),
 
-    ;
+    // Notice
+    TITLE_IS_EMPTY(HttpStatus.BAD_REQUEST, "NOTICE001", "제목이 비어있습니다."),
+    CONTENT_IS_EMPTY(HttpStatus.BAD_REQUEST, "NOTICE002" , "본문이 비어있습니다.");
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess = false;
