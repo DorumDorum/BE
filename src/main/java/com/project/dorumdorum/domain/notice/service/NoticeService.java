@@ -1,11 +1,15 @@
 package com.project.dorumdorum.domain.notice.service;
 
+import com.project.dorumdorum.domain.notice.application.dto.request.UpdateNoticeRequest;
 import com.project.dorumdorum.domain.notice.application.dto.request.WriteNoticeRequest;
-import com.project.dorumdorum.domain.notice.application.dto.response.LoadNoticesResponse;
+import com.project.dorumdorum.domain.notice.application.dto.response.NoticeResponse;
 import com.project.dorumdorum.domain.notice.domain.entity.Notice;
 import com.project.dorumdorum.domain.notice.domain.repository.NoticeRepository;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 
+import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -29,11 +33,21 @@ public class NoticeService {
     }
 
 
-    public List<LoadNoticesResponse> loadNoticeList(Room room) {
+    public List<NoticeResponse> loadNoticeList(Room room) {
         List<Notice> notices = noticeRepository.findByRoom(room);
 
         return notices.stream()
-                .map(LoadNoticesResponse::create)
+                .map(NoticeResponse::create)
                 .toList();
+    }
+
+    public Notice findById(@NotNull Long noticeNo) {
+        return noticeRepository.findById(noticeNo)
+                .orElseThrow(() -> new RestApiException(GlobalErrorStatus.NOTICE_NOT_FOUND));
+    }
+
+    public NoticeResponse updateNotice(Notice notice, UpdateNoticeRequest request) {
+        notice.update(request.title(), request.content());
+        return NoticeResponse.create(notice);
     }
 }

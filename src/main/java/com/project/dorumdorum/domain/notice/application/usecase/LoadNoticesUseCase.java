@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.notice.application.usecase;
 
-import com.project.dorumdorum.domain.notice.application.dto.response.LoadNoticesResponse;
+import com.project.dorumdorum.domain.notice.application.dto.response.NoticeResponse;
 import com.project.dorumdorum.domain.notice.service.NoticeService;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
@@ -22,7 +22,7 @@ public class LoadNoticesUseCase {
     private final RoomService roomService;
     private final NoticeService noticeService;
 
-    public List<LoadNoticesResponse> execute(Long userNo, Long roomNo) {
+    public List<NoticeResponse> execute(Long userNo, Long roomNo) {
         userService.validateExistsById(userNo);
 
         Room room = roomService.findById(roomNo);

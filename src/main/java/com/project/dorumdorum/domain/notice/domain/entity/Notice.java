@@ -5,6 +5,7 @@ import com.project.dorumdorum.global.common.BaseEntity;
 
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Entity
@@ -28,4 +29,13 @@ public class Notice extends BaseEntity {
 
     @Column(nullable = false)
     private String content;
+
+    public void update(@NotBlank String title, @NotBlank String content) {
+        this.title = title;
+        this.content = content;
+    }
+
+    public boolean isWriter(Long userNo) {
+        return this.userNo.equals(userNo);
+    }
 }

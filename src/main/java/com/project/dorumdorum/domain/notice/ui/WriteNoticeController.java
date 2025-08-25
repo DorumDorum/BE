@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.notice.ui;
 
 import com.project.dorumdorum.domain.notice.application.dto.request.WriteNoticeRequest;
-import com.project.dorumdorum.domain.notice.application.dto.response.WriteNoticeResponse;
+import com.project.dorumdorum.domain.notice.application.dto.response.NoticeResponse;
 import com.project.dorumdorum.domain.notice.application.usecase.WriteNoticeUseCase;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
@@ -19,7 +19,7 @@ public class WriteNoticeController {
     private final WriteNoticeUseCase writeNoticeUseCase;
 
     @PostMapping("/api/notice")
-    public BaseResponse<WriteNoticeResponse> writeNotice(
+    public BaseResponse<NoticeResponse> writeNotice(
             @CurrentUser Long userNo,
             @RequestBody @Valid WriteNoticeRequest request
     ) {

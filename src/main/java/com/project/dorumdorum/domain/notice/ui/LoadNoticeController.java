@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.notice.ui;
 
 
-import com.project.dorumdorum.domain.notice.application.dto.response.LoadNoticesResponse;
+import com.project.dorumdorum.domain.notice.application.dto.response.NoticeResponse;
 import com.project.dorumdorum.domain.notice.application.usecase.LoadNoticesUseCase;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
@@ -19,7 +19,7 @@ public class LoadNoticeController {
     private final LoadNoticesUseCase loadNoticesUseCase;
 
     @GetMapping("/api/notices")
-    public BaseResponse<List<LoadNoticesResponse>> loadNotices(
+    public BaseResponse<List<NoticeResponse>> loadNotices(
             @CurrentUser Long userNo,
             @RequestParam Long roomNo
     ) {

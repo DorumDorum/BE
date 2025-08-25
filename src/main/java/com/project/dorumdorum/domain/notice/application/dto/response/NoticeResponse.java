@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record LoadNoticesResponse(
+public record NoticeResponse(
         Long noticeNo,
         Long userNo,
         LocalDateTime createdAt,
@@ -14,8 +14,8 @@ public record LoadNoticesResponse(
         String title,
         String content
 ) {
-    public static LoadNoticesResponse create(Notice notice) {
-        return LoadNoticesResponse.builder()
+    public static NoticeResponse create(Notice notice) {
+        return NoticeResponse.builder()
                 .noticeNo(notice.getNoticeNo())
                 .userNo(notice.getUserNo())
                 .createdAt(notice.getCreatedAt())
