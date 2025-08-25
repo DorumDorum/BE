@@ -3,6 +3,7 @@ package com.project.dorumdorum.domain.notice.service;
 import com.project.dorumdorum.domain.notice.application.dto.request.UpdateNoticeRequest;
 import com.project.dorumdorum.domain.notice.application.dto.request.WriteNoticeRequest;
 import com.project.dorumdorum.domain.notice.application.dto.response.NoticeResponse;
+import com.project.dorumdorum.domain.notice.application.dto.response.NoticesResponse;
 import com.project.dorumdorum.domain.notice.domain.entity.Notice;
 import com.project.dorumdorum.domain.notice.domain.repository.NoticeRepository;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
@@ -33,11 +34,17 @@ public class NoticeService {
     }
 
 
-    public List<NoticeResponse> loadNoticeList(Room room) {
+    public NoticeResponse loadNotice(Long noticeNo) {
+        Notice notice = noticeRepository.findById(noticeNo)
+                .orElseThrow(() -> new RestApiException(GlobalErrorStatus.NOTICE_NOT_FOUND));
+        return NoticeResponse.create(notice);
+    }
+
+    public List<NoticesResponse> loadNoticeList(Room room) {
         List<Notice> notices = noticeRepository.findByRoom(room);
 
         return notices.stream()
-                .map(NoticeResponse::create)
+                .map(NoticesResponse::create)
                 .toList();
     }
 
