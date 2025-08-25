@@ -22,7 +22,7 @@ public class CreateRoomUseCase {
     public void execute(Long userNo, RoomCreateRequest request) {
         userService.validateExistsById(userNo);
 
-        Room room = roomService.create(request);
+        Room room = roomService.create(request, userNo);
         roommateService.create(userNo, room, RoomRole.HOST);
     }
 }
