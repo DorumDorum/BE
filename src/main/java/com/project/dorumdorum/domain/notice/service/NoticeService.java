@@ -50,4 +50,8 @@ public class NoticeService {
         notice.update(request.title(), request.content());
         return NoticeResponse.create(notice);
     }
+
+    public void deleteNotice(Long noticeNo) {
+        noticeRepository.deleteById(noticeNo);
+    }
 }

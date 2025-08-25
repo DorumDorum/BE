@@ -59,8 +59,8 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
     TITLE_IS_EMPTY(HttpStatus.BAD_REQUEST, "NOTICE001", "제목이 비어있습니다."),
     CONTENT_IS_EMPTY(HttpStatus.BAD_REQUEST, "NOTICE002" , "본문이 비어있습니다."),
     NO_PERMISSION_ON_NOTICE(HttpStatus.BAD_REQUEST, "NOTICE003", "공지사항 편집 권한이 없습니다."),
-    NOTICE_NOT_FOUND(HttpStatus.BAD_REQUEST, "NOTICE004", "공지사항을 찾을 수 없습니다.")
-
+    NOTICE_NOT_FOUND(HttpStatus.BAD_REQUEST, "NOTICE004", "공지사항을 찾을 수 없습니다."),
+    NOTICE_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "NOTICE005", "이미 삭제된 글입니다.")
 
     ;
 

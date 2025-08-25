@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class LoadNoticeController {
+public class LoadNoticesController {
 
     private final LoadNoticesUseCase loadNoticesUseCase;
 
