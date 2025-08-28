@@ -27,7 +27,7 @@ public class DeleteFriendshipUseCase {
         if(!(friendship.getUserNo().equals(userNo) || friendship.getFriendUserNo().equals(userNo))) {
             throw new RestApiException(GlobalErrorStatus.FRIENDSHIP_NOT_FOUND);
         }
-
-        friendshipService.deleteFriendship(friendship);
+         // friendshipNO 넘기게 하기
+        friendshipService.deleteFriendship(friendshipNo);
     }
 }

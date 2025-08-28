@@ -33,8 +33,8 @@ public class FriendshipService {
         friendshipRepository.save(newFriendship);
     }
 
-    public void deleteFriendship(Friendship friendship) {
-        friendshipRepository.deleteById(friendship.getFriendshipNo());
+    public void deleteFriendship(Long friendshipNo) {
+        friendshipRepository.deleteById(friendshipNo);
     }
 
     public boolean areAlreadyFriends(Long fromUser, Long toUser) {
