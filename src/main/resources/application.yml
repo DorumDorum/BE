@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: local
   datasource:
     username: ${RDB_USERNAME}
     url: ${RDB_URL}
@@ -10,6 +12,10 @@ spring:
       port: 6379
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017/dorumdorum}
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
 
   jpa:
     hibernate:
@@ -120,3 +126,9 @@ springdoc:
 include-email-domains:
   domains:
     - gachon.ac.kr
+
+app:
+  storage:
+    local:
+      base-dir: ./uploads
+      public-base-url: http://localhost:8080/files

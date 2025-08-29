@@ -7,9 +7,11 @@ import com.project.dorumdorum.global.resolver.RefreshTokenArgumentResolver;
 import com.project.dorumdorum.global.properties.ExcludeBlacklistPathProperties;
 import com.project.dorumdorum.global.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
@@ -36,4 +38,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtBlacklistInterceptor)
                 .excludePathPatterns(excludeBlacklistPathProperties.getExcludeAuthPaths());
         }
+
+    @Value("${app.storage.local.base-dir:./uploads}")
+    private String baseDir;
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // http://localhost:8080/files/** -> file:{baseDir}/**
+        registry.addResourceHandler("/files/**") // files로 오는 요청을 모두 처리
+                .addResourceLocations("file:" + baseDir + "/"); // 그런 요청을 해당 위치에서 찾아줄 것
+    }
 }
