@@ -19,14 +19,14 @@ public class UserProfile extends BaseEntity {
     @JoinColumn(name = "user_no")
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "image_no")
-    private Image profileImage;
+    private String profileImageKey;
 
     private SchoolName schoolName;
 
     private String majorName;
 
     private String studentNo;
+
+    private int age;
 
 }
