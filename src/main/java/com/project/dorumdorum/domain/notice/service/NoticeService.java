@@ -22,9 +22,9 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
 
 
-    public Notice writeNotice(Long userNo, Room room, WriteNoticeRequest request) {
+    public Notice writeNotice(Long userNo, Long roomNo, WriteNoticeRequest request) {
         Notice entity = Notice.builder()
-                .room(room)
+                .roomNo(roomNo)
                 .userNo(userNo)
                 .title(request.title())
                 .content(request.content())

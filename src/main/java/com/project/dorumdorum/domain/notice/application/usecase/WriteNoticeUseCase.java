@@ -5,7 +5,6 @@ import com.project.dorumdorum.domain.notice.application.dto.response.NoticeRespo
 import com.project.dorumdorum.domain.notice.service.NoticeService;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
-import com.project.dorumdorum.domain.room.domain.service.RoommateService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
@@ -21,7 +20,6 @@ public class WriteNoticeUseCase {
     private final UserService userService;
     private final NoticeService noticeService;
     private final RoomService roomService;
-    private final RoommateService roommateService;
 
     @Transactional
     public NoticeResponse execute(Long userNo, WriteNoticeRequest request) {
@@ -37,7 +35,7 @@ public class WriteNoticeUseCase {
             throw new RestApiException(GlobalErrorStatus.NO_PERMISSION_ON_NOTICE);
 
 
-        return NoticeResponse.create(noticeService.writeNotice(userNo, room, request));
+        return NoticeResponse.create(noticeService.writeNotice(userNo, room.getRoomNo(), request));
 
     }
 }
