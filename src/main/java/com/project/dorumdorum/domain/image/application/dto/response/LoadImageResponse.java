@@ -1,21 +1,18 @@
 package com.project.dorumdorum.domain.image.application.dto.response;
 
-import com.project.dorumdorum.domain.image.domain.entity.Image;
-
 import lombok.Builder;
+import org.springframework.core.io.Resource;
 
 @Builder
 public record LoadImageResponse (
-        Long imageNo,
-        String imageKey,
-        String publicUrl
+        Resource resource,
+        String originalFileName
 ) {
 
-    public static LoadImageResponse create(Image image, String publicUrl) {
+    public static LoadImageResponse create(Resource resource, String originalFileName) {
         return LoadImageResponse.builder()
-                .imageNo(image.getImageNo())
-                .imageKey(image.getImageKey())
-                .publicUrl(publicUrl)
+                .resource(resource)
+                .originalFileName(originalFileName)
                 .build();
     }
 }

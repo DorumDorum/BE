@@ -16,10 +16,12 @@ public class Image extends BaseEntity {
     @Id @Tsid
     private Long imageNo;
 
-    private String imageKey; // 확장자도 뒤에 포함 s3할 때 String fileKey = String.format("images/%s/%s.%s",
-                // user.getUserId(), java.util.UUID.randomUUID(), extension);
+    @Column(nullable = false)
+    private String imageKey;    // 확장자도 뒤에 포함 s3할 때 String fileKey = String.format("images/%s/%s.%s",
+                                // user.getUserId(), java.util.UUID.randomUUID(), extension);
 
     private String originalImageName;
 
+    @Column(nullable = false)
     private String storedImageName;
 }

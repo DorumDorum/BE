@@ -7,7 +7,11 @@ import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,7 +33,15 @@ public class ImageController { // 테스트 용도
     }
 
     @GetMapping("/api/image")
-    public BaseResponse<LoadImageResponse> loadImage(@RequestParam Long imageNo) {
-        return BaseResponse.onSuccess(imageUseCase.loadImage(imageNo));
+    public ResponseEntity<Resource> loadImage(@RequestParam Long imageNo) {
+        LoadImageResponse response = imageUseCase.loadImage(imageNo);
+
+        MediaType mediaType = MediaTypeFactory.getMediaType(response.originalFileName())
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + response.originalFileName() + "\"")
+                .body(response.resource());
     }
 }

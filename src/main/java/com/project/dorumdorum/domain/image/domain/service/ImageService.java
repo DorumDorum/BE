@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.image.domain.service;
 
-import com.project.dorumdorum.domain.image.domain.entity.ContentType;
 import com.project.dorumdorum.domain.image.domain.entity.Image;
 import com.project.dorumdorum.domain.image.repository.ImageRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
@@ -56,19 +55,19 @@ public class ImageService {
     }
 
     public String buildImageKey(Long userNo, String newFilename) {
-        return "image/" + userNo + "/" + newFilename;
+        return "image_" + userNo + "_" + newFilename;
     }
 
-    public void saveImageInLocal(MultipartFile file, Path imageDirPath, String newFilename) throws IOException {
-        Path target = imageDirPath.resolve(newFilename);
+    public void saveImageInLocal(MultipartFile file, Path imageDirPath, String imageKey) throws IOException {
+        Path target = imageDirPath.resolve(imageKey);
         Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    public Image saveImageEntity(String originalFileName, String newFilename, String path) {
+    public Image saveImageEntity(String originalFileName, String newFilename, String imageKey) {
         Image newImage = Image.builder()
                 .originalImageName(originalFileName)
                 .storedImageName(newFilename)
-                .imageKey(path)
+                .imageKey(imageKey)
                 .build();
         return imageRepository.save(newImage);
     }
@@ -78,7 +77,7 @@ public class ImageService {
                 .orElseThrow(() -> new RestApiException(GlobalErrorStatus._NOT_FOUND));
     }
 
-    public String buildPublicUrl(Image image) {
-        return publicBaseUrl + "/" + image.getImageKey();
+    public Path getPathByImage(Image image) {
+        return Path.of(baseDir, "images", image.getImageKey());
     }
 }

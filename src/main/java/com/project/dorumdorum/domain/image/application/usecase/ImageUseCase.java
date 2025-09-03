@@ -7,6 +7,8 @@ import com.project.dorumdorum.domain.image.domain.service.ImageService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -37,7 +39,7 @@ public class ImageUseCase {
         return UploadImageResponse.create(imageService.saveImageEntity(
                 originalFileName,
                 newFilename,
-                imageDirPath.resolve(imageKey).toString()
+                imageKey
                 )
         );
 
@@ -46,7 +48,10 @@ public class ImageUseCase {
     public LoadImageResponse loadImage(Long imageNo) {
         Image image = imageService.findById(imageNo);
 
-        String publicUrl = imageService.buildPublicUrl(image);
-        return LoadImageResponse.create(image, publicUrl);
+        Path imagePath = imageService.getPathByImage(image);
+
+        Resource resource = new FileSystemResource(imagePath);
+
+        return LoadImageResponse.create(resource, image.getOriginalImageName());
     }
 }
