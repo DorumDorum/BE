@@ -30,7 +30,7 @@ public class LoadNoticesUseCase {
         if(!roommateService.isUserInRoom(userNo, room))
             throw new RestApiException(GlobalErrorStatus.USER_NOT_IN_ROOM);
 
-        return noticeService.loadNoticeList(room);
+        return noticeService.loadNoticeList(room.getRoomNo());
     }
 
     public NoticeResponse loadNotice(Long userNo, Long noticeNo) {

@@ -6,7 +6,6 @@ import com.project.dorumdorum.domain.notice.application.dto.response.NoticeRespo
 import com.project.dorumdorum.domain.notice.application.dto.response.NoticesResponse;
 import com.project.dorumdorum.domain.notice.domain.entity.Notice;
 import com.project.dorumdorum.domain.notice.domain.repository.NoticeRepository;
-import com.project.dorumdorum.domain.room.domain.entity.Room;
 
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
@@ -40,8 +39,8 @@ public class NoticeService {
         return NoticeResponse.create(notice);
     }
 
-    public List<NoticesResponse> loadNoticeList(Room room) {
-        List<Notice> notices = noticeRepository.findByRoom(room);
+    public List<NoticesResponse> loadNoticeList(Long roomNo) {
+        List<Notice> notices = noticeRepository.findByRoomNo(roomNo);
 
         return notices.stream()
                 .map(NoticesResponse::create)
