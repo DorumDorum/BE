@@ -1,4 +1,4 @@
-package com.project.dorumdorum.domain.room.application.dto.usecase;
+package com.project.dorumdorum.domain.room.application.usecase;
 
 import com.project.dorumdorum.domain.room.application.dto.request.JoinRoomRequest;
 import com.project.dorumdorum.domain.room.domain.entity.Direction;

@@ -26,4 +26,7 @@ public class MessageRoom extends BaseEntity {
     private String lastMessage;
 
     private LocalDateTime lastMessageAt;
+
+    @Enumerated(EnumType.STRING)
+    private MessageRoomStatus roomStatus;
 }
