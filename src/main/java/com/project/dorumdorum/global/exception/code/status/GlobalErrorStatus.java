@@ -52,7 +52,11 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
     FRIENDSHIP_NOT_FOUND(HttpStatus.NOT_FOUND, "FRIEND005", "친구가 아닙니다."),
     REQUEST_NOT_RECEIVER(HttpStatus.FORBIDDEN, "FRIEND006", "해당 친구추가 요청의 수신자가 아닙니다."),
     REQUEST_NOT_SENDER(HttpStatus.FORBIDDEN, "FRIEND007", "해당 친구추가 요청의 발신자가 아닙니다."),
-    REQUEST_NOT_PENDING(HttpStatus.BAD_REQUEST, "FRIEND008", "해당 친구추가 요청이 대기 상태가 아닙니다.")
+    REQUEST_NOT_PENDING(HttpStatus.BAD_REQUEST, "FRIEND008", "해당 친구추가 요청이 대기 상태가 아닙니다."),
+
+    // Notification
+    FIREBASE_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "NOTIFICATION001", "수신자의 FCM 토큰이 등록되어 있지 않습니다."),
+    NOTIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "NOTIFICATION002", "알림 전송 중 서버 에러")
 
     ;
 
