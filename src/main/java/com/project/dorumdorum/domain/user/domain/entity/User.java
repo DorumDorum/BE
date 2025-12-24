@@ -37,10 +37,16 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    private String firebaseToken;
+
     public void updateProfile(UpdateProfileRequest updateProfileRequest) {
         this.name = updateProfileRequest.name();
         this.nickname = updateProfileRequest.nickname();
         this.email = updateProfileRequest.email();
+    }
+
+    public void updateFirebaseToken(String firebaseToken) {
+        this.firebaseToken = firebaseToken;
     }
 
 }

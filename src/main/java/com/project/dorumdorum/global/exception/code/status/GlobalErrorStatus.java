@@ -60,7 +60,11 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
     CONTENT_IS_EMPTY(HttpStatus.BAD_REQUEST, "NOTICE002" , "본문이 비어있습니다."),
     NO_PERMISSION_ON_NOTICE(HttpStatus.BAD_REQUEST, "NOTICE003", "공지사항 편집 권한이 없습니다."),
     NOTICE_NOT_FOUND(HttpStatus.BAD_REQUEST, "NOTICE004", "공지사항을 찾을 수 없습니다."),
-    NOTICE_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "NOTICE005", "이미 삭제된 글입니다.")
+    NOTICE_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "NOTICE005", "이미 삭제된 글입니다."),
+  
+    // Notification
+    FIREBASE_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "NOTIFICATION001", "수신자의 FCM 토큰이 등록되어 있지 않습니다."),
+    NOTIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "NOTIFICATION002", "알림 전송 중 서버 에러")
 
     ;
 

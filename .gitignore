@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### firebase ###
+/src/main/resources/firebase/dorumdorum-9ce75-firebase-adminsdk-fbsvc-8d66c0dccb.json
