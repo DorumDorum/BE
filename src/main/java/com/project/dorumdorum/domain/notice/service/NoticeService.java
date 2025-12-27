@@ -2,16 +2,15 @@ package com.project.dorumdorum.domain.notice.service;
 
 import com.project.dorumdorum.domain.notice.application.dto.request.UpdateNoticeRequest;
 import com.project.dorumdorum.domain.notice.application.dto.request.WriteNoticeRequest;
-import com.project.dorumdorum.domain.notice.application.dto.response.NoticeResponse;
 import com.project.dorumdorum.domain.notice.application.dto.response.NoticesResponse;
 import com.project.dorumdorum.domain.notice.domain.entity.Notice;
 import com.project.dorumdorum.domain.notice.domain.repository.NoticeRepository;
-
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -33,12 +32,6 @@ public class NoticeService {
     }
 
 
-    public NoticeResponse loadNotice(Long noticeNo) {
-        Notice notice = noticeRepository.findById(noticeNo)
-                .orElseThrow(() -> new RestApiException(GlobalErrorStatus.NOTICE_NOT_FOUND));
-        return NoticeResponse.create(notice);
-    }
-
     public List<NoticesResponse> loadNoticeList(Long roomNo) {
         List<Notice> notices = noticeRepository.findByRoomNo(roomNo);
 
@@ -52,12 +45,18 @@ public class NoticeService {
                 .orElseThrow(() -> new RestApiException(GlobalErrorStatus.NOTICE_NOT_FOUND));
     }
 
-    public NoticeResponse updateNotice(Notice notice, UpdateNoticeRequest request) {
+    public Notice updateNotice(Notice notice, UpdateNoticeRequest request) {
         notice.update(request.title(), request.content());
-        return NoticeResponse.create(notice);
+        return notice;
+    }
+
+    public void softDelete(Notice notice) {
+        notice.delete();
+        noticeRepository.save(notice);
     }
 
     public void deleteNotice(Long noticeNo) {
-        noticeRepository.deleteById(noticeNo);
+        Notice notice = findById(noticeNo);
+        softDelete(notice);
     }
 }

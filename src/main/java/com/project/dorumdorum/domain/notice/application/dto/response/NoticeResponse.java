@@ -12,9 +12,21 @@ public record NoticeResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         String title,
-        String content
+        String content,
+        String imageUploadUrl,
+        String imageDownloadUrl,
+        String imageFileName,
+        Long imageFileSize
 ) {
     public static NoticeResponse create(Notice notice) {
+        return create(notice, null, null, null, null);
+    }
+
+    public static NoticeResponse create(Notice notice,
+                                        String imageUploadUrl,
+                                        String imageDownloadUrl,
+                                        String imageFileName,
+                                        Long imageFileSize) {
         return NoticeResponse.builder()
                 .noticeNo(notice.getNoticeNo())
                 .userNo(notice.getUserNo())
@@ -22,6 +34,10 @@ public record NoticeResponse(
                 .updatedAt(notice.getUpdatedAt())
                 .title(notice.getTitle())
                 .content(notice.getContent())
+                .imageUploadUrl(imageUploadUrl)
+                .imageDownloadUrl(imageDownloadUrl)
+                .imageFileName(imageFileName)
+                .imageFileSize(imageFileSize)
                 .build();
     }
 }
