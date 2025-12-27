@@ -2,7 +2,7 @@ spring:
   datasource:
     username: ${RDB_USERNAME}
     url: ${RDB_URL}
-    password: ${RDB_password}
+    password: ${RDB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
@@ -120,3 +120,7 @@ springdoc:
 include-email-domains:
   domains:
     - gachon.ac.kr
+
+firebase:
+  service-account:
+    path: "/firebase/dorumdorum-9ce75-firebase-adminsdk-fbsvc-8d66c0dccb.json"
