@@ -4,22 +4,22 @@ package com.project.dorumdorum.domain.notice.ui;
 import com.project.dorumdorum.domain.notice.application.dto.response.NoticeResponse;
 import com.project.dorumdorum.domain.notice.application.dto.response.NoticesResponse;
 import com.project.dorumdorum.domain.notice.application.usecase.LoadNoticesUseCase;
+import com.project.dorumdorum.domain.notice.ui.spec.LoadNoticesApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class LoadNoticesController {
+public class LoadNoticesController implements LoadNoticesApiSpec {
 
     private final LoadNoticesUseCase loadNoticesUseCase;
 
-    @GetMapping("/api/notices")
+    @Override
     public BaseResponse<List<NoticesResponse>> loadNotices(
             @CurrentUser Long userNo,
             @RequestParam Long roomNo
@@ -27,7 +27,7 @@ public class LoadNoticesController {
         return BaseResponse.onSuccess(loadNoticesUseCase.loadNotices(userNo, roomNo));
     }
 
-    @GetMapping("/api/notice")
+    @Override
     public BaseResponse<NoticeResponse> loadNotice(
             @CurrentUser Long userNo,
             @RequestParam Long noticeNo
