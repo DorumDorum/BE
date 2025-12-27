@@ -124,3 +124,8 @@ include-email-domains:
 firebase:
   service-account:
     path: "/firebase/dorumdorum-9ce75-firebase-adminsdk-fbsvc-8d66c0dccb.json"
+
+aws:
+  s3:
+    bucket: ${AWS_S3_BUCKET}
+    region: ${AWS_REGION:ap-northeast-2}

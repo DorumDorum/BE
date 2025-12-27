@@ -68,6 +68,9 @@ dependencies {
     // Firebase
     implementation 'com.google.firebase:firebase-admin:9.2.0'
 
+    // AWS (v2 SDK BOM + S3)
+    implementation 'software.amazon.awssdk:s3:2.25.69'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
