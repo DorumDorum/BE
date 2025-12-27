@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+
 @Service
 @RequiredArgsConstructor
 public class UpdateNoticeUseCase {
@@ -81,7 +83,7 @@ public class UpdateNoticeUseCase {
 
         Notice updatedNotice = noticeService.updateNotice(notice, request);
 
-        return NoticeResponse.create(updatedNotice, imageUploadUrl, imageDownloadUrl, imageFileName, imageFileSize);
+        return NoticeResponse.create(updatedNotice, Collections.emptyList(), imageUploadUrl, imageDownloadUrl, imageFileName, imageFileSize);
     }
 
     private boolean hasImageInfo(UpdateNoticeRequest request) {

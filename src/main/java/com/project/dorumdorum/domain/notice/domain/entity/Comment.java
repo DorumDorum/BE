@@ -26,5 +26,11 @@ public class Comment extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
+    public boolean isWriter(Long userNo) {
+        return this.userNo.equals(userNo);
+    }
 
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }
