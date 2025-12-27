@@ -3,12 +3,16 @@ package com.project.dorumdorum.domain.friend.application.usecase;
 import com.project.dorumdorum.domain.friend.domain.entity.FriendRequest;
 import com.project.dorumdorum.domain.friend.service.FriendRequestService;
 import com.project.dorumdorum.domain.friend.service.FriendshipService;
+import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
+import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.REQUEST_NOT_RECEIVER;
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.REQUEST_NOT_PENDING;
@@ -20,6 +24,7 @@ public class DecideFriendRequestUseCase {
     private final UserService userService;
     private final FriendRequestService friendRequestService;
     private final FriendshipService friendshipService;
+    private final NotificationService notificationService;
 
     @Transactional
     public void acceptFriendRequest(Long toUser, Long friendRequestNo) {
@@ -41,6 +46,21 @@ public class DecideFriendRequestUseCase {
 
         // Friendship 테이블에 친구 등록
         friendshipService.addFriendship(friendRequest.getFromUser(), friendRequest.getToUser());
+
+        // 친구 수락 알림 (요청 보낸 사람에게)
+        User receiver = userService.findById(toUser);
+        notificationService.sendNotification(
+                friendRequest.getFromUser(),
+                receiver.getNickname() + "님이 친구가 되었어요",
+                "",
+                Map.of(
+                        "type", "FRIEND_ACCEPTED",
+                        "friendRequestNo", friendRequestNo.toString(),
+                        "friendUserNo", toUser.toString(),
+                        "friendNickname", receiver.getNickname() == null ? "" : receiver.getNickname()
+                ),
+                null
+        );
     }
 
     @Transactional

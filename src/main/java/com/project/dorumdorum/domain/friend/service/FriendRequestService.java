@@ -25,13 +25,13 @@ public class FriendRequestService {
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
-    public void saveRequest(Long fromUser, Long toUser) {
+    public FriendRequest saveRequest(Long fromUser, Long toUser) {
         FriendRequest newFriendRequest = FriendRequest.builder()
                 .fromUser(fromUser)
                 .toUser(toUser)
                 .status(FriendRequestStatus.PENDING)
                 .build();
-        friendRequestRepository.save(newFriendRequest);
+        return friendRequestRepository.save(newFriendRequest);
     }
 
     public void acceptRequest(FriendRequest friendRequest) {
