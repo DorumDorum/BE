@@ -4,9 +4,11 @@ import com.project.dorumdorum.domain.image.domain.entity.Image;
 import com.project.dorumdorum.domain.image.domain.service.ImageService;
 import com.project.dorumdorum.domain.notice.application.dto.response.NoticeResponse;
 import com.project.dorumdorum.domain.notice.application.dto.response.NoticesResponse;
+import com.project.dorumdorum.domain.notice.application.dto.response.CommentResponse;
 import com.project.dorumdorum.domain.notice.domain.entity.Notice;
 import com.project.dorumdorum.domain.notice.infra.S3PresignedUrlService;
 import com.project.dorumdorum.domain.notice.service.NoticeService;
+import com.project.dorumdorum.domain.notice.service.CommentService;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.domain.room.domain.service.RoommateService;
@@ -28,6 +30,7 @@ public class LoadNoticesUseCase {
     private final NoticeService noticeService;
     private final ImageService imageService;
     private final S3PresignedUrlService s3PresignedUrlService;
+    private final CommentService commentService;
 
     public List<NoticesResponse> loadNotices(Long userNo, Long roomNo) {
         userService.validateExistsById(userNo);
@@ -44,6 +47,9 @@ public class LoadNoticesUseCase {
 
         Notice notice = noticeService.findById(noticeNo);
         Image image = imageService.findByNoticeNo(noticeNo).orElse(null);
+        List<CommentResponse> comments = commentService.findByNoticeNo(noticeNo).stream()
+                .map(CommentResponse::create)
+                .toList();
 
         String downloadUrl = null;
         String fileName = null;
@@ -55,6 +61,6 @@ public class LoadNoticesUseCase {
             fileSize = image.getFileSize();
         }
 
-        return NoticeResponse.create(notice, null, downloadUrl, fileName, fileSize);
+        return NoticeResponse.create(notice, comments, null, downloadUrl, fileName, fileSize);
     }
 }

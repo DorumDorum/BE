@@ -28,7 +28,7 @@ public interface LoadNoticesApiSpec {
 
     @Operation(
             summary = "공지 상세 조회",
-            description = "공지 상세 + 이미지 조회 presigned URL 반환"
+            description = "공지 상세 + 댓글 목록 + 이미지 조회 presigned URL 반환"
     )
     @GetMapping("/api/notice")
     BaseResponse<NoticeResponse> loadNotice(
