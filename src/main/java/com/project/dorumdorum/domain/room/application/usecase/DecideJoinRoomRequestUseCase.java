@@ -48,6 +48,7 @@ public class DecideJoinRoomRequestUseCase {
         // todo: 지원자에게 알림 roomRequest.getUserNo()
 
         // 모든 플로우를 거쳤다면 요청은 삭제
+        roommateService.create(roomRequest.getUserNo(), room, RoomRole.MEMBER);
         roomRequestService.delete(roomRequest);
     }
 
