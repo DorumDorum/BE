@@ -41,7 +41,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                           RoomSort sort,
                                           DecodedCursor cursor,
                                           int limitPlusOne) {
-        JPAQuery<LoadRoomsRespose> q = query
+        JPAQuery<LoadRoomsResponse> q = query
                 .select(
                         constructor(LoadRoomsResponse.class,
                                 room.roomNo,
