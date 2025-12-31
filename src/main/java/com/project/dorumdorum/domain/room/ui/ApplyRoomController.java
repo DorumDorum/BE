@@ -1,8 +1,8 @@
 package com.project.dorumdorum.domain.room.ui;
 
 import com.project.dorumdorum.domain.room.application.dto.request.JoinRoomRequest;
-import com.project.dorumdorum.domain.room.application.usecase.JoinRoomRequestUseCase;
-import com.project.dorumdorum.domain.room.ui.spec.JoinRoomRequestApiSpec;
+import com.project.dorumdorum.domain.room.application.usecase.ApplyRoomUseCase;
+import com.project.dorumdorum.domain.room.ui.spec.ApplyRoomApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 import jakarta.validation.Valid;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-public class JoinRoomRequestController implements JoinRoomRequestApiSpec {
+public class ApplyRoomController implements ApplyRoomApiSpec {
 
-    private final JoinRoomRequestUseCase joinRoomRequestUseCase;
+    private final ApplyRoomUseCase applyRoomUseCase;
 
     @Override
     public BaseResponse<Void> join(
@@ -21,7 +21,7 @@ public class JoinRoomRequestController implements JoinRoomRequestApiSpec {
             @PathVariable Long roomNo,
             @RequestBody @Valid JoinRoomRequest request
     ) {
-        joinRoomRequestUseCase.execute(userNo, roomNo, request);
+        applyRoomUseCase.execute(userNo, roomNo, request);
         return BaseResponse.onSuccess();
     }
 }

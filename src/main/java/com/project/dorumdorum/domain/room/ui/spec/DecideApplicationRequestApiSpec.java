@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Tag(name = "Room")
-public interface DecideJoinRoomRequestApiSpec {
+public interface DecideApplicationRequestApiSpec {
 
     @Operation(
             summary = "방 참여 요청 승인 API",
