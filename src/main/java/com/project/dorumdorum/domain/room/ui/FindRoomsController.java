@@ -2,11 +2,11 @@ package com.project.dorumdorum.domain.room.ui;
 
 import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
-import com.project.dorumdorum.domain.room.application.dto.response.LoadRoomsResponse;
-import com.project.dorumdorum.domain.room.application.usecase.LoadRoomsUseCase;
+import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
+import com.project.dorumdorum.domain.room.application.usecase.FindRoomsUseCase;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.entity.Tag;
-import com.project.dorumdorum.domain.room.ui.spec.LoadRoomsApiSpec;
+import com.project.dorumdorum.domain.room.ui.spec.FindRoomsApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 import com.project.dorumdorum.global.pagination.CursorPage;
@@ -19,12 +19,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class LoadRoomsController implements LoadRoomsApiSpec {
+public class FindRoomsController implements FindRoomsApiSpec {
 
-    private final LoadRoomsUseCase loadRoomsUseCase;
+    private final FindRoomsUseCase findRoomsUseCase;
 
     @GetMapping("/api/rooms")
-    public BaseResponse<CursorPage<LoadRoomsResponse>> loadAll(
+    public BaseResponse<CursorPage<FindRoomsResponse>> loadAll(
             @CurrentUser Long userNo,
             @RequestParam RoomRelation relation,
             @RequestParam(required = false) List<Tag> tags,
@@ -33,7 +33,7 @@ public class LoadRoomsController implements LoadRoomsApiSpec {
             @RequestParam(required = false) RoomSort sort,
             @RequestParam(required = false) String cursor
     ) {
-        return BaseResponse.onSuccess(loadRoomsUseCase.execute(
+        return BaseResponse.onSuccess(findRoomsUseCase.execute(
                 userNo, relation, tags, type, capacity, sort, cursor
         ));
     }

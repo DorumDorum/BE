@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.room.domain.service;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomCreateRequest;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
-import com.project.dorumdorum.domain.room.application.dto.response.LoadRoomsResponse;
+import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.entity.Tag;
@@ -39,7 +39,7 @@ public class RoomService {
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
-    public List<LoadRoomsResponse> findByCursor(Long userNo, RoomRelation relation, List<Tag> tags, RoomType type, Integer capacity, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
+    public List<FindRoomsResponse> findByCursor(Long userNo, RoomRelation relation, List<Tag> tags, RoomType type, Integer capacity, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
         return roomRepository.findByCursor(userNo, relation, tags, type, capacity, sort, decodedCursor, limitPlusOne);
     }
 }
