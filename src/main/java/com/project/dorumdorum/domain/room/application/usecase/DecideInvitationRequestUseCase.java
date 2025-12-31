@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class DecideInviteRoomRequestUseCase {
+public class DecideInvitationRequestUseCase {
 
     private final UserService userService;
     private final RoomService roomService;

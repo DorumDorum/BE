@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
-public record LoadRoomsResponse (
+public record FindRoomsResponse(
         Long roomNo,
         RoomType roomType,
         Integer capacity,

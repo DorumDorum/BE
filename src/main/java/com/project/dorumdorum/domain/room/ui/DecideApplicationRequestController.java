@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.room.ui;
 
-import com.project.dorumdorum.domain.room.application.usecase.DecideJoinRoomRequestUseCase;
-import com.project.dorumdorum.domain.room.ui.spec.DecideJoinRoomRequestApiSpec;
+import com.project.dorumdorum.domain.room.application.usecase.DecideApplicationRequestUseCase;
+import com.project.dorumdorum.domain.room.ui.spec.DecideApplicationRequestApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class DecideJoinRoomRequestController implements DecideJoinRoomRequestApiSpec {
+public class DecideApplicationRequestController implements DecideApplicationRequestApiSpec {
 
-    private final DecideJoinRoomRequestUseCase decideJoinRoomRequestUseCase;
+    private final DecideApplicationRequestUseCase decideApplicationRequestUseCase;
 
     @Override
     public BaseResponse<Void> approve(
@@ -20,7 +20,7 @@ public class DecideJoinRoomRequestController implements DecideJoinRoomRequestApi
             @PathVariable Long roomNo,
             @PathVariable Long requestNo
     ) {
-        decideJoinRoomRequestUseCase.approve(userNo, roomNo, requestNo);
+        decideApplicationRequestUseCase.approve(userNo, roomNo, requestNo);
         return BaseResponse.onSuccess();
     }
 
@@ -29,7 +29,7 @@ public class DecideJoinRoomRequestController implements DecideJoinRoomRequestApi
             @CurrentUser Long userNo,
             @PathVariable Long requestNo
     ) {
-        decideJoinRoomRequestUseCase.reject(userNo, requestNo);
+        decideApplicationRequestUseCase.reject(userNo, requestNo);
         return BaseResponse.onSuccess();
     }
 }

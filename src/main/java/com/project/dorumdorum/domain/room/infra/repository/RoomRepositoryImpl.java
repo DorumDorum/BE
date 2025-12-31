@@ -2,14 +2,12 @@ package com.project.dorumdorum.domain.room.infra.repository;
 
 import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
-import com.project.dorumdorum.domain.room.application.dto.response.LoadRoomsResponse;
-import com.project.dorumdorum.domain.room.domain.entity.RoomRole;
+import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.entity.Tag;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepositoryCustom;
 import com.project.dorumdorum.global.pagination.DecodedCursor;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -33,17 +31,17 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     private final JPAQueryFactory query;
 
     @Override
-    public List<LoadRoomsResponse> findByCursor(Long userNo,
-                                          RoomRelation relation,
-                                          List<Tag> tags,
-                                          RoomType type,
-                                          Integer capacity,
-                                          RoomSort sort,
-                                          DecodedCursor cursor,
-                                          int limitPlusOne) {
-        JPAQuery<LoadRoomsResponse> q = query
+    public List<FindRoomsResponse> findByCursor(Long userNo,
+                                                RoomRelation relation,
+                                                List<Tag> tags,
+                                                RoomType type,
+                                                Integer capacity,
+                                                RoomSort sort,
+                                                DecodedCursor cursor,
+                                                int limitPlusOne) {
+        JPAQuery<FindRoomsResponse> q = query
                 .select(
-                        constructor(LoadRoomsResponse.class,
+                        constructor(FindRoomsResponse.class,
                                 room.roomNo,
                                 room.roomType,
                                 room.capacity,
