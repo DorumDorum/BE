@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.ALREADY_JOINED_USER;
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.COMPLETED_ROOM_EXISTS;
 
 @Service
@@ -36,9 +37,9 @@ public class FindRoomsUseCase {
             RoomSort sort,
             String cursor
     ) {
-        // 내가 이미 확정된 방이 있는지
-        if(roommateService.isCompletedRoomExists(userNo))
-            throw new RestApiException(COMPLETED_ROOM_EXISTS);
+        // 내가 이미 속한 방이 있는지
+        if(roommateService.existsByUserNo(userNo))
+            throw new RestApiException(ALREADY_JOINED_USER);
 
         int limitPlusOne = PaginationHelper.limitPlusOne(limit);
         DecodedCursor decodedCursor = cursor == null

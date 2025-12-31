@@ -38,11 +38,12 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
     DUPLICATE_JOIN_REQUEST(HttpStatus.BAD_REQUEST, "ROOM002", "이미 전송한 요청입니다."),
     ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "ROOM003", "존재하지 않는 방입니다."),
     COMPLETED_ROOM_EXISTS(HttpStatus.BAD_REQUEST, "ROOM004", "이미 확정된 방이 존재하는 유저입니다."),
+    ALREADY_JOINED_USER(HttpStatus.BAD_REQUEST, "ROOM004", "이미 속한 방이 존재하는 유저입니다."),
     NO_PERMISSION_ON_ROOM(HttpStatus.UNAUTHORIZED, "ROOM005", "권한이 없습니다."),
     ROOM_REQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "ROOM006", "존재하지 않는 요청입니다."),
     ROOM_IS_NOT_FULL(HttpStatus.BAD_REQUEST, "ROOM007", "방이 가득차지 않았습니다."),
     ALREADY_CONFIRM_REQUEST(HttpStatus.BAD_REQUEST, "ROOM008", "이미 처리된 요청입니다."),
-
+    ROOMMATE_NOT_FOUND(HttpStatus.NOT_FOUND, "ROOM009", "룸메이트를 찾을 수 없습니다."),
 
     // Friend
     FRIEND_SELF_REQUEST(HttpStatus.BAD_REQUEST, "FRIEND001", "요청자와 대상자가 같습니다."),

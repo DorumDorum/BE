@@ -12,8 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.COMPLETED_ROOM_EXISTS;
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.NO_PERMISSION_ON_ROOM;
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.*;
 
 @Service
 @Transactional
@@ -29,10 +28,10 @@ public class DecideApplicationRequestUseCase {
         // 유저 존재 유무 검증
         userService.validateExistsById(userNo);
 
-        // 지원자에게 확정된 방이 존재하는지 검증
+        // 지원자가 이미 속한 방이 있는지 검증
         RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
-        if(roommateService.isCompletedRoomExists(userNo))
-            throw new RestApiException(COMPLETED_ROOM_EXISTS);
+        if(roommateService.existsByUserNo(userNo))
+            throw new RestApiException(ALREADY_JOINED_USER);
 
         // 방장인지 확인
         Room room = roomService.findById(roomNo);
