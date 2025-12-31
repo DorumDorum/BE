@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.room.ui;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.LoadRoomsResponse;
-import com.project.dorumdorum.domain.room.application.dto.usecase.LoadRoomsUseCase;
+import com.project.dorumdorum.domain.room.application.usecase.LoadRoomsUseCase;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.entity.Tag;
 import com.project.dorumdorum.domain.room.ui.spec.LoadRoomsApiSpec;

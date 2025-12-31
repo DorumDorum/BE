@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.room.ui;
 
-import com.project.dorumdorum.domain.room.application.dto.usecase.DecideJoinRoomRequestUseCase;
+import com.project.dorumdorum.domain.room.application.usecase.DecideJoinRoomRequestUseCase;
 import com.project.dorumdorum.domain.room.ui.spec.DecideJoinRoomRequestApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;

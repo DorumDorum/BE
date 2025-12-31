@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Tag(name = "Room")
@@ -25,7 +24,7 @@ public interface CreateRoomApiSpec {
                     description = "생성할 방 정보 (방 타입, 수용 인원 수, 방 이름, 태그 리스트)",
                     required = true
             )
-            @Valid RoomCreateRequest request
+            RoomCreateRequest request
     );
 
 }
