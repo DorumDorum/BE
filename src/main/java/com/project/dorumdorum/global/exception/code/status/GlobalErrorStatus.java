@@ -56,7 +56,13 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
 
     // Notification
     FIREBASE_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "NOTIFICATION001", "수신자의 FCM 토큰이 등록되어 있지 않습니다."),
-    NOTIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "NOTIFICATION002", "알림 전송 중 서버 에러")
+    NOTIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "NOTIFICATION002", "알림 전송 중 서버 에러"),
+
+    // MESSAGE
+    MESSAGE_SELF_REQUEST(HttpStatus.BAD_REQUEST, "MESSAGE001", "자기 자신에게 채팅 요청을 보낼 수 없습니다."),
+    PARTICIPANT_NOT_FOUND(HttpStatus.BAD_REQUEST, "MESSAGE002", "존재하지 않는 참여자입니다."),
+    MESSAGEROOM_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "MESSAGE003", "이미 채팅방이 존재합니다.")
+
 
     ;
 
