@@ -16,9 +16,15 @@ public class MessageRoomService {
 
     private final MessageRoomRepository messageRoomRepository;
 
-    public MessageRoom create(SendMessageRequest request, MessageRoomType roomType, MessageRoomStatus roomStatus) {
+    public MessageRoom create(
+            SendMessageRequest request,
+            MessageRoomType roomType,
+            MessageRoomStatus roomStatus,
+            String directRoomKey
+    ) {
         MessageRoom entity = MessageRoom.builder()
                 .roomType(roomType)
+                .directRoomKey(directRoomKey)
                 .lastMessageAt(LocalDateTime.now())
                 .lastMessage(request.initMessage())
                 .roomStatus(roomStatus)
