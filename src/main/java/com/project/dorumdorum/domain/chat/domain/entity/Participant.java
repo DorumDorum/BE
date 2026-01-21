@@ -17,17 +17,17 @@ import java.time.LocalDateTime;
 public class Participant extends BaseEntity {
 
     @Id @Tsid
-    private String participantNo;
+    private Long participantNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_no", nullable = false)
     private User user;
 
-    private Role role;
+    private Long messageRoomNo;
 
     private LocalDateTime joinedAt;
 
     private LocalDateTime leftAt;
 
-    private String lastReadMessageId;
+    private Long lastReadMessageId;
 }
