@@ -2,6 +2,7 @@ package com.project.dorumdorum.domain.chat.domain.entity;
 
 import com.project.dorumdorum.global.common.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -22,6 +23,9 @@ public class MessageRoom extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private MessageRoomType roomType;
+
+    @Column(unique = true, length = 64)
+    private String directRoomKey;
 
     private String lastMessage;
 
