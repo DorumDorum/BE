@@ -49,6 +49,7 @@ public class SecurityConfig {
                             request.requestMatchers(HttpMethod.valueOf(authPath.getMethod()), authPath.getPathPattern()).permitAll()
                     );
             request.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+            request.requestMatchers("/ws/**", "/ws").permitAll();
         });
 
         http.authorizeHttpRequests(request -> request
