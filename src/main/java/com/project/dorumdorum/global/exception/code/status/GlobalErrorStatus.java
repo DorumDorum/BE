@@ -60,9 +60,12 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
 
     // MESSAGE
     MESSAGE_SELF_REQUEST(HttpStatus.BAD_REQUEST, "MESSAGE001", "자기 자신에게 채팅 요청을 보낼 수 없습니다."),
-    PARTICIPANT_NOT_FOUND(HttpStatus.BAD_REQUEST, "MESSAGE002", "존재하지 않는 참여자입니다."),
-    MESSAGEROOM_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "MESSAGE003", "이미 채팅방이 존재합니다.")
-
+    PARTICIPANT_NOT_FOUND(HttpStatus.NOT_FOUND, "MESSAGE002", "존재하지 않는 참여자입니다."),
+    MESSAGEROOM_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "MESSAGE003", "이미 채팅방이 존재합니다."),
+    MESSAGEREQUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "MESSAGE004", "존재하지 않는 채팅 요청입니다."),
+    NOT_MESSAGE_REQUEST_RECEIVER(HttpStatus.UNAUTHORIZED, "MESSAGE005", "채팅 요청 수신자가 아닙니다. "),
+    MESSAGEROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "MESSAGE006", "존재하지 않는 채팅방입니다."),
+    MESSAGEREQUEST_ALREADY_DECIDED(HttpStatus.BAD_REQUEST, "MESSAGE007", "이미 처리된 채팅 요청입니다.")
 
     ;
 
