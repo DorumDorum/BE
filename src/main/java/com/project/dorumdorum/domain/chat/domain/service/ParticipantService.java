@@ -5,6 +5,8 @@ import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomType;
 import com.project.dorumdorum.domain.chat.domain.entity.Participant;
 import com.project.dorumdorum.domain.chat.domain.repository.ParticipantRepository;
 import com.project.dorumdorum.domain.user.domain.entity.User;
+import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +29,15 @@ public class ParticipantService {
         participantRepository.save(participant);
     }
 
-    public boolean existsDirectMessageRoomByUserIds(Long senderId, Long receiverId) {
-        return participantRepository.existsSharedRoomByUserIdsAndRoomType(
-            senderId,
-            receiverId,
-            MessageRoomType.DIRECT,
-            EnumSet.of(MessageRoomStatus.REQUESTED, MessageRoomStatus.APPROVED)
-        );
+    public void softDelete(Participant participant) {
+        participant.softDelete();
+    }
+
+    public Participant findByUserNoAndMessageRoomNo(User user, Long messageRoomNo) {
+        Participant participant = participantRepository.findByUserAndMessageRoomNo(user, messageRoomNo);
+        if (participant == null) {
+            throw new RestApiException(GlobalErrorStatus.PARTICIPANT_NOT_FOUND);
+        }
+        return participant;
     }
 }
