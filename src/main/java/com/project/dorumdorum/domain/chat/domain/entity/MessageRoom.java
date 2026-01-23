@@ -24,8 +24,11 @@ public class MessageRoom extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MessageRoomType roomType;
 
-    @Column(unique = true, length = 64)
+    @Column(length = 64)
     private String directRoomKey;
+
+    @Column(unique = true, length = 64)
+    private String activeDirectRoomKey;
 
     private String lastMessage;
 
@@ -33,4 +36,13 @@ public class MessageRoom extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private MessageRoomStatus roomStatus;
+
+    public void approve() {
+        this.roomStatus = MessageRoomStatus.APPROVED;
+    }
+
+    public void reject() {
+        this.roomStatus = MessageRoomStatus.REJECTED;
+        this.activeDirectRoomKey = null;
+    }
 }
