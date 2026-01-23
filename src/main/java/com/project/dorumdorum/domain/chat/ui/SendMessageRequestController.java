@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.chat.ui;
 
-import com.project.dorumdorum.domain.chat.application.dto.SendMessageRequest;
+import com.project.dorumdorum.domain.chat.application.dto.request.SendMessageRequest;
 import com.project.dorumdorum.domain.chat.application.usecase.SendMessageRequestUseCase;
 import com.project.dorumdorum.domain.chat.ui.spec.SendMessageRequestApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
