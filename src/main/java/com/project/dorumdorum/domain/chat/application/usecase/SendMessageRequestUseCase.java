@@ -1,9 +1,10 @@
 package com.project.dorumdorum.domain.chat.application.usecase;
 
-import com.project.dorumdorum.domain.chat.application.dto.SendMessageRequest;
+import com.project.dorumdorum.domain.chat.application.dto.request.SendMessageRequest;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoom;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomStatus;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomType;
+import com.project.dorumdorum.domain.chat.domain.service.MessageRequestService;
 import com.project.dorumdorum.domain.chat.domain.service.MessageRoomService;
 import com.project.dorumdorum.domain.chat.domain.service.MessageService;
 import com.project.dorumdorum.domain.chat.domain.service.ParticipantService;
@@ -26,6 +27,7 @@ public class SendMessageRequestUseCase {
 
     private final MessageRoomService messageRoomService;
     private final MessageService messageService;
+    private final MessageRequestService messageRequestService;
     private final ParticipantService participantService;
     private final UserService userService;
     private final NotificationService notificationService;
@@ -41,12 +43,12 @@ public class SendMessageRequestUseCase {
             throw new RestApiException(GlobalErrorStatus.MESSAGE_SELF_REQUEST);
 
         // 이미 채팅방이 존재하는지 확인
-        if (participantService.existsDirectMessageRoomByUserIds(userNo, receiverNo)) {
+        String directRoomKey = buildDirectRoomKey(userNo, receiverNo);
+        if (messageRoomService.existsActiveDirectRoomByKey(directRoomKey)) {
             throw new RestApiException(GlobalErrorStatus.MESSAGEROOM_ALREADY_EXIST);
         }
 
         // 채팅방 생성
-        String directRoomKey = buildDirectRoomKey(userNo, receiverNo);
         MessageRoom messageRoom;
         try {
             messageRoom = messageRoomService.create(
@@ -58,6 +60,9 @@ public class SendMessageRequestUseCase {
         } catch (DataIntegrityViolationException e) {
             throw new RestApiException(GlobalErrorStatus.MESSAGEROOM_ALREADY_EXIST);
         }
+
+        // 채팅 요청 생성
+        messageRequestService.save(sender.getUserNo(), receiver.getUserNo(), messageRoom.getMessageRoomNo());
 
         // 참여자 생성
         participantService.create(sender, messageRoom.getMessageRoomNo());
@@ -72,17 +77,23 @@ public class SendMessageRequestUseCase {
             );
         }
 
-        // 채팅 요청 알림(Firebase 등) - 실패해도 흐름 유지
-        notificationService.sendNotificationSafely(
-                receiverNo,
-                "새 채팅 요청",
-                receiver.getNickname() + "님이 채팅 요청을 보냈습니다.",
-                Map.of(
-                        "roomId", String.valueOf(messageRoom.getMessageRoomNo()),
-                        "senderId", String.valueOf(userNo)
-                ),
-                null
-        );
+        // 채팅 요청 알림(Firebase)
+        // TODO: 나중에 RestApiException 안 보내는 알림 메소드로 보내기
+        try {
+            notificationService.sendNotification(
+                    receiverNo,
+                    "새 채팅 요청",
+                    sender.getNickname() + "님이 채팅 요청이 도착했습니다.",
+                    Map.of(
+                            "roomId", String.valueOf(messageRoom.getMessageRoomNo()),
+                            "senderId", String.valueOf(userNo)
+                    ),
+                    null
+            );
+        } catch (Exception e) {
+            log.warn("[FCM] 채팅 요청 알림 전송 실패. receiverNo={} roomId={}",
+                    receiverNo, messageRoom.getMessageRoomNo(), e);
+        }
     }
 
     private String buildDirectRoomKey(Long userNo, Long receiverNo) {
