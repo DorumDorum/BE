@@ -20,9 +20,9 @@ public class CreateRoomUseCase {
     private final RoommateService roommateService;
 
     public void execute(Long userNo, RoomCreateRequest request) {
-        userService.validateExistsById(userNo);
-
-        Room room = roomService.create(request);
+        Room room = roomService.create(userNo, request);
         roommateService.create(userNo, room, RoomRole.HOST);
+
+
     }
 }

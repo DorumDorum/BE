@@ -24,12 +24,13 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
 
-    public Room create(RoomCreateRequest request) {
+    public Room create(Long userNo, RoomCreateRequest request) {
         Room entity = Room.builder()
                 .capacity(request.capacity())
                 .roomType(request.roomType())
                 .tags(request.tags())
                 .title(request.title())
+                .hostUserNo(userNo)
                 .build();
 
         return roomRepository.save(entity);

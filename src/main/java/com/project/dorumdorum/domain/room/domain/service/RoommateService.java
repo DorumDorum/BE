@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.ROOMMATE_NOT_FOUND;
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
@@ -53,8 +54,7 @@ public class RoommateService {
         return roommateRepository.findByRoom(room);
     }
 
-    public Roommate findByUserNo(Long userNo) {
-        return roommateRepository.findByUserNo(userNo)
-                .orElseThrow(() -> new RestApiException(ROOMMATE_NOT_FOUND));
+    public Optional<Roommate> findByUserNo(Long userNo) {
+        return roommateRepository.findByUserNo(userNo);
     }
 }
