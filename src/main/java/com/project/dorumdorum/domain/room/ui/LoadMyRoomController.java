@@ -15,7 +15,7 @@ public class LoadMyRoomController implements LoadMyRoomsApiSpec {
 
     private final LoadMyRoomsUseCase loadMyRoomsUseCase;
 
-    @GetMapping("/api/rooms/me")
+    @Override
     public BaseResponse<FindRoomsResponse> load(
             @CurrentUser Long userNo
     ) {

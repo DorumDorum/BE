@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.ALREADY_JOINED_USER;
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.COMPLETED_ROOM_EXISTS;
 
 @Service
 @RequiredArgsConstructor

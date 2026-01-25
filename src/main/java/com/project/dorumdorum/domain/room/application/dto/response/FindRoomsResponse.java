@@ -18,5 +18,6 @@ public record FindRoomsResponse(
         String title,
         String hostNickname,
         List<Tag> additionalTag,
-        RoomStatus roomStatus
+        RoomStatus roomStatus,
+        Boolean isHost
 ) {}

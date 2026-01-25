@@ -51,7 +51,8 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                 room.title,
                                 user.nickname,
                                 room.tags,
-                                room.roomStatus
+                                room.roomStatus,
+                                room.hostUserNo.eq(userNo)
                         )
                 )
                 .from(room)
@@ -86,7 +87,8 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                 room.title,
                                 user.nickname,
                                 room.tags,
-                                room.roomStatus
+                                room.roomStatus,
+                                room.hostUserNo.eq(userNo)
                         )
                 )
                 .from(room)

@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.room.domain.service;
 
+import com.project.dorumdorum.domain.room.application.dto.response.MyRoommateResponse;
 import com.project.dorumdorum.domain.room.domain.entity.ConfirmStatus;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomRole;
@@ -56,5 +57,9 @@ public class RoommateService {
 
     public Optional<Roommate> findByUserNo(Long userNo) {
         return roommateRepository.findByUserNo(userNo);
+    }
+
+    public List<MyRoommateResponse> findMyRoommates(Long userNo) {
+        return roommateRepository.findMyRoommates(userNo);
     }
 }

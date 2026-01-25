@@ -23,7 +23,7 @@ public class FindRoomsController implements FindRoomsApiSpec {
 
     private final FindRoomsUseCase findRoomsUseCase;
 
-    @GetMapping("/api/rooms")
+    @Override
     public BaseResponse<CursorPage<FindRoomsResponse>> loadAll(
             @CurrentUser Long userNo,
             @RequestParam RoomRelation relation,
