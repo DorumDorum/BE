@@ -24,7 +24,8 @@ public class RuleItem extends BaseEntity {
     private RoomRule roomRule;
 
     @Column(nullable = false)
-    private String category; // 기본 정보, 생활 패턴, 추가 규칙
+    @Enumerated(EnumType.STRING)
+    private RuleItemCategory category; // 기본 정보, 생활 패턴, 추가 규칙
 
     @Column(nullable = false)
     private String label; // 취침, 기상, 거주기간, 귀가 등
@@ -38,9 +39,6 @@ public class RuleItem extends BaseEntity {
 
     @Column
     private String extraValue; // 추가 값 (예: 소등 시간의 구체적인 시간)
-
-    @Column(nullable = false)
-    private Integer displayOrder; // 항목 표시 순서
 
     @OneToMany(mappedBy = "ruleItem", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -57,13 +55,5 @@ public class RuleItem extends BaseEntity {
 
     public void updateExtraValue(String extraValue) {
         this.extraValue = extraValue;
-    }
-
-    public void updateDisplayOrder(Integer displayOrder) {
-        this.displayOrder = displayOrder;
-    }
-
-    public void updateCategory(String category) {
-        this.category = category;
     }
 }
