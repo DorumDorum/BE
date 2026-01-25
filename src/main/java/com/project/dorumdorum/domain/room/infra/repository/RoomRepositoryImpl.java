@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.project.dorumdorum.domain.room.domain.entity.QRoom.room;
 import static com.project.dorumdorum.domain.room.domain.entity.QRoomRequest.roomRequest;
@@ -49,7 +50,8 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                 room.createdAt,
                                 room.title,
                                 user.nickname,
-                                room.tags
+                                room.tags,
+                                room.roomStatus
                         )
                 )
                 .from(room)
@@ -69,6 +71,36 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
         }
 
         return q.limit(limitPlusOne).fetch();
+    }
+
+    @Override
+    public Optional<FindRoomsResponse> findMyRoom(Long userNo) {
+        FindRoomsResponse result = query
+                .select(
+                        constructor(FindRoomsResponse.class,
+                                room.roomNo,
+                                room.roomType,
+                                room.capacity,
+                                room.currentMateCount,
+                                room.createdAt,
+                                room.title,
+                                user.nickname,
+                                room.tags,
+                                room.roomStatus
+                        )
+                )
+                .from(room)
+                .leftJoin(user).on(user.userNo.eq(room.hostUserNo))
+                .where(
+                        JPAExpressions
+                                .selectOne()
+                                .from(roommate)
+                                .where(roommate.room.eq(room), roommate.userNo.eq(userNo))
+                                .exists()
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(result);
     }
 
     private BooleanExpression relationPredicate(Long userNo, RoomRelation relation) {

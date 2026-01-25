@@ -32,12 +32,9 @@ public class InviteRoomRequestUseCase {
         // 방장인지 확인
         if(!roommateService.isHost(userNo, room))
             throw new RestApiException(NO_PERMISSION_ON_ROOM);
-        // 확정된 방이 있는 유저인가 검증
-        if(roommateService.isCompletedRoomExists(toUser))
-            throw new RestApiException(COMPLETED_ROOM_EXISTS);
-        // 이미 속한 방인지 검증
-        if (roommateService.isUserInRoom(toUser, room))
-            throw new RestApiException(USER_IN_ROOM);
+        // 이미 속한 방이 있는 유저인가 검증
+        if(roommateService.existsByUserNo(toUser))
+            throw new RestApiException(ALREADY_JOINED_USER);
         // 이미 보낸 요청인지 검증
         if (roomRequestService.isDuplicateJoinRequest(toUser, room))
             throw new RestApiException(DUPLICATE_JOIN_REQUEST);

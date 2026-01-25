@@ -33,7 +33,7 @@ public class DecideRoomConfirmationUseCase {
     public void reject(Long userNo, Long roomNo) {
         Room room = roomService.findById(roomNo);
 
-        if(roommateService.isUserInRoom(userNo, room))
+        if(!roommateService.isUserInRoom(userNo, room))
             throw new RestApiException(NO_PERMISSION_ON_ROOM);
 
         room.updateStatus(RoomStatus.CONFIRM_PENDING);

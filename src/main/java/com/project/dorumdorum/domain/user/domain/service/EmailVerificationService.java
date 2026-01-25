@@ -6,6 +6,7 @@ import com.project.dorumdorum.domain.user.infra.smtp.SmtpEmailSender;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.properties.IncludeEmailDomainProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.FAILED_EMAIL_VERIFICATION;
@@ -23,6 +24,7 @@ public class EmailVerificationService {
         return includeEmailDomainProperties.matches(domain);
     }
 
+    @Async
     public void sendCode(String email, String code) {
         verificationCodeRepository.save(email, code);
         var template = EmailTemplateHelper.generate(code);

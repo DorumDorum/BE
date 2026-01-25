@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.ALREADY_REGISTERED_EMAIL;
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._PASSWORD_NOT_MATCHES;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +16,9 @@ public class SignUpUseCase {
     private final UserService userService;
 
     public void execute(SignUpRequest request) {
+        if(!request.isCheckedPassword())
+            throw new RestApiException(_PASSWORD_NOT_MATCHES);
+
         if (userService.isAlreadyRegistered(request.email()))
             throw new RestApiException(ALREADY_REGISTERED_EMAIL);
 

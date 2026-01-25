@@ -10,8 +10,10 @@ import java.util.Optional;
 public interface RoommateRepository extends JpaRepository<Roommate, Long> {
 
     Boolean existsByUserNoAndRoom(Long userNo, Room room);
-    List<Roommate> findByUserNo(Long userNo);
+    List<Roommate> findAllByUserNo(Long userNo);
     Optional<Roommate> findByUserNoAndRoom(Long userNo, Room room);
     List<Roommate> findByRoom(Room room);
+    Optional<Roommate> findByUserNo(Long userNo);
+    boolean existsByUserNo(Long userNo);
 
 }

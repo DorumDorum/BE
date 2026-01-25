@@ -36,6 +36,7 @@ public class UserService {
                         .password(passwordEncoder.encode(request.password()))
                         .role(Role.USER)
                         .gender(request.gender())
+                        .studentNo(request.studentNo())
                         .build()
         );
     }

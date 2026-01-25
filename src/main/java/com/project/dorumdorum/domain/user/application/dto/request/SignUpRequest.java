@@ -10,5 +10,12 @@ public record SignUpRequest(
         @NotBlank String nickname,
         @Email @NotBlank String email,
         @NotBlank String password,
-        @NotNull Gender gender
-) {}
+        @NotBlank String passwordCheck,
+        @NotNull Gender gender,
+        @NotBlank String studentNo
+) {
+    public boolean isCheckedPassword() {
+        return password().equals(passwordCheck());
+    }
+
+}

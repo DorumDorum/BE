@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.ROOM_NOT_FOUND;
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
 
 @Service
@@ -41,5 +42,10 @@ public class RoomService {
 
     public List<FindRoomsResponse> findByCursor(Long userNo, RoomRelation relation, List<Tag> tags, RoomType type, Integer capacity, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
         return roomRepository.findByCursor(userNo, relation, tags, type, capacity, sort, decodedCursor, limitPlusOne);
+    }
+
+    public FindRoomsResponse findMyRoom(Long userNo) {
+        return roomRepository.findMyRoom(userNo)
+                .orElseThrow(() -> new RestApiException(ROOM_NOT_FOUND));
     }
 }
