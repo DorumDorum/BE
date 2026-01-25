@@ -11,6 +11,9 @@ public record MyRoommateResponse(
         String name,
         String nickname,
         String studentNo,
+        String major,
+        String grade,
+        Integer age,
         Gender gender
 ) {
 }

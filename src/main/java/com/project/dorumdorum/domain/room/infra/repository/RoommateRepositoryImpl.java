@@ -30,6 +30,9 @@ public class RoommateRepositoryImpl implements RoommateRepositoryCustom {
                                 user.name,
                                 user.nickname,
                                 user.studentNo,
+                                user.major,
+                                user.grade,
+                                user.age,
                                 user.gender
                         )
                 )
