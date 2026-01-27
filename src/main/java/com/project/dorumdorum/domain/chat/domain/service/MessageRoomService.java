@@ -1,17 +1,20 @@
 package com.project.dorumdorum.domain.chat.domain.service;
 
 import com.project.dorumdorum.domain.chat.application.dto.request.SendMessageRequest;
+import com.project.dorumdorum.domain.chat.application.dto.response.LoadMessageRoomResponse;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoom;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomStatus;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomType;
 import com.project.dorumdorum.domain.chat.domain.repository.MessageRoomRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.pagination.DecodedCursor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumSet;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -56,5 +59,9 @@ public class MessageRoomService {
 
     public void updateStatusToReject(MessageRoom messageRoom) {
         messageRoom.reject();
+    }
+
+    public List<LoadMessageRoomResponse> findByCursor(Long userNo, DecodedCursor decodedCursor, int limitPlusOne) {
+        return messageRoomRepository.findByCursor(userNo, decodedCursor, limitPlusOne);
     }
 }

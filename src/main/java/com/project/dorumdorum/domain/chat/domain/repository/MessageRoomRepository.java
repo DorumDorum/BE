@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
 
-public interface MessageRoomRepository extends JpaRepository<MessageRoom, Long> {
+public interface MessageRoomRepository extends JpaRepository<MessageRoom, Long>, MessageRoomRepositoryCustom {
     boolean existsByActiveDirectRoomKeyAndRoomTypeAndRoomStatusIn(
         String activeDirectRoomKey,
         MessageRoomType roomType,
