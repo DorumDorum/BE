@@ -12,11 +12,13 @@ public class CheckMyRoomUseCase {
     private final RoommateService roommateService;
 
     public CheckMyRoomResponse execute(Long userNo) {
-        return roommateService.findByUserNo(userNo)
+        CheckMyRoomResponse checkMyRoomResponse = roommateService.findByUserNo(userNo)
                 .map(roommate -> new CheckMyRoomResponse(
                         true,
-                        roommate.getRoom().getRoomNo()
+                        String.valueOf(roommate.getRoom().getRoomNo())
                 ))
                 .orElseGet(() -> new CheckMyRoomResponse(false, null));
+
+        return checkMyRoomResponse;
     }
 }

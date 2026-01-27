@@ -1,40 +1,69 @@
 package com.project.dorumdorum.domain.room.domain.entity;
 
-import com.project.dorumdorum.global.common.BaseEntity;
-import io.hypersistence.utils.hibernate.id.Tsid;
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
+@Document(collection = "room_rules")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class RoomRule extends BaseEntity {
+public class RoomRule {
 
-    @Id @Tsid
-    private Long ruleNo;
+    @Id
+    private String id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_no", nullable = false)
-    private Room room;
+    private Long roomNo;  // Room 엔티티와 연결
 
-    @OneToMany(mappedBy = "roomRule", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<RuleItem> items = new ArrayList<>();
+    private List<CategoryData> categories = new ArrayList<>();
 
-    @Column(columnDefinition = "TEXT")
-    private String otherNotes; // 기타 메모 사항
+    private String otherNotes;
 
-    public void addItem(RuleItem item) {
-        this.items.add(item);
-        item.setRoomRule(this);
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class CategoryData {
+        private RuleItemCategory category;  // BASIC_INFO, LIFESTYLE_PATTERN, ADDITIONAL_RULES
+
+        @Builder.Default
+        private List<RuleItemData> items = new ArrayList<>();
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class RuleItemData {
+        private String label;
+        private RuleItemType itemType;
+        private String value;
+        private String extraValue;
+
+        @Builder.Default
+        private List<RuleOptionData> options = new ArrayList<>();
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class RuleOptionData {
+        private String text;
+        private Boolean selected;
     }
 
     public void updateOtherNotes(String otherNotes) {
         this.otherNotes = otherNotes;
+        this.updatedAt = LocalDateTime.now();
     }
 }
