@@ -1,13 +1,9 @@
 package com.project.dorumdorum.domain.room.domain.entity;
 
 import com.project.dorumdorum.global.common.BaseEntity;
-import com.project.dorumdorum.global.converter.TagListConverter;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -38,9 +34,6 @@ public class Room extends BaseEntity {
 
     @Column(nullable = false)
     private Integer confirmMateCount;
-
-    @Convert(converter = TagListConverter.class)
-    private List<Tag> tags = new ArrayList<>();
 
     @Column(nullable = false)
     private String title;

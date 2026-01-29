@@ -6,7 +6,6 @@ import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
-import com.project.dorumdorum.domain.room.domain.entity.Tag;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.pagination.DecodedCursor;
@@ -24,12 +23,12 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
 
-    public Room create(RoomCreateRequest request) {
+    public Room create(Long userNo, RoomCreateRequest request) {
         Room entity = Room.builder()
                 .capacity(request.capacity())
                 .roomType(request.roomType())
-                .tags(request.tags())
                 .title(request.title())
+                .hostUserNo(userNo)
                 .build();
 
         return roomRepository.save(entity);
@@ -40,8 +39,8 @@ public class RoomService {
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
-    public List<FindRoomsResponse> findByCursor(Long userNo, RoomRelation relation, List<Tag> tags, RoomType type, Integer capacity, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
-        return roomRepository.findByCursor(userNo, relation, tags, type, capacity, sort, decodedCursor, limitPlusOne);
+    public List<FindRoomsResponse> findByCursor(Long userNo, RoomRelation relation, RoomType type, Integer capacity, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
+        return roomRepository.findByCursor(userNo, relation, type, capacity, sort, decodedCursor, limitPlusOne);
     }
 
     public FindRoomsResponse findMyRoom(Long userNo) {

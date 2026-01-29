@@ -23,7 +23,7 @@ public class SmtpEmailSender {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setText(text, false);          // 두 번째 파라미터 true → HTML 메일
+            helper.setText(text, true);           // HTML 메일 전송
 
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {

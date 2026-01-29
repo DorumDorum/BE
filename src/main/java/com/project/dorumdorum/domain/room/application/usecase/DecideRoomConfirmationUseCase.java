@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.NO_PERMISSION_ON_ROOM;
 
 @Service
@@ -33,7 +31,7 @@ public class DecideRoomConfirmationUseCase {
     public void reject(Long userNo, Long roomNo) {
         Room room = roomService.findById(roomNo);
 
-        if(!roommateService.isUserInRoom(userNo, room))
+        if(!roommateService.isUserRoommate(userNo, room.getRoomNo()))
             throw new RestApiException(NO_PERMISSION_ON_ROOM);
 
         room.updateStatus(RoomStatus.CONFIRM_PENDING);

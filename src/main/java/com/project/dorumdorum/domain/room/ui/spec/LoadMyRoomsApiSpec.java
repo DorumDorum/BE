@@ -19,7 +19,7 @@ public interface LoadMyRoomsApiSpec {
     @Operation(
             summary = "내가 속한 방 조회 API"
     )
-    @GetMapping("/api/rooms")
+    @GetMapping("/api/rooms/me")
     BaseResponse<FindRoomsResponse> load(
             @Parameter(hidden = true) Long userNo
     );

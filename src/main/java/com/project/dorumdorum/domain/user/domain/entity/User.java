@@ -37,6 +37,12 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String studentNo;
 
+    private String major;
+
+    private String grade;
+
+    private Integer age;
+
     @Enumerated(EnumType.STRING)
     private Gender gender;
 

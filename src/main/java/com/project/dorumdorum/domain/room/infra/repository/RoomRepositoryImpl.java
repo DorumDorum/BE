@@ -5,7 +5,6 @@ import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
-import com.project.dorumdorum.domain.room.domain.entity.Tag;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepositoryCustom;
 import com.project.dorumdorum.global.pagination.DecodedCursor;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -34,7 +33,6 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     @Override
     public List<FindRoomsResponse> findByCursor(Long userNo,
                                                 RoomRelation relation,
-                                                List<Tag> tags,
                                                 RoomType type,
                                                 Integer capacity,
                                                 RoomSort sort,
@@ -50,8 +48,8 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                 room.createdAt,
                                 room.title,
                                 user.nickname,
-                                room.tags,
-                                room.roomStatus
+                                room.roomStatus,
+                                room.hostUserNo.eq(userNo)
                         )
                 )
                 .from(room)
@@ -60,7 +58,6 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                         relationPredicate(userNo, relation),
                         type == null ? null : room.roomType.eq(type),
                         capacity == null ? null : room.capacity.eq(capacity),
-                        tagsAnyPredicate(tags),
                         cursorPredicate(cursor, sort)
                 );
 
@@ -85,8 +82,8 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                 room.createdAt,
                                 room.title,
                                 user.nickname,
-                                room.tags,
-                                room.roomStatus
+                                room.roomStatus,
+                                room.hostUserNo.eq(userNo)
                         )
                 )
                 .from(room)
@@ -118,14 +115,6 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                     .exists();
             case RECRUITING -> room.roomStatus.eq(RoomStatus.CONFIRM_PENDING);
         };
-    }
-
-    // ANY 매칭: 요청 태그 이름 중 하나라도 포함
-    private BooleanExpression tagsAnyPredicate(List<Tag> tags) {
-        if (tags == null || tags.isEmpty())
-            return null;
-
-        return room.tags.any().in(tags);
     }
 
     private BooleanExpression cursorPredicate(DecodedCursor c, RoomSort sort) {

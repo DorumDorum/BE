@@ -4,7 +4,6 @@ import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
-import com.project.dorumdorum.domain.room.domain.entity.Tag;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.domain.room.domain.service.RoommateService;
 import com.project.dorumdorum.global.exception.RestApiException;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.ALREADY_JOINED_USER;
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.COMPLETED_ROOM_EXISTS;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +29,6 @@ public class FindRoomsUseCase {
     public CursorPage<FindRoomsResponse> execute(
             Long userNo,
             RoomRelation relation,
-            List<Tag> tags,
             RoomType type,
             Integer capacity,
             RoomSort sort,
@@ -47,7 +44,7 @@ public class FindRoomsUseCase {
                 : CursorCodec.decode(cursor);
 
         List<FindRoomsResponse> responses = roomService.findByCursor(
-                userNo, relation, tags, type, capacity, sort, decodedCursor, limitPlusOne
+                userNo, relation, type, capacity, sort, decodedCursor, limitPlusOne
         );
 
         return buildCursorPageFromResponses(sort, responses);

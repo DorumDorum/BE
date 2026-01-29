@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.room.domain.service;
 
+import com.project.dorumdorum.domain.room.application.dto.response.MyRoommateResponse;
 import com.project.dorumdorum.domain.room.domain.entity.ConfirmStatus;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomRole;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.ROOMMATE_NOT_FOUND;
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
@@ -31,8 +33,8 @@ public class RoommateService {
         return roommateRepository.save(entity);
     }
 
-    public Boolean isUserInRoom(Long userNo, Room room) {
-        return roommateRepository.existsByUserNoAndRoom(userNo, room);
+    public Boolean isUserRoommate(Long userNo, Long roomNo) {
+        return roommateRepository.existsByUserNoAndRoomNo(userNo, roomNo);
     }
 
     public Boolean existsByUserNo(Long userNo) {
@@ -53,8 +55,11 @@ public class RoommateService {
         return roommateRepository.findByRoom(room);
     }
 
-    public Roommate findByUserNo(Long userNo) {
-        return roommateRepository.findByUserNo(userNo)
-                .orElseThrow(() -> new RestApiException(ROOMMATE_NOT_FOUND));
+    public Optional<Roommate> findByUserNo(Long userNo) {
+        return roommateRepository.findByUserNo(userNo);
+    }
+
+    public List<MyRoommateResponse> findMyRoommates(Long userNo) {
+        return roommateRepository.findMyRoommates(userNo);
     }
 }
