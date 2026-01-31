@@ -14,6 +14,7 @@ public record MyRoommateResponse(
         String major,
         String grade,
         Integer age,
-        Gender gender
+        Gender gender,
+        Boolean isMe
 ) {
 }

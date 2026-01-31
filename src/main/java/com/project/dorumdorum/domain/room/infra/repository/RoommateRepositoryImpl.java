@@ -33,7 +33,8 @@ public class RoommateRepositoryImpl implements RoommateRepositoryCustom {
                                 user.major,
                                 user.grade,
                                 user.age,
-                                user.gender
+                                user.gender,
+                                roommate.userNo.eq(userNo)
                         )
                 )
                 .from(roommate)

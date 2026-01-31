@@ -38,6 +38,9 @@ public class UserService {
                         .role(Role.USER)
                         .gender(request.gender())
                         .studentNo(request.studentNo())
+                        .major(request.major())
+                        .grade(request.grade())
+                        .age(request.age())
                         .build()
         );
     }

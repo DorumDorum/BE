@@ -35,12 +35,14 @@ public class ConfirmRoomAssignmentUseCase {
 
         currentRoommate.accept();
 
-        boolean allAccepted = allRoommates.stream()
-                .allMatch(roommate -> ConfirmStatus.ACCEPTED.equals(roommate.getConfirmStatus()));
+        if(room.isFull()) {
+            boolean allAccepted = allRoommates.stream()
+                    .allMatch(roommate -> ConfirmStatus.ACCEPTED.equals(roommate.getConfirmStatus()));
 
-        if (allAccepted) {
-            allRoommates.forEach(Roommate::complete);
-            room.updateStatus(RoomStatus.COMPLETED);
+            if (allAccepted) {
+                allRoommates.forEach(Roommate::complete);
+                room.updateStatus(RoomStatus.COMPLETED);
+            }
         }
     }
 }
