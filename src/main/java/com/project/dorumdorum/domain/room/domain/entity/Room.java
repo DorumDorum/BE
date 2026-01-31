@@ -1,5 +1,7 @@
 package com.project.dorumdorum.domain.room.domain.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.project.dorumdorum.global.common.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
@@ -13,6 +15,7 @@ import lombok.*;
 public class Room extends BaseEntity {
 
     @Id @Tsid
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long roomNo;
 
     @Enumerated(EnumType.STRING)
