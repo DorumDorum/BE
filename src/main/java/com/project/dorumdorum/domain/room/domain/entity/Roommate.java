@@ -43,7 +43,11 @@ public class Roommate extends BaseEntity {
         this.confirmStatus = ConfirmStatus.PENDING;
     }
 
-    public void approve() {
+    public void accept() {
         this.confirmStatus = ConfirmStatus.ACCEPTED;
+    }
+
+    public void complete() {
+        this.confirmStatus = ConfirmStatus.COMPLETED;
     }
 }

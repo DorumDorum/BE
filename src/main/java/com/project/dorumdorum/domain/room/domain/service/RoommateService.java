@@ -61,4 +61,9 @@ public class RoommateService {
     public List<MyRoommateResponse> findMyRoommates(Long userNo) {
         return roommateRepository.findMyRoommates(userNo);
     }
+
+    public void confirmAllRoommates(Room room) {
+        List<Roommate> roommates = findByRoom(room);
+        roommates.forEach(Roommate::complete);
+    }
 }
