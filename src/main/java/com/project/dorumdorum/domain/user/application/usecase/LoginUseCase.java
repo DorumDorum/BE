@@ -13,8 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
-import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.EXPIRED_MEMBER_JWT;
-import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.LOGIN_ERROR;
+import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.*;
 
 @Service
 @RequiredArgsConstructor

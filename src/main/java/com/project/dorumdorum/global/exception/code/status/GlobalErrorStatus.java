@@ -22,6 +22,7 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
     _TOO_MANY_REQUEST(HttpStatus.TOO_MANY_REQUESTS, "COMMON429", "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요."),
     _PASSWORD_NOT_MATCHES(HttpStatus.BAD_REQUEST, "COMMON400", "비밀번호가 일치하지 않습니다."),
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "ROOM002", "이미 가입된 이메일입니다."),
+    EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "ROOM002", "가입되지 않은 이메일입니다."),
 
     // S3 관련 에러
     _S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3_5001", "파일 업로드에 실패했습니다."),
