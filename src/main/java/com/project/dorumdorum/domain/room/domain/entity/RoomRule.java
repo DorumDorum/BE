@@ -66,4 +66,9 @@ public class RoomRule {
         this.otherNotes = otherNotes;
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void updateCategories(List<CategoryData> categories) {
+        this.categories = categories;
+        this.updatedAt = LocalDateTime.now();
+    }
 }
