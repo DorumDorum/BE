@@ -3,7 +3,9 @@ package com.project.dorumdorum.domain.user.domain.entity;
 import com.project.dorumdorum.domain.room.domain.entity.RuleItemCategory;
 import com.project.dorumdorum.domain.room.domain.entity.RuleItemType;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -27,7 +29,10 @@ public class UserChecklist {
 
     private String otherNotes;
 
+    @CreatedDate
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     @Getter

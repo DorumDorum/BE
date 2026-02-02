@@ -21,9 +21,11 @@ public class UserChecklistService {
                                 .userNo(userNo)
                                 .categories(new ArrayList<>())
                                 .otherNotes("")
-                                .createdAt(LocalDateTime.now())
-                                .updatedAt(LocalDateTime.now())
                                 .build()
                 );
+    }
+
+    public UserChecklist save(UserChecklist checklist) {
+        return userChecklistRepository.save(checklist);
     }
 }

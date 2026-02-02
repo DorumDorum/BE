@@ -13,8 +13,8 @@ public interface RoomRuleMapper {
     // DTO -> Entity (Create)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "roomNo", source = "roomNo")
-    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
-    @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     RoomRule toRoomRule(Long roomNo, RoomCreateRequest.CreateRoomRuleRequest request);
 
     RoomRule.CategoryData toCategoryData(RoomCreateRequest.CreateCategoryRequest request);
