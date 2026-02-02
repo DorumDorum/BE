@@ -27,7 +27,6 @@ public class UserProfileService {
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
 
         user.updateProfile(updateProfileRequest);
-
         return ProfileResponse.create(user);
     }
 }

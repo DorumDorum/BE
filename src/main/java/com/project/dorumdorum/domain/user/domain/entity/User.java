@@ -51,9 +51,9 @@ public class User extends BaseEntity {
     private String firebaseToken;
 
     public void updateProfile(UpdateProfileRequest updateProfileRequest) {
-        this.name = updateProfileRequest.name();
         this.nickname = updateProfileRequest.nickname();
-        this.email = updateProfileRequest.email();
+        this.grade = updateProfileRequest.grade();
+        this.major = updateProfileRequest.major();
     }
 
     public void updateFirebaseToken(String firebaseToken) {

@@ -21,7 +21,8 @@ public record SignUpRequest(
         @NotBlank String studentNo,
         @NotBlank String major,
         @NotBlank String grade,
-        @NotBlank String birth
+        @NotBlank String birth,
+        @NotNull CreateUserChecklistRequest checklist
 ) {
     public boolean isCheckedPassword() {
         return password().equals(passwordCheck());
