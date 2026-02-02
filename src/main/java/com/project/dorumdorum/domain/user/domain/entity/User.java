@@ -41,6 +41,8 @@ public class User extends BaseEntity {
 
     private String grade;
 
+    private String birth;
+
     private Integer age;
 
     @Enumerated(EnumType.STRING)

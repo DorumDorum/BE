@@ -40,7 +40,8 @@ public class UserService {
                         .studentNo(request.studentNo())
                         .major(request.major())
                         .grade(request.grade())
-                        .age(request.age())
+                        .birth(request.birth())
+                        .age(request.calculateAge())
                         .build()
         );
     }
