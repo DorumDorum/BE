@@ -28,22 +28,10 @@ public class RoomRuleService {
 
     public RoomRule findByRoomNo(Long roomNo) {
         return roomRuleRepository.findByRoomNo(roomNo)
-                .orElse(null);
+                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
-    public RoomRule update(Long roomNo, UpdateRoomRuleRequest request) {
-        RoomRule roomRule = roomRuleRepository.findByRoomNo(roomNo)
-                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
-
-        List<RoomRule.CategoryData> categories = request.categories().stream()
-                .map(roomRuleMapper::toCategoryData)
-                .collect(Collectors.toList());
-
-        if (request.otherNotes() != null) {
-            roomRule.updateOtherNotes(request.otherNotes());
-        }
-        roomRule.updateCategories(categories);
-
+    public RoomRule save(RoomRule roomRule) {
         return roomRuleRepository.save(roomRule);
     }
 }

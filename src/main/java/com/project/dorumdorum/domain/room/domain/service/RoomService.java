@@ -27,6 +27,7 @@ public class RoomService {
         Room entity = Room.builder()
                 .capacity(request.capacity())
                 .roomType(request.roomType())
+                .residencePeriod(request.residencePeriod())
                 .title(request.title())
                 .hostUserNo(userNo)
                 .build();
@@ -46,10 +47,5 @@ public class RoomService {
     public FindRoomsResponse findMyRoom(Long userNo) {
         return roomRepository.findMyRoom(userNo)
                 .orElseThrow(() -> new RestApiException(ROOM_NOT_FOUND));
-    }
-
-    public boolean isHost(Long userNo, Long roomNo) {
-        Room room = findById(roomNo);
-        return room.isHost(userNo);
     }
 }

@@ -23,6 +23,7 @@ public enum GlobalErrorStatus implements BaseCodeInterface {
     _PASSWORD_NOT_MATCHES(HttpStatus.BAD_REQUEST, "COMMON400", "비밀번호가 일치하지 않습니다."),
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "ROOM002", "이미 가입된 이메일입니다."),
     EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "ROOM002", "가입되지 않은 이메일입니다."),
+    AGE_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON400", "나이 계산 파싱 오류입니다."),
 
     // S3 관련 에러
     _S3_UPLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3_5001", "파일 업로드에 실패했습니다."),

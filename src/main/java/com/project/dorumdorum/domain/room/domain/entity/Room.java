@@ -44,6 +44,9 @@ public class Room extends BaseEntity {
     @Column(nullable = false)
     private Long hostUserNo;
 
+    @Column
+    private ResidencePeriod residencePeriod; // 거주기간 (예: "학기(16주)", "반기(24주)", "계절학기")
+
     @PrePersist
     public void init() {
         this.currentMateCount = 1;
@@ -84,5 +87,18 @@ public class Room extends BaseEntity {
 
     public boolean isHost(Long userNo) {
         return this.hostUserNo.equals(userNo);
+    }
+
+    public void updateCapacity(Integer capacity) {
+        this.capacity = capacity;
+        this.remaining = capacity - currentMateCount;
+    }
+
+    public void updateRoomType(RoomType roomType) {
+        this.roomType = roomType;
+    }
+
+    public void updateResidencePeriod(ResidencePeriod residencePeriod) {
+        this.residencePeriod = residencePeriod;
     }
 }
