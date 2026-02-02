@@ -50,7 +50,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                 user.nickname,
                                 room.roomStatus,
                                 room.hostUserNo.eq(userNo),
-                                room.residencePeriod
+                                room.residencePeriod.stringValue()
                         )
                 )
                 .from(room)
@@ -85,7 +85,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                 user.nickname,
                                 room.roomStatus,
                                 room.hostUserNo.eq(userNo),
-                                room.residencePeriod
+                                room.residencePeriod.stringValue()
                         )
                 )
                 .from(room)

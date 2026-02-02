@@ -44,7 +44,8 @@ public class Room extends BaseEntity {
     @Column(nullable = false)
     private Long hostUserNo;
 
-    @Column
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ResidencePeriod residencePeriod; // 거주기간 (예: "학기(16주)", "반기(24주)", "계절학기")
 
     @PrePersist
@@ -100,5 +101,9 @@ public class Room extends BaseEntity {
 
     public void updateResidencePeriod(ResidencePeriod residencePeriod) {
         this.residencePeriod = residencePeriod;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
     }
 }

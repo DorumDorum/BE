@@ -14,7 +14,6 @@ public record UpdateRoomRuleRequest(
         @NotNull RoomType roomType,
         @NotNull Integer capacity,
         @NotNull ResidencePeriod residencePeriod
-
 ) {
     public record UpdateCategoryRequest(
             RuleItemCategory category,
