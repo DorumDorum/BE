@@ -32,7 +32,7 @@ public record SignUpRequest(
         try {
             LocalDate birthDate = LocalDate.parse(birth, DateTimeFormatter.ISO_DATE);
             LocalDate now = LocalDate.now();
-            return now.getYear() - birthDate.getYear();
+            return now.getYear() - birthDate.getYear() + 1;
         } catch (Exception e) {
             throw new RestApiException(AGE_PARSING_ERROR);
         }
