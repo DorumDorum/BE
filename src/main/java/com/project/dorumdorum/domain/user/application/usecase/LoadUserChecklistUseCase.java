@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class LoadMyUserChecklistUseCase {
+public class LoadUserChecklistUseCase {
 
     private final UserChecklistService userChecklistService;
     private final UserChecklistMapper userChecklistMapper;

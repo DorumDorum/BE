@@ -6,6 +6,7 @@ import com.project.dorumdorum.domain.user.domain.entity.Gender;
 
 public record MyRoommateResponse(
         Long roommateNo,
+        Long userNo,
         ConfirmStatus confirmStatus,
         RoomRole roomRole,
         String name,

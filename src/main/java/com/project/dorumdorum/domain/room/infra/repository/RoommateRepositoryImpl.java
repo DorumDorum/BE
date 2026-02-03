@@ -25,6 +25,7 @@ public class RoommateRepositoryImpl implements RoommateRepositoryCustom {
                 .select(
                         constructor(MyRoommateResponse.class,
                                 roommate.roommateNo,
+                                roommate.userNo,
                                 roommate.confirmStatus,
                                 roommate.roomRole,
                                 user.name,
