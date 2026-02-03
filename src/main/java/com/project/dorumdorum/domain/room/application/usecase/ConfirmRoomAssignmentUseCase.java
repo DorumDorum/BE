@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.room.application.usecase;
 
+import com.project.dorumdorum.domain.room.domain.entity.ConfirmStatus;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.Roommate;
@@ -10,35 +11,38 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.NO_PERMISSION_ON_ROOM;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class DecideRoomConfirmationUseCase {
+public class ConfirmRoomAssignmentUseCase {
 
     private final RoomService roomService;
     private final RoommateService roommateService;
 
-    public void approve(Long userNo, Long roomNo) {
-        Room room = roomService.findById(roomNo);
-        Roommate roommate = roommateService.findByUserNoAndRoom(userNo, room);
-
-        roommate.approve();
-        room.plusConfirmMate();
-    }
-
-    public void reject(Long userNo, Long roomNo) {
+    public void execute(Long userNo, Long roomNo) {
         Room room = roomService.findById(roomNo);
 
-        if(!roommateService.isUserRoommate(userNo, room.getRoomNo()))
-            throw new RestApiException(NO_PERMISSION_ON_ROOM);
+        List<Roommate> allRoommates = roommateService.findByRoom(room);
 
-        room.updateStatus(RoomStatus.CONFIRM_PENDING);
-        roommateService.findByRoom(room)
-                .forEach(Roommate::cancelConfirm);
+        Roommate currentRoommate = allRoommates.stream()
+                .filter(roommate -> roommate.getUserNo().equals(userNo))
+                .findFirst()
+                .orElseThrow(() -> new RestApiException(NO_PERMISSION_ON_ROOM));
 
-        room.minusCurrentMate();
-        room.clearConfirmMate();
+        currentRoommate.accept();
+
+        if(room.isFull()) {
+            boolean allAccepted = allRoommates.stream()
+                    .allMatch(roommate -> ConfirmStatus.ACCEPTED.equals(roommate.getConfirmStatus()));
+
+            if (allAccepted) {
+                allRoommates.forEach(Roommate::complete);
+                room.updateStatus(RoomStatus.COMPLETED);
+            }
+        }
     }
 }

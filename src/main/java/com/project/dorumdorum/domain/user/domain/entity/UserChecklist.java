@@ -1,5 +1,7 @@
-package com.project.dorumdorum.domain.room.domain.entity;
+package com.project.dorumdorum.domain.user.domain.entity;
 
+import com.project.dorumdorum.domain.room.domain.entity.RuleItemCategory;
+import com.project.dorumdorum.domain.room.domain.entity.RuleItemType;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -10,17 +12,17 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "room_rules")
+@Document(collection = "user_checklists")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class RoomRule {
+public class UserChecklist {
 
     @Id
     private String id;
 
-    private Long roomNo;  // Room 엔티티와 연결
+    private Long userNo;  // User 엔티티와 연결
 
     @Builder.Default
     private List<CategoryData> categories = new ArrayList<>();

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.EMAIL_NOT_FOUND;
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
 
 @Service
@@ -20,7 +21,7 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+                .orElseThrow(() -> new RestApiException(EMAIL_NOT_FOUND));
     }
 
     public boolean isAlreadyRegistered(String email) {
@@ -37,6 +38,10 @@ public class UserService {
                         .role(Role.USER)
                         .gender(request.gender())
                         .studentNo(request.studentNo())
+                        .major(request.major())
+                        .grade(request.grade())
+                        .birth(request.birth())
+                        .age(request.calculateAge())
                         .build()
         );
     }

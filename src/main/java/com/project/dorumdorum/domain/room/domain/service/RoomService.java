@@ -27,6 +27,7 @@ public class RoomService {
         Room entity = Room.builder()
                 .capacity(request.capacity())
                 .roomType(request.roomType())
+                .residencePeriod(request.residencePeriod())
                 .title(request.title())
                 .hostUserNo(userNo)
                 .build();
