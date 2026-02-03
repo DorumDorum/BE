@@ -34,10 +34,6 @@ public class FindRoomsUseCase {
             RoomSort sort,
             String cursor
     ) {
-        // 내가 이미 속한 방이 있는지
-        if(roommateService.existsByUserNo(userNo))
-            throw new RestApiException(ALREADY_JOINED_USER);
-
         int limitPlusOne = PaginationHelper.limitPlusOne(limit);
         DecodedCursor decodedCursor = cursor == null
                 ? null
