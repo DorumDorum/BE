@@ -13,15 +13,15 @@ public interface RoomLikeApiSpec {
     @Operation(summary = "방 관심 등록(좋아요) API")
     @PostMapping("/api/rooms/{roomNo}/like")
     BaseResponse<Void> like(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "관심 등록할 방 번호") Long roomNo
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "관심 등록할 방 번호") String roomNo
     );
 
     @Operation(summary = "방 관심 해제(좋아요 취소) API")
     @DeleteMapping("/api/rooms/{roomNo}/like")
     BaseResponse<Void> unlike(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "관심 해제할 방 번호") Long roomNo
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "관심 해제할 방 번호") String roomNo
     );
 }
 

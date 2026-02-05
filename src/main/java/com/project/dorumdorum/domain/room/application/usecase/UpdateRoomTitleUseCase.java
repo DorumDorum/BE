@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.room.application.usecase;
 import com.project.dorumdorum.domain.room.application.dto.request.UpdateRoomTitleRequest;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
-import com.project.dorumdorum.domain.room.domain.service.RoommateService;
+import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class UpdateRoomTitleUseCase {
     private final RoomService roomService;
     private final RoommateService roommateService;
 
-    public void execute(Long userNo, Long roomNo, UpdateRoomTitleRequest request) {
+    public void execute(String userNo, String roomNo, UpdateRoomTitleRequest request) {
         Room room = roomService.findById(roomNo);
 
         if (!roommateService.isHost(userNo, room))

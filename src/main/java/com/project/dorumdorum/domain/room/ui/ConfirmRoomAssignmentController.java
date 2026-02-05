@@ -16,8 +16,8 @@ public class ConfirmRoomAssignmentController implements ConfirmRoomAssignmentApi
 
     @Override
     public BaseResponse<Void> confirm(
-            @CurrentUser Long userNo,
-            @RequestParam Long roomNo
+            @CurrentUser String userNo,
+            @RequestParam String roomNo
     ) {
         confirmRoomAssignmentUseCase.execute(userNo, roomNo);
         return BaseResponse.onSuccess(null);

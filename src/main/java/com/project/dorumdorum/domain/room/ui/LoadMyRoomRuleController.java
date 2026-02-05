@@ -16,7 +16,7 @@ public class LoadMyRoomRuleController implements LoadMyRoomRuleApiSpec {
 
     @Override
     public BaseResponse<MyRoomRuleResponse> load(
-            @PathVariable Long roomNo
+            @PathVariable String roomNo
     ) {
         return BaseResponse.onSuccess(loadMyRoomRuleUseCase.execute(roomNo));
     }

@@ -17,15 +17,15 @@ public class LoadUserChecklistController implements LoadUserChecklistApiSpec {
 
     @Override
     public BaseResponse<MyUserChecklistResponse> loadMyChecklist(
-            @CurrentUser Long userNo
+            @CurrentUser String userNo
     ) {
         return BaseResponse.onSuccess(loadUserChecklistUseCase.execute(userNo));
     }
 
     @Override
     public BaseResponse<MyUserChecklistResponse> loadUserChecklist(
-            @PathVariable Long targetUserNo
+            @PathVariable String userNo
     ) {
-        return BaseResponse.onSuccess(loadUserChecklistUseCase.execute(targetUserNo));
+        return BaseResponse.onSuccess(loadUserChecklistUseCase.execute(userNo));
     }
 }

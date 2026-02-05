@@ -20,7 +20,7 @@ public class RoomRule {
     @Id
     private String id;
 
-    private Long roomNo;  // Room 엔티티와 연결
+    private String roomNo;  // Room 엔티티와 연결
 
     @Builder.Default
     private List<CategoryData> categories = new ArrayList<>();

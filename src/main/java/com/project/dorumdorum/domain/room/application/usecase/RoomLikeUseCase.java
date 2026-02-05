@@ -17,14 +17,14 @@ public class RoomLikeUseCase {
     private final RoomService roomService;
     private final RoomLikeService roomLikeService;
 
-    public void like(Long userNo, Long roomNo) {
+    public void like(String userNo, String roomNo) {
         userService.validateExistsById(userNo);
         Room room = roomService.findById(roomNo);
 
         roomLikeService.like(userNo, room);
     }
 
-    public void unlike(Long userNo, Long roomNo) {
+    public void unlike(String userNo, String roomNo) {
         userService.validateExistsById(userNo);
         Room room = roomService.findById(roomNo);
 

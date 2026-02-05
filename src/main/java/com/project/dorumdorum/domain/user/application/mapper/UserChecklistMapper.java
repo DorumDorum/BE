@@ -31,7 +31,7 @@ public interface UserChecklistMapper {
     @Mapping(target = "userNo", source = "userNo")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    UserChecklist toUserChecklist(Long userNo, CreateUserChecklistRequest request);
+    UserChecklist toUserChecklist(String userNo, CreateUserChecklistRequest request);
 
     UserChecklist.CategoryData toCategoryData(CreateUserChecklistRequest.CreateCategoryRequest request);
     UserChecklist.RuleItemData toRuleItemData(CreateUserChecklistRequest.CreateRuleItemRequest request);

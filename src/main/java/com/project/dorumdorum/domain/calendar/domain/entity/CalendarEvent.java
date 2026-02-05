@@ -17,7 +17,7 @@ public class CalendarEvent extends BaseEntity {
 
     @Id
     @Tsid
-    private Long eventNo;
+    private String eventNo;
 
     @Column(nullable = false)
     private LocalDate eventDate;

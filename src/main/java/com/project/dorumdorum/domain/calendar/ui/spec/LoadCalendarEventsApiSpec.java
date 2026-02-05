@@ -23,6 +23,6 @@ public interface LoadCalendarEventsApiSpec {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(description = "종료 날짜 (yyyy-MM-dd)", example = "2025-12-31")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @AccessToken Long userNo
+            @AccessToken String userNo
     );
 }

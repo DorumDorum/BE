@@ -14,7 +14,7 @@ public class LoadUserChecklistUseCase {
     private final UserChecklistService userChecklistService;
     private final UserChecklistMapper userChecklistMapper;
 
-    public MyUserChecklistResponse execute(Long userNo) {
+    public MyUserChecklistResponse execute(String userNo) {
         UserChecklist checklist = userChecklistService.findByUserNo(userNo);
         return userChecklistMapper.toResponse(checklist);
     }

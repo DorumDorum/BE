@@ -23,7 +23,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
 
-    public Room create(Long userNo, RoomCreateRequest request) {
+    public Room create(String userNo, RoomCreateRequest request) {
         Room entity = Room.builder()
                 .capacity(request.capacity())
                 .roomType(request.roomType())
@@ -35,16 +35,16 @@ public class RoomService {
         return roomRepository.save(entity);
     }
 
-    public Room findById(Long roomNo) {
+    public Room findById(String roomNo) {
         return roomRepository.findById(roomNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
-    public List<FindRoomsResponse> findByCursor(Long userNo, RoomRelation relation, RoomType type, Integer capacity, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
+    public List<FindRoomsResponse> findByCursor(String userNo, RoomRelation relation, RoomType type, Integer capacity, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
         return roomRepository.findByCursor(userNo, relation, type, capacity, sort, decodedCursor, limitPlusOne);
     }
 
-    public FindRoomsResponse findMyRoom(Long userNo) {
+    public FindRoomsResponse findMyRoom(String userNo) {
         return roomRepository.findMyRoom(userNo)
                 .orElseThrow(() -> new RestApiException(ROOM_NOT_FOUND));
     }

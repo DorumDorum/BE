@@ -16,7 +16,7 @@ public interface TokenReissueApiSpec {
     )
     @PostMapping("/api/token/reissue")
     BaseResponse<TokenReissueResponse> reissue(
-            @Parameter(hidden = true) Long userNo,
+            @Parameter(hidden = true) String userNo,
             @Parameter(hidden = true) String refreshToken
     );
 }

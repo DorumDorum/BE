@@ -19,8 +19,8 @@ public interface ApplyRoomApiSpec {
     )
     @PostMapping("/api/rooms/{roomNo}/join-request")
     BaseResponse<Void> join(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "방 번호") Long roomNo,
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "방 번호") String roomNo,
             @RequestBody(
                     description = "초대 요청 바디(소개 메시지 포함)",
                     required = true

@@ -11,7 +11,7 @@ public class LoadUserProfileUseCase {
 
     private final UserProfileService userProfileService;
 
-    public ProfileResponse execute(Long userNo) {
+    public ProfileResponse execute(String userNo) {
         return userProfileService.getProfile(userNo);
     }
 }

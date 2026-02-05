@@ -16,14 +16,14 @@ public class LoadUserProfileController implements LoadUserProfileApiSpec {
 
     @Override
     public BaseResponse<ProfileResponse> loadMyProfile(
-            @CurrentUser Long userNo
+            @CurrentUser String userNo
     ) {
         return BaseResponse.onSuccess(loadUserProfileUseCase.execute(userNo));
     }
 
     @Override
     public BaseResponse<ProfileResponse> loadProfile(
-            @PathVariable("userNo") Long userNo
+            @PathVariable("userNo") String userNo
     ) {
         return BaseResponse.onSuccess(loadUserProfileUseCase.execute(userNo));
     }

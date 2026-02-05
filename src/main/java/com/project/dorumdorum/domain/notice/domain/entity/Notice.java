@@ -17,7 +17,7 @@ public class Notice extends BaseEntity {
 
     @Id
     @Tsid
-    private Long noticeNo;
+    private String noticeNo;
 
     @Column(nullable = false)
     private String title;

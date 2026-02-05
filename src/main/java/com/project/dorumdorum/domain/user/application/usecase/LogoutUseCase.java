@@ -25,7 +25,7 @@ public class LogoutUseCase {
     private final TokenWhitelistService tokenWhitelistService;
 
     public void execute(String accessToken) {
-        Long userNo = tokenProvider.getId(accessToken)
+        String userNo = tokenProvider.getId(accessToken)
                 .orElseThrow(() -> new RestApiException(INVALID_ID_TOKEN));
 
         Duration expiration = tokenProvider.getRemainingDuration(accessToken)

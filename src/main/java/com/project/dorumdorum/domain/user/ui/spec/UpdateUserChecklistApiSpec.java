@@ -17,7 +17,7 @@ public interface UpdateUserChecklistApiSpec {
     )
     @PutMapping("/api/users/me/checklist")
     BaseResponse<Void> update(
-            @Parameter(hidden = true) Long userNo,
+            @Parameter(hidden = true) String userNo,
             @RequestBody(
                     description = "수정할 체크리스트 정보",
                     required = true

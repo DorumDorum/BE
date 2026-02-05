@@ -19,7 +19,7 @@ public interface CreateRoomApiSpec {
     )
     @PostMapping("/api/rooms")
     BaseResponse<Void> create(
-            @Parameter(hidden = true) Long userNo,
+            @Parameter(hidden = true) String userNo,
             @RequestBody(
                     description = "생성할 방 정보 (방 타입, 수용 인원 수, 방 이름, 태그 리스트)",
                     required = true

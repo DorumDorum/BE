@@ -25,7 +25,7 @@ public class LoadCalendarEventsController implements LoadCalendarEventsApiSpec {
     public BaseResponse<List<CalendarEventResponse>> loadCalendarEvents(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @AccessToken Long userNo
+            @AccessToken String userNo
     ) {
         List<CalendarEventResponse> events = loadCalendarEventsUseCase.execute(startDate, endDate);
         return BaseResponse.onSuccess(events);

@@ -15,9 +15,9 @@ public interface DecideApplicationRequestApiSpec {
     )
     @PostMapping("/api/rooms/{roomNo}/join-request/{requestNo}/approve")
     BaseResponse<Void> approve(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "방 번호") Long roomNo,
-            @Parameter(description = "입장 요청 번호") Long requestNo
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "방 번호") String roomNo,
+            @Parameter(description = "입장 요청 번호") String requestNo
     );
 
     @Operation(
@@ -26,7 +26,7 @@ public interface DecideApplicationRequestApiSpec {
     )
     @PostMapping("/api/join-request/{requestNo}/reject")
     BaseResponse<Void> reject(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "입장 요청 번호") Long requestNo
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "입장 요청 번호") String requestNo
     );
 }

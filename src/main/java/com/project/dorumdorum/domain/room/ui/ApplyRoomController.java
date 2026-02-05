@@ -17,8 +17,8 @@ public class ApplyRoomController implements ApplyRoomApiSpec {
 
     @Override
     public BaseResponse<Void> join(
-            @CurrentUser Long userNo,
-            @PathVariable Long roomNo,
+            @CurrentUser String userNo,
+            @PathVariable String roomNo,
             @RequestBody @Valid JoinRoomRequest request
     ) {
         applyRoomUseCase.execute(userNo, roomNo, request);

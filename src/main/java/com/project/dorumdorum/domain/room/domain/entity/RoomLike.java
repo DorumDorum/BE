@@ -13,13 +13,13 @@ import lombok.*;
 public class RoomLike extends BaseEntity {
 
     @Id @Tsid
-    private Long roomLikeNo;
+    private String roomLikeNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_no", nullable = false)
     private Room room;
 
     @Column(nullable = false)
-    private Long userNo;
+    private String userNo;
 }
 

@@ -42,14 +42,14 @@ public class TokenProvider {
     private static final String ID_CLAIM = "id";
     private static final String ROLE_CLAIM = "role";
 
-    public String createAccessToken(Long id, Role role) {
+    public String createAccessToken(String id, Role role) {
         Date now = new Date();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuedAt(now)
                 .setExpiration(Date.from(
                         LocalDateTime.now()
-                                .plusDays(jwtProperties.getAccessTokenExpirationPeriodDay())
+                                .plusMinutes(jwtProperties.getAccessTokenExpiration())
                                 .atZone(ZoneId.of("Asia/Seoul"))
                                 .toInstant()
                 ))
@@ -60,14 +60,14 @@ public class TokenProvider {
                 .compact();
     }
 
-    public String createRefreshToken(Long id, Role role) {
+    public String createRefreshToken(String id, Role role) {
         Date now = new Date();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuedAt(now)
                 .setExpiration(Date.from(
                         LocalDateTime.now()
-                                .plusDays(jwtProperties.getAccessTokenExpirationPeriodDay())
+                                .plusSeconds(jwtProperties.getRefreshTokenExpiration())
                                 .atZone(ZoneId.of("Asia/Seoul"))
                                 .toInstant()
                 ))

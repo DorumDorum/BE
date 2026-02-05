@@ -22,7 +22,7 @@ public class UserChecklist {
     @Id
     private String id;
 
-    private Long userNo;  // User 엔티티와 연결
+    private String userNo;  // User 엔티티와 연결
 
     @Builder.Default
     private List<CategoryData> categories = new ArrayList<>();

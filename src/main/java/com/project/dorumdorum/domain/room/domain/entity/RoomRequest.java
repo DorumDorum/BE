@@ -13,14 +13,14 @@ import lombok.*;
 public class RoomRequest extends BaseEntity {
 
     @Id @Tsid
-    private Long roomRequestNo;
+    private String roomRequestNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_no", nullable = false)
     private Room room;
 
     @Column(nullable = false)
-    private Long userNo;
+    private String userNo;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

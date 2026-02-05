@@ -18,8 +18,8 @@ public class UpdateRoomRuleController implements UpdateRoomRuleApiSpec {
 
     @Override
     public BaseResponse<Void> update(
-            @CurrentUser Long userNo,
-            @RequestParam Long roomNo,
+            @CurrentUser String userNo,
+            @RequestParam String roomNo,
             @RequestBody UpdateRoomRuleRequest request
     ) {
         updateRoomRuleUseCase.execute(userNo, roomNo, request);

@@ -15,7 +15,7 @@ public interface RoomRuleMapper {
     @Mapping(target = "roomNo", source = "roomNo")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    RoomRule toRoomRule(Long roomNo, RoomCreateRequest.CreateRoomRuleRequest request);
+    RoomRule toRoomRule(String roomNo, RoomCreateRequest.CreateRoomRuleRequest request);
 
     RoomRule.CategoryData toCategoryData(RoomCreateRequest.CreateCategoryRequest request);
     RoomRule.RuleItemData toRuleItemData(RoomCreateRequest.CreateRuleItemRequest request);

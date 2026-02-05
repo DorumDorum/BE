@@ -21,7 +21,7 @@ import java.util.Optional;
 import static com.project.dorumdorum.domain.room.domain.entity.QRoom.room;
 import static com.project.dorumdorum.domain.room.domain.entity.QRoomLike.roomLike;
 import static com.project.dorumdorum.domain.room.domain.entity.QRoomRequest.roomRequest;
-import static com.project.dorumdorum.domain.room.domain.entity.QRoommate.roommate;
+import static com.project.dorumdorum.domain.roommate.domain.entity.QRoommate.roommate;
 import static com.project.dorumdorum.domain.user.domain.entity.QUser.user;
 import static com.querydsl.core.types.Projections.constructor;
 
@@ -32,7 +32,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     private final JPAQueryFactory query;
 
     @Override
-    public List<FindRoomsResponse> findByCursor(Long userNo,
+    public List<FindRoomsResponse> findByCursor(String userNo,
                                                 RoomRelation relation,
                                                 RoomType type,
                                                 Integer capacity,
@@ -73,7 +73,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     }
 
     @Override
-    public Optional<FindRoomsResponse> findMyRoom(Long userNo) {
+    public Optional<FindRoomsResponse> findMyRoom(String userNo) {
         FindRoomsResponse result = query
                 .select(
                         constructor(FindRoomsResponse.class,
@@ -103,7 +103,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
         return Optional.ofNullable(result);
     }
 
-    private BooleanExpression relationPredicate(Long userNo, RoomRelation relation) {
+    private BooleanExpression relationPredicate(String userNo, RoomRelation relation) {
         if (relation == null) return null;
         return switch (relation) {
             case APPLIED -> JPAExpressions
@@ -128,7 +128,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     private BooleanExpression cursorPredicate(DecodedCursor c, RoomSort sort) {
         if (c == null) return null;
         LocalDateTime t = c.createdAt();
-        Long pk = c.pk();
+        String pk = c.pk();
 
         if (sort == RoomSort.REMAINING) {
             Integer r = c.remaining();

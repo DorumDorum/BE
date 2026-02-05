@@ -10,8 +10,7 @@ import java.time.LocalDateTime;
 
 @Builder
 public record FindRoomsResponse(
-        @JsonSerialize(using = ToStringSerializer.class)
-        Long roomNo,
+        String roomNo,
         RoomType roomType,
         Integer capacity,
         Integer currentMateCount,

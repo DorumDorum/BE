@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface UserChecklistRepository extends MongoRepository<UserChecklist, String> {
 
-    Optional<UserChecklist> findByUserNo(Long userNo);
+    Optional<UserChecklist> findByUserNo(String userNo);
 
 }

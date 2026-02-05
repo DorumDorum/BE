@@ -5,7 +5,7 @@ import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
-import com.project.dorumdorum.domain.room.domain.service.RoommateService;
+import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.pagination.CursorCodec;
 import com.project.dorumdorum.global.pagination.CursorPage;
@@ -27,7 +27,7 @@ public class FindRoomsUseCase {
     private final RoommateService roommateService;
 
     public CursorPage<FindRoomsResponse> execute(
-            Long userNo,
+            String userNo,
             RoomRelation relation,
             RoomType type,
             Integer capacity,

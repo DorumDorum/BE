@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class User extends BaseEntity {
 
     @Id @Tsid
-    private Long userNo;
+    private String userNo;
 
     private String nickname;
 

@@ -14,7 +14,7 @@ public class RoomLikeService {
     private final RoomLikeRepository roomLikeRepository;
 
     @Transactional
-    public void like(Long userNo, Room room) {
+    public void like(String userNo, Room room) {
         if (roomLikeRepository.existsByUserNoAndRoom(userNo, room)) {
             return; // 이미 좋아요면 아무 것도 하지 않음 (멱등)
         }
@@ -28,7 +28,7 @@ public class RoomLikeService {
     }
 
     @Transactional
-    public void unlike(Long userNo, Room room) {
+    public void unlike(String userNo, Room room) {
         if (!roomLikeRepository.existsByUserNoAndRoom(userNo, room)) {
             return; // 좋아요가 아니면 아무 것도 하지 않음 (멱등)
         }

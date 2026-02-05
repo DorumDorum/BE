@@ -16,8 +16,8 @@ public class RoomLikeController implements RoomLikeApiSpec {
 
     @Override
     public BaseResponse<Void> like(
-            @CurrentUser Long userNo,
-            @PathVariable Long roomNo
+            @CurrentUser String userNo,
+            @PathVariable String roomNo
     ) {
         roomLikeUseCase.like(userNo, roomNo);
         return BaseResponse.onSuccess();
@@ -25,8 +25,8 @@ public class RoomLikeController implements RoomLikeApiSpec {
 
     @Override
     public BaseResponse<Void> unlike(
-            @CurrentUser Long userNo,
-            @PathVariable Long roomNo
+            @CurrentUser String userNo,
+            @PathVariable String roomNo
     ) {
         roomLikeUseCase.unlike(userNo, roomNo);
         return BaseResponse.onSuccess();

@@ -14,7 +14,7 @@ public class LoadMyRoomRuleUseCase {
     private final RoomRuleService roomRuleService;
     private final RoomRuleMapper roomRuleMapper;
 
-    public MyRoomRuleResponse execute(Long roomNo) {
+    public MyRoomRuleResponse execute(String roomNo) {
         RoomRule roomRule = roomRuleService.findByRoomNo(roomNo);
         return roomRuleMapper.toResponse(roomRule);
     }

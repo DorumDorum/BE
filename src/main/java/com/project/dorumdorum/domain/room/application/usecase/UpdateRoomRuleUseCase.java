@@ -6,7 +6,7 @@ import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomRule;
 import com.project.dorumdorum.domain.room.domain.service.RoomRuleService;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
-import com.project.dorumdorum.domain.room.domain.service.RoommateService;
+import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class UpdateRoomRuleUseCase {
     private final RoomRuleService roomRuleService;
     private final RoomRuleMapper roomRuleMapper;
 
-    public void execute(Long userNo, Long roomNo, UpdateRoomRuleRequest request) {
+    public void execute(String userNo, String roomNo, UpdateRoomRuleRequest request) {
         Room room = roomService.findById(roomNo);
 
         if (!roommateService.isHost(userNo, room))

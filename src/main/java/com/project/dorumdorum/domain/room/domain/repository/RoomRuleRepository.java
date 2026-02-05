@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface RoomRuleRepository extends MongoRepository<RoomRule, String> {
 
-    Optional<RoomRule> findByRoomNo(Long roomNo);
+    Optional<RoomRule> findByRoomNo(String roomNo);
 
 }

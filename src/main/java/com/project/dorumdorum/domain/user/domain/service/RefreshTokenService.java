@@ -14,15 +14,15 @@ public class RefreshTokenService {
     private final static String refreshTokenPrefix = "REFRESH_TOKEN:";
     private final RedisTemplate<String, String> redisTemplate;
 
-    public void saveRefreshToken(Long userNo, String refreshToken, Duration timeout) {
+    public void saveRefreshToken(String userNo, String refreshToken, Duration timeout) {
         redisTemplate.opsForValue().set(refreshTokenPrefix + userNo, refreshToken, timeout);
     }
 
-    public void deleteRefreshToken(Long userNo) {
+    public void deleteRefreshToken(String userNo) {
         redisTemplate.delete(refreshTokenPrefix + userNo);
     }
 
-    public boolean isExist(String token, Long userNo) {
+    public boolean isExist(String token, String userNo) {
         String savedToken = redisTemplate.opsForValue().get(refreshTokenPrefix + userNo);
 
         if(savedToken == null)

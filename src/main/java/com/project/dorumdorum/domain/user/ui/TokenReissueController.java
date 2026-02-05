@@ -17,7 +17,7 @@ public class TokenReissueController implements TokenReissueApiSpec {
 
     @Override
     public BaseResponse<TokenReissueResponse> reissue(
-            @CurrentUser Long userNo,
+            @CurrentUser String userNo,
             @RefreshToken String refreshToken
     ) {
         return BaseResponse.onSuccess(tokenReissueService.reissue(refreshToken, userNo));

@@ -21,12 +21,12 @@ public class RoomRuleService {
     private final RoomRuleRepository roomRuleRepository;
     private final RoomRuleMapper roomRuleMapper;
 
-    public RoomRule create(Long roomNo, RoomCreateRequest.CreateRoomRuleRequest request) {
+    public RoomRule create(String roomNo, RoomCreateRequest.CreateRoomRuleRequest request) {
         RoomRule document = roomRuleMapper.toRoomRule(roomNo, request);
         return roomRuleRepository.save(document);
     }
 
-    public RoomRule findByRoomNo(Long roomNo) {
+    public RoomRule findByRoomNo(String roomNo) {
         return roomRuleRepository.findByRoomNo(roomNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }

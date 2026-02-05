@@ -15,6 +15,6 @@ public interface LoadMyRoomRuleApiSpec {
     )
     @GetMapping("/api/rooms/{roomNo}/rule")
     BaseResponse<MyRoomRuleResponse> load(
-            @Parameter(description = "규칙 조회하려는 방 번호") Long roomNo
+            @Parameter(description = "규칙 조회하려는 방 번호") String roomNo
     );
 }

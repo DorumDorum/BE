@@ -18,7 +18,7 @@ public class RoomRequestService {
 
     private final RoomRequestRepository roomRequestRepository;
 
-    public RoomRequest create(Long userNo, Room room, JoinRoomRequest request, Direction direction) {
+    public RoomRequest create(String userNo, Room room, JoinRoomRequest request, Direction direction) {
         RoomRequest entity = RoomRequest.builder()
                 .room(room)
                 .userNo(userNo)
@@ -30,7 +30,7 @@ public class RoomRequestService {
         return roomRequestRepository.save(entity);
     }
 
-    public RoomRequest create(Long userNo, Room room, InviteRoomRequest request, Direction direction) {
+    public RoomRequest create(String userNo, Room room, InviteRoomRequest request, Direction direction) {
         RoomRequest entity = RoomRequest.builder()
                 .room(room)
                 .userNo(userNo)
@@ -41,11 +41,11 @@ public class RoomRequestService {
         return roomRequestRepository.save(entity);
     }
 
-    public Boolean isDuplicateJoinRequest(Long userNo, Room room) {
+    public Boolean isDuplicateJoinRequest(String userNo, Room room) {
         return roomRequestRepository.existsByUserNoAndRoom(userNo, room);
     }
 
-    public RoomRequest findById(Long requestNo) {
+    public RoomRequest findById(String requestNo) {
         return roomRequestRepository.findById(requestNo)
                 .orElseThrow(() -> new RestApiException(ROOM_REQUEST_NOT_FOUND));
     }

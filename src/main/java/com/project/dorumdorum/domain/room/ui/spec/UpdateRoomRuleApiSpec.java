@@ -17,8 +17,8 @@ public interface UpdateRoomRuleApiSpec {
     )
     @PutMapping("/api/rooms/me/rule")
     BaseResponse<Void> update(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "규칙 수정하려는 방 번호") @RequestParam Long roomNo,
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "규칙 수정하려는 방 번호") @RequestParam String roomNo,
             @Parameter(description = "수정할 규칙 정보") @RequestBody UpdateRoomRuleRequest request
     );
 }

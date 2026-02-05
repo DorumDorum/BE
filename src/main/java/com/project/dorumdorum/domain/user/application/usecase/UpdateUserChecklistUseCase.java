@@ -19,7 +19,7 @@ public class UpdateUserChecklistUseCase {
     private final UserChecklistService userChecklistService;
     private final UserChecklistMapper userChecklistMapper;
 
-    public void execute(Long userNo, UpdateUserChecklistRequest request) {
+    public void execute(String userNo, UpdateUserChecklistRequest request) {
         UserChecklist checklist = userChecklistService.findByUserNo(userNo);
 
         List<UserChecklist.CategoryData> categories = request.categories().stream()

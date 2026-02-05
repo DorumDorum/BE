@@ -15,7 +15,7 @@ public interface LoadUserChecklistApiSpec {
     )
     @GetMapping("/api/users/me/checklist")
     BaseResponse<MyUserChecklistResponse> loadMyChecklist(
-            @Parameter(hidden = true) Long userNo
+            @Parameter(hidden = true) String userNo
     );
 
     @Operation(
@@ -23,6 +23,6 @@ public interface LoadUserChecklistApiSpec {
     )
     @GetMapping("/api/users/{targetUserNo}/checklist")
     BaseResponse<MyUserChecklistResponse> loadUserChecklist(
-            @Parameter(description = "조회할 유저 번호") Long targetUserNo
+            @Parameter(description = "번호") String userNo
     );
 }

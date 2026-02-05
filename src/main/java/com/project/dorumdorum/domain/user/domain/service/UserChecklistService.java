@@ -16,12 +16,12 @@ public class UserChecklistService {
     private final UserChecklistRepository userChecklistRepository;
     private final UserChecklistMapper userChecklistMapper;
 
-    public UserChecklist create(Long userNo, SignUpRequest request) {
+    public UserChecklist create(String userNo, SignUpRequest request) {
         UserChecklist checklist = userChecklistMapper.toUserChecklist(userNo, request.checklist());
         return userChecklistRepository.save(checklist);
     }
 
-    public UserChecklist findByUserNo(Long userNo) {
+    public UserChecklist findByUserNo(String userNo) {
         return userChecklistRepository.findByUserNo(userNo)
                 .orElseGet(() ->
                         UserChecklist.builder()

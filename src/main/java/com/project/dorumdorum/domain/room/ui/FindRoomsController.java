@@ -22,7 +22,7 @@ public class FindRoomsController implements FindRoomsApiSpec {
 
     @Override
     public BaseResponse<CursorPage<FindRoomsResponse>> loadAll(
-            @CurrentUser Long userNo,
+            @CurrentUser String userNo,
             @RequestParam RoomRelation relation,
             @RequestParam(required = false) RoomType type,
             @RequestParam(required = false) Integer capacity,

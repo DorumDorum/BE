@@ -19,7 +19,7 @@ public class UpdateUserProfileController implements UpdateUserProfileApiSpec {
 
     @Override
     public BaseResponse<ProfileResponse> updateProfile(
-            @CurrentUser Long userNo,
+            @CurrentUser String userNo,
             @RequestBody @Valid UpdateProfileRequest request
     ) {
         return BaseResponse.onSuccess(updateUserProfileUseCase.execute(userNo, request));

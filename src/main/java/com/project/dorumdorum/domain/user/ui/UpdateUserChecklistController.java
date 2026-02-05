@@ -17,7 +17,7 @@ public class UpdateUserChecklistController implements UpdateUserChecklistApiSpec
 
     @Override
     public BaseResponse<Void> update(
-            @CurrentUser Long userNo,
+            @CurrentUser String userNo,
             @org.springframework.web.bind.annotation.RequestBody @Valid UpdateUserChecklistRequest request
     ) {
         updateUserChecklistUseCase.execute(userNo, request);
