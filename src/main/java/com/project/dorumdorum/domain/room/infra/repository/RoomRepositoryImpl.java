@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.project.dorumdorum.domain.room.domain.entity.QRoom.room;
+import static com.project.dorumdorum.domain.room.domain.entity.QRoomLike.roomLike;
 import static com.project.dorumdorum.domain.room.domain.entity.QRoomRequest.roomRequest;
 import static com.project.dorumdorum.domain.room.domain.entity.QRoommate.roommate;
 import static com.project.dorumdorum.domain.user.domain.entity.QUser.user;
@@ -114,6 +115,11 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                     .selectOne()
                     .from(roommate)
                     .where(roommate.room.eq(room), roommate.userNo.eq(userNo))
+                    .exists();
+            case LIKED -> JPAExpressions
+                    .selectOne()
+                    .from(roomLike)
+                    .where(roomLike.room.eq(room), roomLike.userNo.eq(userNo))
                     .exists();
             case RECRUITING -> room.roomStatus.eq(RoomStatus.CONFIRM_PENDING);
         };
