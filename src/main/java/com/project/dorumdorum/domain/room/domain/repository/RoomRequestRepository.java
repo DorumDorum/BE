@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface RoomRequestRepository extends JpaRepository<RoomRequest, String> {
+public interface RoomRequestRepository extends JpaRepository<RoomRequest, String>, RoomRequestRepositoryCustom {
 
     boolean existsByUserNoAndRoom(String userNo, Room room);
 

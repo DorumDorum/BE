@@ -14,12 +14,6 @@ import java.util.ArrayList;
 public class UserChecklistService {
 
     private final UserChecklistRepository userChecklistRepository;
-    private final UserChecklistMapper userChecklistMapper;
-
-    public UserChecklist create(String userNo, SignUpRequest request) {
-        UserChecklist checklist = userChecklistMapper.toUserChecklist(userNo, request.checklist());
-        return userChecklistRepository.save(checklist);
-    }
 
     public UserChecklist findByUserNo(String userNo) {
         return userChecklistRepository.findByUserNo(userNo)

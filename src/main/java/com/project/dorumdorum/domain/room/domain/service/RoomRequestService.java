@@ -2,6 +2,7 @@ package com.project.dorumdorum.domain.room.domain.service;
 
 import com.project.dorumdorum.domain.room.application.dto.request.InviteRoomRequest;
 import com.project.dorumdorum.domain.room.application.dto.request.JoinRoomRequest;
+import com.project.dorumdorum.domain.room.application.dto.response.RoomRequestApplicationResponse;
 import com.project.dorumdorum.domain.room.domain.entity.Direction;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomRequest;
@@ -9,6 +10,8 @@ import com.project.dorumdorum.domain.room.domain.repository.RoomRequestRepositor
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.ROOM_REQUEST_NOT_FOUND;
 
@@ -52,5 +55,9 @@ public class RoomRequestService {
 
     public void delete(RoomRequest entity) {
         roomRequestRepository.delete(entity);
+    }
+
+    public List<RoomRequestApplicationResponse> findApplicationsByRoom(Room room) {
+        return roomRequestRepository.findApplicationsByRoom(room);
     }
 }

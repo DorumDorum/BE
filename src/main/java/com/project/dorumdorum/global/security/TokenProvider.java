@@ -95,12 +95,12 @@ public class TokenProvider {
                 .orElseThrow(() -> new RestApiException(INVALID_ACCESS_TOKEN));
 
         Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(role.getName()));
-        return new UsernamePasswordAuthenticationToken(new User(String.valueOf(claims.get(ID_CLAIM, Long.class)), "", authorities), token, authorities);
+        return new UsernamePasswordAuthenticationToken(new User(String.valueOf(claims.get(ID_CLAIM, String.class)), "", authorities), token, authorities);
     }
 
-    public Optional<Long> getId(String token) {
+    public Optional<String> getId(String token) {
         try {
-            return Optional.ofNullable(getClaims(token).get(ID_CLAIM, Long.class));
+            return Optional.ofNullable(getClaims(token).get(ID_CLAIM, String.class));
         } catch (Exception e) {
             return Optional.empty();
         }
