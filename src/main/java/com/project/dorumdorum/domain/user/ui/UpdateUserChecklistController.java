@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.user.ui;
 
-import com.project.dorumdorum.domain.user.application.dto.request.UpdateUserChecklistRequest;
-import com.project.dorumdorum.domain.user.application.usecase.UpdateUserChecklistUseCase;
+import com.project.dorumdorum.domain.checklist.application.dto.request.UpdateUserChecklistRequest;
+import com.project.dorumdorum.domain.checklist.application.usecase.UpdateUserChecklistUseCase;
 import com.project.dorumdorum.domain.user.ui.spec.UpdateUserChecklistApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;

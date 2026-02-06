@@ -1,35 +1,38 @@
 package com.project.dorumdorum.domain.room.application.dto.request;
 
+import com.project.dorumdorum.domain.checklist.domain.entity.enums.*;
 import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
-import com.project.dorumdorum.domain.room.domain.entity.RuleItemCategory;
-import com.project.dorumdorum.domain.room.domain.entity.RuleItemType;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.List;
-
 public record UpdateRoomRuleRequest(
+        @NotBlank String bedtime,
+        @NotBlank String wakeUp,
+        @NotNull ReturnHomeType returnHome,
+        @NotBlank String returnHomeTime,
+        @NotNull CleaningType cleaning,
+        @NotNull PhoneCallType phoneCall,
+        @NotNull SleepLightType sleepLight,
+        @NotNull SleepHabitType sleepHabit,
+        @NotNull SnoringType snoring,
+        @NotNull ShowerTimeType showerTime,
+        @NotNull EatingType eating,
+        @NotNull LightsOutType lightsOut,
+        @NotBlank String lightsOutTime,
+        @NotNull HomeVisitType homeVisit,
+        @NotNull SmokingType smoking,
+        @NotNull RefrigeratorType refrigerator,
+        String hairDryer,
+        AlarmType alarm,
+        EarphoneType earphone,
+        KeyskinType keyskin,
+        HeatType heat,
+        ColdType cold,
+        StudyType study,
+        TrashCanType trashCan,
         String otherNotes,
-        @NotNull List<UpdateCategoryRequest> categories,
         @NotNull RoomType roomType,
         @NotNull Integer capacity,
         @NotNull ResidencePeriod residencePeriod
-) {
-    public record UpdateCategoryRequest(
-            RuleItemCategory category,
-            List<UpdateRuleItemRequest> items
-    ) {}
-
-    public record UpdateRuleItemRequest(
-            String label,
-            RuleItemType itemType,
-            String value,
-            String extraValue,
-            List<UpdateRuleOptionRequest> options
-    ) {}
-
-    public record UpdateRuleOptionRequest(
-            String text,
-            Boolean selected
-    ) {}
-}
+) {}

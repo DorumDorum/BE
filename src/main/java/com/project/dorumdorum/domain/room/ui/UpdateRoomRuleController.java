@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.room.ui;
 
-import com.project.dorumdorum.domain.room.application.dto.request.UpdateRoomRuleRequest;
-import com.project.dorumdorum.domain.room.application.usecase.UpdateRoomRuleUseCase;
+import com.project.dorumdorum.domain.checklist.application.dto.request.UpdateRoomRuleRequest;
+import com.project.dorumdorum.domain.checklist.application.usecase.UpdateRoomRuleUseCase;
 import com.project.dorumdorum.domain.room.ui.spec.UpdateRoomRuleApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;

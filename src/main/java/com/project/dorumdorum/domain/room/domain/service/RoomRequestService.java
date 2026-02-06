@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.room.domain.service;
 
-import com.project.dorumdorum.domain.room.application.dto.request.InviteRoomRequest;
 import com.project.dorumdorum.domain.room.application.dto.request.JoinRoomRequest;
 import com.project.dorumdorum.domain.room.application.dto.response.RoomRequestApplicationResponse;
 import com.project.dorumdorum.domain.room.domain.entity.Direction;
@@ -28,17 +27,6 @@ public class RoomRequestService {
                 .direction(direction)
                 .introduction(request.introduction())
                 .additionalMessage(request.additionalMessage())
-                .build();
-
-        return roomRequestRepository.save(entity);
-    }
-
-    public RoomRequest create(String userNo, Room room, InviteRoomRequest request, Direction direction) {
-        RoomRequest entity = RoomRequest.builder()
-                .room(room)
-                .userNo(userNo)
-                .direction(direction)
-                .introduction(request.introduction())
                 .build();
 
         return roomRequestRepository.save(entity);

@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.user.ui.spec;
 
-import com.project.dorumdorum.domain.user.application.dto.request.UpdateUserChecklistRequest;
+import com.project.dorumdorum.domain.checklist.application.dto.request.UpdateUserChecklistRequest;
 import com.project.dorumdorum.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
