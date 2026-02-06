@@ -3,12 +3,15 @@ package com.project.dorumdorum.domain.room.ui.spec;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
+import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.global.common.BaseResponse;
 import com.project.dorumdorum.global.pagination.CursorPage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
 
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Room")
 public interface FindRoomsApiSpec {
@@ -22,8 +25,9 @@ public interface FindRoomsApiSpec {
     BaseResponse<CursorPage<FindRoomsResponse>> loadAll(
             @Parameter(hidden = true) String userNo,
             @Parameter(description = "조회 기준 관계", required = true) RoomRelation relation,
-            @Parameter(description = "방 타입") RoomType type,
-            @Parameter(description = "최대 인원 수 필터") Integer capacity,
+            @Parameter(description = "방 타입 (복수 선택 가능)") List<RoomType> types,
+            @Parameter(description = "최대 인원 수 필터 (복수 선택 가능)") List<Integer> capacities,
+            @Parameter(description = "거주기간 필터 (복수 선택 가능)") List<ResidencePeriod> residencePeriods,
             @Parameter(description = "정렬 기준") RoomSort sort,
             @Parameter(description = "커서 값") String cursor
     );

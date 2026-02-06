@@ -3,6 +3,7 @@ package com.project.dorumdorum.domain.room.infra.repository;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
+import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepositoryCustom;
@@ -34,8 +35,9 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     @Override
     public List<FindRoomsResponse> findByCursor(String userNo,
                                                 RoomRelation relation,
-                                                RoomType type,
-                                                Integer capacity,
+                                                List<RoomType> types,
+                                                List<Integer> capacities,
+                                                List<ResidencePeriod> residencePeriods,
                                                 RoomSort sort,
                                                 DecodedCursor cursor,
                                                 int limitPlusOne) {
@@ -58,8 +60,9 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .leftJoin(user).on(user.userNo.eq(room.hostUserNo))
                 .where(
                         relationPredicate(userNo, relation),
-                        type == null ? null : room.roomType.eq(type),
-                        capacity == null ? null : room.capacity.eq(capacity),
+                        types == null || types.isEmpty() ? null : room.roomType.in(types),
+                        capacities == null || capacities.isEmpty() ? null : room.capacity.in(capacities),
+                        residencePeriods == null || residencePeriods.isEmpty() ? null : room.residencePeriod.in(residencePeriods),
                         cursorPredicate(cursor, sort)
                 );
 
