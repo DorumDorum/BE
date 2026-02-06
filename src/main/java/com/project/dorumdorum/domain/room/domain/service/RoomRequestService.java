@@ -60,4 +60,12 @@ public class RoomRequestService {
     public List<RoomRequestApplicationResponse> findApplicationsByRoom(Room room) {
         return roomRequestRepository.findApplicationsByRoom(room);
     }
+
+    public void cancelJoinRequest(String userNo, Room room) {
+        RoomRequest request = roomRequestRepository
+                .findByUserNoAndRoomAndDirection(userNo, room, Direction.USER_TO_ROOM)
+                .orElseThrow(() -> new RestApiException(ROOM_REQUEST_NOT_FOUND));
+
+        roomRequestRepository.delete(request);
+    }
 }
