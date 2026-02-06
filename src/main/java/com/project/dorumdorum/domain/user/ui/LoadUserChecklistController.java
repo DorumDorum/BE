@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.user.ui;
 
-import com.project.dorumdorum.domain.user.application.dto.response.MyUserChecklistResponse;
+import com.project.dorumdorum.domain.user.application.dto.response.UserChecklistResponse;
 import com.project.dorumdorum.domain.user.application.usecase.LoadUserChecklistUseCase;
 import com.project.dorumdorum.domain.user.ui.spec.LoadUserChecklistApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
@@ -16,14 +16,14 @@ public class LoadUserChecklistController implements LoadUserChecklistApiSpec {
     private final LoadUserChecklistUseCase loadUserChecklistUseCase;
 
     @Override
-    public BaseResponse<MyUserChecklistResponse> loadMyChecklist(
+    public BaseResponse<UserChecklistResponse> loadMyChecklist(
             @CurrentUser String userNo
     ) {
         return BaseResponse.onSuccess(loadUserChecklistUseCase.execute(userNo));
     }
 
     @Override
-    public BaseResponse<MyUserChecklistResponse> loadUserChecklist(
+    public BaseResponse<UserChecklistResponse> loadUserChecklist(
             @PathVariable String userNo
     ) {
         return BaseResponse.onSuccess(loadUserChecklistUseCase.execute(userNo));

@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.user.ui.spec;
 
-import com.project.dorumdorum.domain.user.application.dto.response.MyUserChecklistResponse;
+import com.project.dorumdorum.domain.user.application.dto.response.UserChecklistResponse;
 import com.project.dorumdorum.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,7 +14,7 @@ public interface LoadUserChecklistApiSpec {
             summary = "내 체크리스트 조회 API"
     )
     @GetMapping("/api/users/me/checklist")
-    BaseResponse<MyUserChecklistResponse> loadMyChecklist(
+    BaseResponse<UserChecklistResponse> loadMyChecklist(
             @Parameter(hidden = true) String userNo
     );
 
@@ -22,7 +22,7 @@ public interface LoadUserChecklistApiSpec {
             summary = "특정 유저 체크리스트 조회 API"
     )
     @GetMapping("/api/users/{targetUserNo}/checklist")
-    BaseResponse<MyUserChecklistResponse> loadUserChecklist(
+    BaseResponse<UserChecklistResponse> loadUserChecklist(
             @Parameter(description = "번호") String userNo
     );
 }

@@ -7,7 +7,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record MyUserChecklistResponse(
+public record UserChecklistResponse(
         String otherNotes,
         List<CategoryResponse> categories
 ) {
