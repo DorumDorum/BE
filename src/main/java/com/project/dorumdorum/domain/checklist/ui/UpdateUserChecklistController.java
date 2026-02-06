@@ -1,8 +1,8 @@
-package com.project.dorumdorum.domain.user.ui;
+package com.project.dorumdorum.domain.checklist.ui;
 
 import com.project.dorumdorum.domain.checklist.application.dto.request.UpdateUserChecklistRequest;
 import com.project.dorumdorum.domain.checklist.application.usecase.UpdateUserChecklistUseCase;
-import com.project.dorumdorum.domain.user.ui.spec.UpdateUserChecklistApiSpec;
+import com.project.dorumdorum.domain.checklist.ui.spec.UpdateUserChecklistApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 import jakarta.validation.Valid;

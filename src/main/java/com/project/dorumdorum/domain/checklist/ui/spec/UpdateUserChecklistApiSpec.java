@@ -1,4 +1,4 @@
-package com.project.dorumdorum.domain.user.ui.spec;
+package com.project.dorumdorum.domain.checklist.ui.spec;
 
 import com.project.dorumdorum.domain.checklist.application.dto.request.UpdateUserChecklistRequest;
 import com.project.dorumdorum.global.common.BaseResponse;
@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PutMapping;
 
-@Tag(name = "User")
+@Tag(name = "Checklist")
 public interface UpdateUserChecklistApiSpec {
 
     @Operation(

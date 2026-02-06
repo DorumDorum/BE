@@ -1,8 +1,8 @@
-package com.project.dorumdorum.domain.user.ui;
+package com.project.dorumdorum.domain.checklist.ui;
 
 import com.project.dorumdorum.domain.checklist.application.dto.response.UserChecklistResponse;
 import com.project.dorumdorum.domain.checklist.application.usecase.LoadUserChecklistUseCase;
-import com.project.dorumdorum.domain.user.ui.spec.LoadUserChecklistApiSpec;
+import com.project.dorumdorum.domain.checklist.ui.spec.LoadUserChecklistApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 import lombok.RequiredArgsConstructor;

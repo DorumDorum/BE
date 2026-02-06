@@ -1,8 +1,8 @@
-package com.project.dorumdorum.domain.room.ui;
+package com.project.dorumdorum.domain.checklist.ui;
 
 import com.project.dorumdorum.domain.checklist.application.dto.request.UpdateRoomRuleRequest;
 import com.project.dorumdorum.domain.checklist.application.usecase.UpdateRoomRuleUseCase;
-import com.project.dorumdorum.domain.room.ui.spec.UpdateRoomRuleApiSpec;
+import com.project.dorumdorum.domain.checklist.ui.spec.UpdateRoomRuleApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
