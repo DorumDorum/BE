@@ -26,12 +26,10 @@ public class LoadRoomApplicationsUseCase {
     public List<RoomRequestApplicationResponse> execute(String userNo, String roomNo) {
         Room room = roomService.findById(roomNo);
 
-        // 방장인지 확인
-        if (!roommateService.isHost(userNo, room)) {
+        if (!roommateService.isUserRoommate(userNo, roomNo)) {
             throw new RestApiException(NO_PERMISSION_ON_ROOM);
         }
 
-        // RoomRequest 목록 조회
         return roomRequestService.findApplicationsByRoom(room);
     }
 }

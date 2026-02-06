@@ -21,7 +21,7 @@ public interface LoadUserChecklistApiSpec {
     @Operation(
             summary = "특정 유저 체크리스트 조회 API"
     )
-    @GetMapping("/api/users/{targetUserNo}/checklist")
+    @GetMapping("/api/users/{userNo}/checklist")
     BaseResponse<UserChecklistResponse> loadUserChecklist(
             @Parameter(description = "번호") String userNo
     );
