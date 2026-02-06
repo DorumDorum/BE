@@ -1,7 +1,5 @@
 package com.project.dorumdorum.domain.user.application.usecase;
 
-import com.project.dorumdorum.domain.checklist.application.mapper.UserChecklistMapper;
-import com.project.dorumdorum.domain.checklist.domain.service.UserChecklistService;
 import com.project.dorumdorum.domain.user.application.dto.request.SignUpRequest;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
@@ -19,8 +17,6 @@ import static com.project.dorumdorum.global.exception.code.status.GlobalErrorSta
 public class SignUpUseCase {
 
     private final UserService userService;
-    private final UserChecklistService userChecklistService;
-    private final UserChecklistMapper userChecklistMapper;
 
     public void execute(SignUpRequest request) {
         if(!request.isCheckedPassword())
@@ -29,7 +25,6 @@ public class SignUpUseCase {
         if (userService.isAlreadyRegistered(request.email()))
             throw new RestApiException(ALREADY_REGISTERED_EMAIL);
 
-        User user = userService.save(request);
-        userChecklistService.save(userChecklistMapper.toUserChecklist(user.getUserNo(), request.checklist()));
+        userService.save(request);
     }
 }

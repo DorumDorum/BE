@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.user.application.dto.request;
 
-import com.project.dorumdorum.domain.checklist.application.dto.request.CreateUserChecklistRequest;
 import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.project.dorumdorum.global.exception.RestApiException;
 import jakarta.validation.constraints.Email;
@@ -22,8 +21,7 @@ public record SignUpRequest(
         @NotBlank String studentNo,
         @NotBlank String major,
         @NotBlank String grade,
-        @NotBlank String birth,
-        @NotNull CreateUserChecklistRequest checklist
+        @NotBlank String birth
 ) {
     public boolean isCheckedPassword() {
         return password().equals(passwordCheck());
