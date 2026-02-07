@@ -78,6 +78,7 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
             return; // 채팅방 구독이 아닌 경우 검증 생략
         }
 
+        // 정규식에서 첫 번째 괄호로 캡처된 값 추출 (그게 roomId)
         Long roomId = Long.parseLong(matcher.group(1));
         UserIdPrincipal principal = (UserIdPrincipal) accessor.getUser();
         
@@ -87,7 +88,7 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
         Long userId = principal.getUserId();
 
-        // 1. 채팅방 상태 검증 (APPROVED 여부)
+        // 채팅방 상태 검증 (APPROVED 여부)
         MessageRoom messageRoom = messageRoomRepository.findById(roomId)
                 .orElseThrow(() -> new RestApiException(GlobalErrorStatus._BAD_REQUEST));
 
@@ -95,7 +96,7 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
             throw new RestApiException(GlobalErrorStatus._FORBIDDEN);
         }
 
-        // 2. 참여자 검증
+        // 참여자 검증
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RestApiException(GlobalErrorStatus._UNAUTHORIZED));
 
