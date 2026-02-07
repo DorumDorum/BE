@@ -45,4 +45,9 @@ public class MessageRoom extends BaseEntity {
         this.roomStatus = MessageRoomStatus.REJECTED;
         this.activeDirectRoomKey = null;
     }
+
+    public void updateLastMessage(String lastMessage, LocalDateTime lastMessageAt) {
+        this.lastMessage = lastMessage;
+        this.lastMessageAt = lastMessageAt;
+    }
 }
