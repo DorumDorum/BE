@@ -13,7 +13,7 @@ public class SendFirebaseTokenUseCase {
 
     private final NotificationService notificationService;
 
-    public void execute(Long userNo, SendFirebaseTokenRequest request) {
+    public void execute(String userNo, SendFirebaseTokenRequest request) {
         notificationService.saveToken(userNo, request.firebaseToken());
     }
 }

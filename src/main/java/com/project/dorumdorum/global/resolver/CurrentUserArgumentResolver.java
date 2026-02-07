@@ -21,11 +21,11 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameterAnnotation(CurrentUser.class) != null
-                && Long.class.isAssignableFrom(parameter.getParameterType());
+                && String.class.isAssignableFrom(parameter.getParameterType());
     }
 
     @Override
-    public Long resolveArgument(MethodParameter parameter,
+    public String resolveArgument(MethodParameter parameter,
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) throws Exception {

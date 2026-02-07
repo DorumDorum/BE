@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 
 public record ProfileResponse(
-        Long userNo,
+        String userNo,
         String nickname,
         String name,
         String email,

@@ -18,8 +18,8 @@ public class UpdateRoomTitleController implements UpdateRoomTitleApiSpec {
 
     @Override
     public BaseResponse<Void> update(
-            @CurrentUser Long userNo,
-            @RequestParam Long roomNo,
+            @CurrentUser String userNo,
+            @RequestParam String roomNo,
             @RequestBody UpdateRoomTitleRequest request
     ) {
         updateRoomTitleUseCase.execute(userNo, roomNo, request);

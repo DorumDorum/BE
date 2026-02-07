@@ -18,7 +18,7 @@ public class CreateRoomController implements CreateRoomApiSpec {
 
     @Override
     public BaseResponse<Void> create(
-            @CurrentUser Long userNo,
+            @CurrentUser String userNo,
             @RequestBody @Valid RoomCreateRequest request
     ) {
         createRoomUseCase.execute(userNo, request);

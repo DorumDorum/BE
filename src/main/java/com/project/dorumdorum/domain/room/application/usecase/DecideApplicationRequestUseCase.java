@@ -2,10 +2,10 @@ package com.project.dorumdorum.domain.room.application.usecase;
 
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomRequest;
-import com.project.dorumdorum.domain.room.domain.entity.RoomRole;
 import com.project.dorumdorum.domain.room.domain.service.RoomRequestService;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
-import com.project.dorumdorum.domain.room.domain.service.RoommateService;
+import com.project.dorumdorum.domain.roommate.domain.entity.RoomRole;
+import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +24,13 @@ public class DecideApplicationRequestUseCase {
     private final RoomService roomService;
     private final RoommateService roommateService;
 
-    public void approve(Long userNo, Long roomNo, Long roomRequestNo) {
+    public void approve(String userNo, String roomNo, String roomRequestNo) {
         // 유저 존재 유무 검증
         userService.validateExistsById(userNo);
 
         // 지원자가 이미 속한 방이 있는지 검증
         RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
-        if(roommateService.existsByUserNo(userNo))
+        if(roommateService.existsByUserNo(roomRequest.getUserNo()))
             throw new RestApiException(ALREADY_JOINED_USER);
 
         // 방장인지 확인
@@ -40,18 +40,15 @@ public class DecideApplicationRequestUseCase {
 
         // 방 인원수 +1
         room.plusCurrentMate();
-
-        // 요청 생성
-        roommateService.create(userNo, room, RoomRole.MEMBER);
+        roommateService.create(roomRequest.getUserNo(), room, RoomRole.MEMBER);
 
         // todo: 지원자에게 알림 roomRequest.getUserNo()
 
         // 모든 플로우를 거쳤다면 요청은 삭제
-        roommateService.create(roomRequest.getUserNo(), room, RoomRole.MEMBER);
         roomRequestService.delete(roomRequest);
     }
 
-    public void reject(Long userNo, Long roomRequestNo) {
+    public void reject(String userNo, String roomRequestNo) {
         // 유저 존재 유무 검증
         userService.validateExistsById(userNo);
 

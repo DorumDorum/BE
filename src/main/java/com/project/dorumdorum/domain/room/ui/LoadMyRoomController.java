@@ -17,7 +17,7 @@ public class LoadMyRoomController implements LoadMyRoomsApiSpec {
 
     @Override
     public BaseResponse<FindRoomsResponse> load(
-            @CurrentUser Long userNo
+            @CurrentUser String userNo
     ) {
         return BaseResponse.onSuccess(loadMyRoomsUseCase.execute(userNo));
     }

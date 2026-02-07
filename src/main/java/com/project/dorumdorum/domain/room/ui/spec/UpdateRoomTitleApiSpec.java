@@ -17,8 +17,8 @@ public interface UpdateRoomTitleApiSpec {
     )
     @PutMapping("/api/rooms/me/title")
     BaseResponse<Void> update(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "제목을 수정하려는 방 번호") @RequestParam Long roomNo,
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "제목을 수정하려는 방 번호") @RequestParam String roomNo,
             @Parameter(description = "수정할 제목") @RequestBody UpdateRoomTitleRequest request
     );
 }

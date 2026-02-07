@@ -19,7 +19,7 @@ public class LoadNoticesController implements LoadNoticesApiSpec {
 
     @Override
     public BaseResponse<List<NoticeResponse>> loadNotices(
-            @AccessToken Long userNo
+            @AccessToken String userNo
     ) {
         List<NoticeResponse> notices = loadNoticesUseCase.execute();
         return BaseResponse.onSuccess(notices);

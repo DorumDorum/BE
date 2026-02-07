@@ -16,7 +16,7 @@ public interface ConfirmRoomAssignmentApiSpec {
     )
     @PostMapping("/api/rooms/me/confirm")
     BaseResponse<Void> confirm(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "배정 확정하려는 방 번호") @RequestParam Long roomNo
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "배정 확정하려는 방 번호") @RequestParam String roomNo
     );
 }

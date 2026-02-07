@@ -5,5 +5,5 @@ import java.time.LocalDateTime;
 public record DecodedCursor(
         Integer remaining,
         LocalDateTime createdAt,
-        Long pk
+        String pk
 ) {}

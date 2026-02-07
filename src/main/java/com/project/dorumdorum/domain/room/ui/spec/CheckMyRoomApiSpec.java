@@ -15,6 +15,6 @@ public interface CheckMyRoomApiSpec {
     )
     @GetMapping("/api/rooms/me/exists")
     BaseResponse<CheckMyRoomResponse> check(
-            @Parameter(hidden = true) Long userNo
+            @Parameter(hidden = true) String userNo
     );
 }

@@ -21,6 +21,6 @@ public interface LoadMyRoomsApiSpec {
     )
     @GetMapping("/api/rooms/me")
     BaseResponse<FindRoomsResponse> load(
-            @Parameter(hidden = true) Long userNo
+            @Parameter(hidden = true) String userNo
     );
 }

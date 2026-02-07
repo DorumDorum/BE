@@ -19,7 +19,7 @@ public interface UpdateUserProfileApiSpec {
     )
     @PatchMapping("/api/users/profile")
     BaseResponse<ProfileResponse> updateProfile(
-            @Parameter(hidden = true) Long userNo,
+            @Parameter(hidden = true) String userNo,
             @RequestBody(
                     description = "수정할 프로필 정보 (이름, 닉네임, 이메일 등)",
                     required = true

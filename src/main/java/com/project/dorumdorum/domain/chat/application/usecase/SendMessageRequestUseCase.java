@@ -17,7 +17,7 @@ public class SendMessageRequestUseCase {
     private final UserService userService;
 
     public void execute(Long userNo, Long receiverNo, SendMessageRequest request) {
-        userService.validateExistsById(userNo);
+//        userService.validateExistsById(userNo);
 
         // 채팅방 생성
         MessageRoom messageRoom = messageRoomService.create(request, MessageRoomType.DIRECT, MessageRoomStatus.REQUESTED);

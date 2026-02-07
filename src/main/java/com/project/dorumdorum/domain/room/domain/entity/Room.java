@@ -15,8 +15,7 @@ import lombok.*;
 public class Room extends BaseEntity {
 
     @Id @Tsid
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long roomNo;
+    private String roomNo;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -42,7 +41,7 @@ public class Room extends BaseEntity {
     private String title;
 
     @Column(nullable = false)
-    private Long hostUserNo;
+    private String hostUserNo;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -86,7 +85,7 @@ public class Room extends BaseEntity {
         this.roomStatus = roomStatus;
     }
 
-    public boolean isHost(Long userNo) {
+    public boolean isHost(String userNo) {
         return this.hostUserNo.equals(userNo);
     }
 

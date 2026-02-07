@@ -42,14 +42,14 @@ public class TokenProvider {
     private static final String ID_CLAIM = "id";
     private static final String ROLE_CLAIM = "role";
 
-    public String createAccessToken(Long id, Role role) {
+    public String createAccessToken(String id, Role role) {
         Date now = new Date();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuedAt(now)
                 .setExpiration(Date.from(
                         LocalDateTime.now()
-                                .plusDays(jwtProperties.getAccessTokenExpirationPeriodDay())
+                                .plusMinutes(jwtProperties.getAccessTokenExpiration())
                                 .atZone(ZoneId.of("Asia/Seoul"))
                                 .toInstant()
                 ))
@@ -60,14 +60,14 @@ public class TokenProvider {
                 .compact();
     }
 
-    public String createRefreshToken(Long id, Role role) {
+    public String createRefreshToken(String id, Role role) {
         Date now = new Date();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuedAt(now)
                 .setExpiration(Date.from(
                         LocalDateTime.now()
-                                .plusDays(jwtProperties.getAccessTokenExpirationPeriodDay())
+                                .plusSeconds(jwtProperties.getRefreshTokenExpiration())
                                 .atZone(ZoneId.of("Asia/Seoul"))
                                 .toInstant()
                 ))
@@ -95,12 +95,12 @@ public class TokenProvider {
                 .orElseThrow(() -> new RestApiException(INVALID_ACCESS_TOKEN));
 
         Set<SimpleGrantedAuthority> authorities = Collections.singleton(new SimpleGrantedAuthority(role.getName()));
-        return new UsernamePasswordAuthenticationToken(new User(String.valueOf(claims.get(ID_CLAIM, Long.class)), "", authorities), token, authorities);
+        return new UsernamePasswordAuthenticationToken(new User(String.valueOf(claims.get(ID_CLAIM, String.class)), "", authorities), token, authorities);
     }
 
-    public Optional<Long> getId(String token) {
+    public Optional<String> getId(String token) {
         try {
-            return Optional.ofNullable(getClaims(token).get(ID_CLAIM, Long.class));
+            return Optional.ofNullable(getClaims(token).get(ID_CLAIM, String.class));
         } catch (Exception e) {
             return Optional.empty();
         }

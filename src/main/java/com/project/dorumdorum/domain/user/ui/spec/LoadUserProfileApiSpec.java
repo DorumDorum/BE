@@ -16,7 +16,7 @@ public interface LoadUserProfileApiSpec {
     )
     @GetMapping("/api/users/profile/me")
     BaseResponse<ProfileResponse> loadMyProfile(
-            @Parameter(hidden = true) Long userNo
+            @Parameter(hidden = true) String userNo
     );
 
     @Operation(
@@ -25,6 +25,6 @@ public interface LoadUserProfileApiSpec {
     )
     @GetMapping("/api/users/profile/{userNo}")
     BaseResponse<ProfileResponse> loadProfile(
-            @Parameter(description = "조회할 유저 번호") Long userNo
+            @Parameter(description = "번호") String userNo
     );
 }

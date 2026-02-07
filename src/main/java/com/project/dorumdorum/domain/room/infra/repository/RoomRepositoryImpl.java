@@ -3,6 +3,7 @@ package com.project.dorumdorum.domain.room.infra.repository;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
+import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepositoryCustom;
@@ -19,8 +20,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.project.dorumdorum.domain.room.domain.entity.QRoom.room;
+import static com.project.dorumdorum.domain.room.domain.entity.QRoomLike.roomLike;
 import static com.project.dorumdorum.domain.room.domain.entity.QRoomRequest.roomRequest;
-import static com.project.dorumdorum.domain.room.domain.entity.QRoommate.roommate;
+import static com.project.dorumdorum.domain.roommate.domain.entity.QRoommate.roommate;
 import static com.project.dorumdorum.domain.user.domain.entity.QUser.user;
 import static com.querydsl.core.types.Projections.constructor;
 
@@ -31,10 +33,11 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     private final JPAQueryFactory query;
 
     @Override
-    public List<FindRoomsResponse> findByCursor(Long userNo,
+    public List<FindRoomsResponse> findByCursor(String userNo,
                                                 RoomRelation relation,
-                                                RoomType type,
-                                                Integer capacity,
+                                                List<RoomType> types,
+                                                List<Integer> capacities,
+                                                List<ResidencePeriod> residencePeriods,
                                                 RoomSort sort,
                                                 DecodedCursor cursor,
                                                 int limitPlusOne) {
@@ -57,8 +60,9 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .leftJoin(user).on(user.userNo.eq(room.hostUserNo))
                 .where(
                         relationPredicate(userNo, relation),
-                        type == null ? null : room.roomType.eq(type),
-                        capacity == null ? null : room.capacity.eq(capacity),
+                        types == null || types.isEmpty() ? null : room.roomType.in(types),
+                        capacities == null || capacities.isEmpty() ? null : room.capacity.in(capacities),
+                        residencePeriods == null || residencePeriods.isEmpty() ? null : room.residencePeriod.in(residencePeriods),
                         cursorPredicate(cursor, sort)
                 );
 
@@ -72,7 +76,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     }
 
     @Override
-    public Optional<FindRoomsResponse> findMyRoom(Long userNo) {
+    public Optional<FindRoomsResponse> findMyRoom(String userNo) {
         FindRoomsResponse result = query
                 .select(
                         constructor(FindRoomsResponse.class,
@@ -102,7 +106,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
         return Optional.ofNullable(result);
     }
 
-    private BooleanExpression relationPredicate(Long userNo, RoomRelation relation) {
+    private BooleanExpression relationPredicate(String userNo, RoomRelation relation) {
         if (relation == null) return null;
         return switch (relation) {
             case APPLIED -> JPAExpressions
@@ -115,6 +119,11 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                     .from(roommate)
                     .where(roommate.room.eq(room), roommate.userNo.eq(userNo))
                     .exists();
+            case LIKED -> JPAExpressions
+                    .selectOne()
+                    .from(roomLike)
+                    .where(roomLike.room.eq(room), roomLike.userNo.eq(userNo))
+                    .exists();
             case RECRUITING -> room.roomStatus.eq(RoomStatus.CONFIRM_PENDING);
         };
     }
@@ -122,7 +131,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     private BooleanExpression cursorPredicate(DecodedCursor c, RoomSort sort) {
         if (c == null) return null;
         LocalDateTime t = c.createdAt();
-        Long pk = c.pk();
+        String pk = c.pk();
 
         if (sort == RoomSort.REMAINING) {
             Integer r = c.remaining();

@@ -16,7 +16,7 @@ public class CheckMyRoomController implements CheckMyRoomApiSpec {
 
     @Override
     public BaseResponse<CheckMyRoomResponse> check(
-            @CurrentUser Long userNo
+            @CurrentUser String userNo
     ) {
         return BaseResponse.onSuccess(checkMyRoomUseCase.execute(userNo));
     }
