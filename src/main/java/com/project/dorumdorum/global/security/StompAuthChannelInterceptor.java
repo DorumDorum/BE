@@ -1,5 +1,12 @@
 package com.project.dorumdorum.global.security;
 
+import com.project.dorumdorum.domain.chat.domain.entity.MessageRoom;
+import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomStatus;
+import com.project.dorumdorum.domain.chat.domain.entity.Participant;
+import com.project.dorumdorum.domain.chat.domain.repository.MessageRoomRepository;
+import com.project.dorumdorum.domain.chat.domain.repository.ParticipantRepository;
+import com.project.dorumdorum.domain.user.domain.entity.User;
+import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
 import lombok.RequiredArgsConstructor;
@@ -11,14 +18,21 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Component
 @RequiredArgsConstructor
 public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
     private static final String AUTHORIZATION = "Authorization";
     private static final String BEARER = "Bearer ";
+    private static final Pattern ROOM_DESTINATION_PATTERN = Pattern.compile("^/sub/rooms/(\\d+)$");
 
     private final TokenProvider tokenProvider;
+    private final ParticipantRepository participantRepository;
+    private final MessageRoomRepository messageRoomRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -28,21 +42,67 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
         }
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            String authHeader = accessor.getFirstNativeHeader(AUTHORIZATION);
-            if (authHeader == null || !authHeader.startsWith(BEARER)) {
-                throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
-            }
-
-            String token = authHeader.substring(BEARER.length());
-            if (!tokenProvider.validateToken(token) || !tokenProvider.isAccessToken(token)) {
-                throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
-            }
-
-            Long userId = tokenProvider.getId(token)
-                    .orElseThrow(() -> new RestApiException(GlobalErrorStatus._UNAUTHORIZED));
-            accessor.setUser(new UserIdPrincipal(userId));
+            handleConnect(accessor);
+        } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+            handleSubscribe(accessor);
         }
 
         return message;
+    }
+
+    private void handleConnect(StompHeaderAccessor accessor) {
+        String authHeader = accessor.getFirstNativeHeader(AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith(BEARER)) {
+            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+        }
+
+        String token = authHeader.substring(BEARER.length());
+        if (!tokenProvider.validateToken(token) || !tokenProvider.isAccessToken(token)) {
+            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+        }
+
+        Long userId = tokenProvider.getId(token)
+                .orElseThrow(() -> new RestApiException(GlobalErrorStatus._UNAUTHORIZED));
+        accessor.setUser(new UserIdPrincipal(userId));
+    }
+
+    private void handleSubscribe(StompHeaderAccessor accessor) {
+        String destination = accessor.getDestination();
+        if (destination == null) {
+            return;
+        }
+
+        // /sub/rooms/{roomId} 패턴 검증
+        Matcher matcher = ROOM_DESTINATION_PATTERN.matcher(destination);
+        if (!matcher.matches()) {
+            return; // 채팅방 구독이 아닌 경우 검증 생략
+        }
+
+        Long roomId = Long.parseLong(matcher.group(1));
+        UserIdPrincipal principal = (UserIdPrincipal) accessor.getUser();
+        
+        if (principal == null) {
+            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+        }
+
+        Long userId = principal.getUserId();
+
+        // 1. 채팅방 상태 검증 (APPROVED 여부)
+        MessageRoom messageRoom = messageRoomRepository.findById(roomId)
+                .orElseThrow(() -> new RestApiException(GlobalErrorStatus._BAD_REQUEST));
+
+        if (messageRoom.getRoomStatus() != MessageRoomStatus.APPROVED) {
+            throw new RestApiException(GlobalErrorStatus._FORBIDDEN);
+        }
+
+        // 2. 참여자 검증
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RestApiException(GlobalErrorStatus._UNAUTHORIZED));
+
+        Participant participant = participantRepository.findByUserAndMessageRoomNo(user, roomId);
+        
+        if (participant == null || participant.getDeletedAt() != null) {
+            throw new RestApiException(GlobalErrorStatus._FORBIDDEN);
+        }
     }
 }
