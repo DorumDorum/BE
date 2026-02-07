@@ -11,15 +11,17 @@ public record MessageSentEvent(
         Long messageId,
         Long roomId,
         Long senderId,
+        String senderName,  // 추가
         String content,
         MessageType messageType,
         LocalDateTime sentAt
 ) {
-    public static MessageSentEvent create(Message message) {
+    public static MessageSentEvent create(Message message, String senderName) {
         return MessageSentEvent.builder()
             .messageId(message.getMessageNo())
             .roomId(message.getMessageRoomNo())
             .senderId(message.getSenderNo())
+            .senderName(senderName)  // 추가
             .content(message.getContent())
             .messageType(message.getMessageType())
             .sentAt(message.getSentAt())

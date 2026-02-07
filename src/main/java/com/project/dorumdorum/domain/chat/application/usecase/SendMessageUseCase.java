@@ -45,7 +45,7 @@ public class SendMessageUseCase {
         Message message = messageService.saveMessage(roomId, senderId, content);
         messageRoomService.updateLastMessage(messageRoom, content, message.getSentAt());
 
-        MessageSentEvent event = MessageSentEvent.create(message);
+        MessageSentEvent event = MessageSentEvent.create(message, sender.getName());  // senderName 추가
         chatEventPublisher.publishMessageSent(event);
         return event;
     }
