@@ -31,6 +31,7 @@ public class Participant extends BaseEntity {
     private Long lastReadMessageId;
 
     public void softDelete() {
+        this.leftAt = LocalDateTime.now();
         delete();
     }
 }

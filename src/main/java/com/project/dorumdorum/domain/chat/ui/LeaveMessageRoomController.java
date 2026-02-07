@@ -1,4 +1,25 @@
 package com.project.dorumdorum.domain.chat.ui;
 
-public class LeaveMessageRoomController {
+import com.project.dorumdorum.domain.chat.application.usecase.LeaveMessageRoomUseCase;
+import com.project.dorumdorum.domain.chat.ui.spec.LeaveMessageRoomApiSpec;
+import com.project.dorumdorum.global.annotation.CurrentUser;
+import com.project.dorumdorum.global.common.BaseResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+public class LeaveMessageRoomController implements LeaveMessageRoomApiSpec {
+
+    private final LeaveMessageRoomUseCase leaveMessageRoomUseCase;
+
+    @Override
+    public BaseResponse<Void> leaveMessageRoom(
+            @CurrentUser Long userNo,
+            @PathVariable Long messageRoomNo
+    ) {
+        leaveMessageRoomUseCase.execute(userNo, messageRoomNo);
+        return BaseResponse.onSuccess();
+    }
 }
