@@ -35,6 +35,12 @@ jwt:
 
 exclude-auth-path-patterns:
   paths:
+    - path-pattern: /ws/**
+      method: GET
+    - path-pattern: /ws-native
+      method: GET
+    - path-pattern: /ws-native/**
+      method: GET
     - path-pattern: /api/users/sign-up
       method: POST
     - path-pattern: /api/users/login
