@@ -5,6 +5,7 @@ import com.project.dorumdorum.domain.chat.application.usecase.SendMessageRequest
 import com.project.dorumdorum.domain.chat.ui.spec.SendMessageRequestApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class SendMessageRequestController implements SendMessageRequestApiSpec {
     public BaseResponse<Void> send(
             @CurrentUser Long userNo,
             @PathVariable Long receiverNo,
-            @RequestBody SendMessageRequest request
+            @RequestBody @Valid SendMessageRequest request
     ) {
         sendMessageRequestUseCase.execute(userNo, receiverNo, request);
         return BaseResponse.onSuccess();

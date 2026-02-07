@@ -3,6 +3,8 @@ package com.project.dorumdorum.domain.chat.application.usecase;
 
 import com.project.dorumdorum.domain.chat.application.dto.request.DecideMessageRequest;
 import com.project.dorumdorum.domain.chat.application.dto.request.MessageRequestDecision;
+import com.project.dorumdorum.domain.chat.application.event.ChatEventPublisher;
+import com.project.dorumdorum.domain.chat.application.event.MessageRequestDecidedEvent;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRequest;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRequestStatus;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoom;
@@ -25,6 +27,7 @@ public class DecideMessageRequestUseCase {
     private final MessageRequestService messageRequestService;
     private final MessageRoomService messageRoomService;
     private final ParticipantService participantService;
+    private final ChatEventPublisher chatEventPublisher;
 
     @Transactional
     public void execute(Long userId, Long messageRequestNo, DecideMessageRequest request) {
@@ -50,7 +53,9 @@ public class DecideMessageRequestUseCase {
         MessageRoom messageRoom = messageRoomService.findById(messageRequest.getMessageRoomNo());
 
         // 수락일 때
-        if (request.messageRequestDecision() == MessageRequestDecision.APPROVE) {
+        MessageRequestDecision decision = request.messageRequestDecision();
+
+        if (decision == MessageRequestDecision.APPROVE) {
             // 채팅 요청 수락으로 변경
             messageRequestService.approveMessageRequest(messageRequest);
             // 채팅방 상태 수락으로 변경
@@ -70,5 +75,12 @@ public class DecideMessageRequestUseCase {
             );
         }
 
+        MessageRequestDecidedEvent event = MessageRequestDecidedEvent.builder()
+            .roomId(messageRoom.getMessageRoomNo())
+            .senderId(messageRequest.getSenderNo())
+            .receiverId(messageRequest.getReceiverNo())
+            .decision(decision)
+            .build();
+        chatEventPublisher.publishMessageRequestDecided(event);
     }
 }

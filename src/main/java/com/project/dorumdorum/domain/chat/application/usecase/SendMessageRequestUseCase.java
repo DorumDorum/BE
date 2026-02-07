@@ -4,11 +4,12 @@ import com.project.dorumdorum.domain.chat.application.dto.request.SendMessageReq
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoom;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomStatus;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomType;
+import com.project.dorumdorum.domain.chat.application.event.ChatEventPublisher;
+import com.project.dorumdorum.domain.chat.application.event.MessageRequestCreatedEvent;
 import com.project.dorumdorum.domain.chat.domain.service.MessageRequestService;
 import com.project.dorumdorum.domain.chat.domain.service.MessageRoomService;
 import com.project.dorumdorum.domain.chat.domain.service.MessageService;
 import com.project.dorumdorum.domain.chat.domain.service.ParticipantService;
-import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
@@ -18,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +30,7 @@ public class SendMessageRequestUseCase {
     private final MessageRequestService messageRequestService;
     private final ParticipantService participantService;
     private final UserService userService;
-    private final NotificationService notificationService;
+    private final ChatEventPublisher chatEventPublisher;
 
     @Transactional
     public void execute(Long userNo, Long receiverNo, SendMessageRequest request) {
@@ -77,23 +77,13 @@ public class SendMessageRequestUseCase {
             );
         }
 
-        // 채팅 요청 알림(Firebase)
-        // TODO: 나중에 RestApiException 안 보내는 알림 메소드로 보내기
-        try {
-            notificationService.sendNotification(
-                    receiverNo,
-                    "새 채팅 요청",
-                    sender.getNickname() + "님이 채팅 요청이 도착했습니다.",
-                    Map.of(
-                            "roomId", String.valueOf(messageRoom.getMessageRoomNo()),
-                            "senderId", String.valueOf(userNo)
-                    ),
-                    null
-            );
-        } catch (Exception e) {
-            log.warn("[FCM] 채팅 요청 알림 전송 실패. receiverNo={} roomId={}",
-                    receiverNo, messageRoom.getMessageRoomNo(), e);
-        }
+        MessageRequestCreatedEvent event = MessageRequestCreatedEvent.builder()
+            .roomId(messageRoom.getMessageRoomNo())
+            .senderId(userNo)
+            .receiverId(receiverNo)
+            .senderNickname(sender.getNickname())
+            .build();
+        chatEventPublisher.publishMessageRequestCreated(event);
     }
 
     private String buildDirectRoomKey(Long userNo, Long receiverNo) {

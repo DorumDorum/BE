@@ -5,6 +5,7 @@ import com.project.dorumdorum.domain.chat.application.event.ChatEventPublisher;
 import com.project.dorumdorum.domain.chat.application.event.MessageSentEvent;
 import com.project.dorumdorum.domain.chat.domain.entity.Message;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoom;
+import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomStatus;
 import com.project.dorumdorum.domain.chat.domain.service.MessageRoomService;
 import com.project.dorumdorum.domain.chat.domain.service.MessageService;
 import com.project.dorumdorum.domain.chat.domain.service.ParticipantService;
@@ -35,6 +36,9 @@ public class SendMessageUseCase {
         // 유저 검증
         User sender = userService.findById(senderId);
         MessageRoom messageRoom = messageRoomService.findById(roomId);
+        if (messageRoom.getRoomStatus() != MessageRoomStatus.APPROVED) {
+            throw new RestApiException(GlobalErrorStatus._BAD_REQUEST);
+        }
         participantService.findByUserNoAndMessageRoomNo(sender, roomId);
 
         String content = request.content().trim();
