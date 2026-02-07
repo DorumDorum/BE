@@ -29,12 +29,14 @@ public class ChatNotificationEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageSent(MessageSentEvent event) {
+        log.info("[NOTIFY] 메시지 전송 roomId={} senderId={}", event.roomId(), event.senderId());
         List<Participant> participants = participantService.findActiveParticipantsByRoomNo(event.roomId());
         boolean shouldSendStomp = false;
 
         for (Participant participant : participants) {
             Long userId = participant.getUser().getUserNo();
             NotificationChannel channel = presenceService.decideMessageChannel(userId, event.roomId());
+            log.info("[NOTIFY] userId={} channel={}", userId, channel);
 
             if (channel == NotificationChannel.STOMP) {
                 shouldSendStomp = true;
@@ -59,6 +61,7 @@ public class ChatNotificationEventListener {
 
             if (channel == NotificationChannel.FCM || channel == NotificationChannel.SSE) {
                 try {
+                log.info("[FCM] 전송 userId={}", userId);
                 notificationService.sendNotification(
                     userId,
                     "새 메시지",
@@ -77,6 +80,7 @@ public class ChatNotificationEventListener {
         }
 
         if (shouldSendStomp) {
+            log.info("[STOMP] 브로드캐스트 roomId={}", event.roomId());
             messagingTemplate.convertAndSend("/sub/rooms/" + event.roomId(), event);
         }
     }
