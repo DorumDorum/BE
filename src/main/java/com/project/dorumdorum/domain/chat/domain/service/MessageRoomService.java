@@ -68,4 +68,8 @@ public class MessageRoomService {
     public List<LoadMessageRoomResponse> findByCursor(Long userNo, DecodedCursor decodedCursor, int limitPlusOne) {
         return messageRoomRepository.findByCursor(userNo, decodedCursor, limitPlusOne);
     }
+
+    public void deleteMessageRoom(MessageRoom messageRoom) {
+        messageRoom.delete();
+    }
 }

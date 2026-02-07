@@ -37,6 +37,8 @@ public class MessageRoom extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MessageRoomStatus roomStatus;
 
+    private Long roomNo;
+
     public void approve() {
         this.roomStatus = MessageRoomStatus.APPROVED;
     }
@@ -49,5 +51,11 @@ public class MessageRoom extends BaseEntity {
     public void updateLastMessage(String lastMessage, LocalDateTime lastMessageAt) {
         this.lastMessage = lastMessage;
         this.lastMessageAt = lastMessageAt;
+    }
+
+    public void delete() {
+        this.roomStatus = MessageRoomStatus.DELETED;
+        this.activeDirectRoomKey = null;
+        super.delete(); 
     }
 }
