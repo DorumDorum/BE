@@ -17,7 +17,7 @@ public interface SendFirebaseTokenApiSpec {
     )
     @PostMapping("/api/notification")
     BaseResponse<Void> sendFirebaseToken(
-            @Parameter(hidden = true) Long userNo,
+            @Parameter(hidden = true) String userNo,
             @RequestBody(
                     description = "FCM 디바이스 토큰",
                     required = true

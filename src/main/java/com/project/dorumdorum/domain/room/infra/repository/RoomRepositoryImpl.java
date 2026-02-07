@@ -3,9 +3,9 @@ package com.project.dorumdorum.domain.room.infra.repository;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
+import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
-import com.project.dorumdorum.domain.room.domain.entity.Tag;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepositoryCustom;
 import com.project.dorumdorum.global.pagination.DecodedCursor;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -17,10 +17,12 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.project.dorumdorum.domain.room.domain.entity.QRoom.room;
+import static com.project.dorumdorum.domain.room.domain.entity.QRoomLike.roomLike;
 import static com.project.dorumdorum.domain.room.domain.entity.QRoomRequest.roomRequest;
-import static com.project.dorumdorum.domain.room.domain.entity.QRoommate.roommate;
+import static com.project.dorumdorum.domain.roommate.domain.entity.QRoommate.roommate;
 import static com.project.dorumdorum.domain.user.domain.entity.QUser.user;
 import static com.querydsl.core.types.Projections.constructor;
 
@@ -31,11 +33,11 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     private final JPAQueryFactory query;
 
     @Override
-    public List<FindRoomsResponse> findByCursor(Long userNo,
+    public List<FindRoomsResponse> findByCursor(String userNo,
                                                 RoomRelation relation,
-                                                List<Tag> tags,
-                                                RoomType type,
-                                                Integer capacity,
+                                                List<RoomType> types,
+                                                List<Integer> capacities,
+                                                List<ResidencePeriod> residencePeriods,
                                                 RoomSort sort,
                                                 DecodedCursor cursor,
                                                 int limitPlusOne) {
@@ -49,16 +51,18 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                 room.createdAt,
                                 room.title,
                                 user.nickname,
-                                room.tags
+                                room.roomStatus,
+                                room.hostUserNo.eq(userNo),
+                                room.residencePeriod.stringValue()
                         )
                 )
                 .from(room)
                 .leftJoin(user).on(user.userNo.eq(room.hostUserNo))
                 .where(
                         relationPredicate(userNo, relation),
-                        type == null ? null : room.roomType.eq(type),
-                        capacity == null ? null : room.capacity.eq(capacity),
-                        tagsAnyPredicate(tags),
+                        types == null || types.isEmpty() ? null : room.roomType.in(types),
+                        capacities == null || capacities.isEmpty() ? null : room.capacity.in(capacities),
+                        residencePeriods == null || residencePeriods.isEmpty() ? null : room.residencePeriod.in(residencePeriods),
                         cursorPredicate(cursor, sort)
                 );
 
@@ -71,7 +75,38 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
         return q.limit(limitPlusOne).fetch();
     }
 
-    private BooleanExpression relationPredicate(Long userNo, RoomRelation relation) {
+    @Override
+    public Optional<FindRoomsResponse> findMyRoom(String userNo) {
+        FindRoomsResponse result = query
+                .select(
+                        constructor(FindRoomsResponse.class,
+                                room.roomNo,
+                                room.roomType,
+                                room.capacity,
+                                room.currentMateCount,
+                                room.createdAt,
+                                room.title,
+                                user.nickname,
+                                room.roomStatus,
+                                room.hostUserNo.eq(userNo),
+                                room.residencePeriod.stringValue()
+                        )
+                )
+                .from(room)
+                .leftJoin(user).on(user.userNo.eq(room.hostUserNo))
+                .where(
+                        JPAExpressions
+                                .selectOne()
+                                .from(roommate)
+                                .where(roommate.room.eq(room), roommate.userNo.eq(userNo))
+                                .exists()
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
+    private BooleanExpression relationPredicate(String userNo, RoomRelation relation) {
         if (relation == null) return null;
         return switch (relation) {
             case APPLIED -> JPAExpressions
@@ -84,22 +119,19 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                     .from(roommate)
                     .where(roommate.room.eq(room), roommate.userNo.eq(userNo))
                     .exists();
+            case LIKED -> JPAExpressions
+                    .selectOne()
+                    .from(roomLike)
+                    .where(roomLike.room.eq(room), roomLike.userNo.eq(userNo))
+                    .exists();
             case RECRUITING -> room.roomStatus.eq(RoomStatus.CONFIRM_PENDING);
         };
-    }
-
-    // ANY 매칭: 요청 태그 이름 중 하나라도 포함
-    private BooleanExpression tagsAnyPredicate(List<Tag> tags) {
-        if (tags == null || tags.isEmpty())
-            return null;
-
-        return room.tags.any().in(tags);
     }
 
     private BooleanExpression cursorPredicate(DecodedCursor c, RoomSort sort) {
         if (c == null) return null;
         LocalDateTime t = c.createdAt();
-        Long pk = c.pk();
+        String pk = c.pk();
 
         if (sort == RoomSort.REMAINING) {
             Integer r = c.remaining();

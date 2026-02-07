@@ -16,18 +16,17 @@ public class UserProfileService {
 
     private final UserRepository userRepository;
 
-    public ProfileResponse getProfile(Long userNo) {
+    public ProfileResponse getProfile(String userNo) {
         User user = userRepository.findById(userNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
         return ProfileResponse.create(user);
     }
 
-    public ProfileResponse updateProfile(Long userNo, UpdateProfileRequest updateProfileRequest) {
+    public ProfileResponse updateProfile(String userNo, UpdateProfileRequest updateProfileRequest) {
         User user = userRepository.findById(userNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
 
         user.updateProfile(updateProfileRequest);
-
         return ProfileResponse.create(user);
     }
 }

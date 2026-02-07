@@ -30,7 +30,7 @@ public class NotificationService {
     private final FirebaseMessaging firebaseMessaging;
 
     @Transactional
-    public void saveToken(Long userNo, String firebaseToken) {
+    public void saveToken(String userNo, String firebaseToken) {
         User user = userRepository.findById(userNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
 
@@ -38,7 +38,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public String sendNotification(Long receiverUserNo, String title, String body, Map<String, String> data, String imageUrl) {
+    public String sendNotification(String receiverUserNo, String title, String body, Map<String, String> data, String imageUrl) {
         User receiver = userRepository.findById(receiverUserNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
 

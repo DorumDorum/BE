@@ -31,7 +31,9 @@ spring:
 jwt:
   key: fdsafdsafdsafdsafdsafdsafdsafdsafdsafdsafda
   access:
-    expiration: 360000
+    expiration: 900
+  refresh:
+    expiration: 1209600
 
 exclude-auth-path-patterns:
   paths:

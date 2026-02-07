@@ -4,9 +4,9 @@ import com.project.dorumdorum.domain.room.application.dto.request.RoomCreateRequ
 import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
+import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
-import com.project.dorumdorum.domain.room.domain.entity.Tag;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.pagination.DecodedCursor;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.ROOM_NOT_FOUND;
 import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
 
 @Service
@@ -23,23 +24,29 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
 
-    public Room create(RoomCreateRequest request) {
+    public Room create(String userNo, RoomCreateRequest request) {
         Room entity = Room.builder()
                 .capacity(request.capacity())
                 .roomType(request.roomType())
-                .tags(request.tags())
+                .residencePeriod(request.residencePeriod())
                 .title(request.title())
+                .hostUserNo(userNo)
                 .build();
 
         return roomRepository.save(entity);
     }
 
-    public Room findById(Long roomNo) {
+    public Room findById(String roomNo) {
         return roomRepository.findById(roomNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
-    public List<FindRoomsResponse> findByCursor(Long userNo, RoomRelation relation, List<Tag> tags, RoomType type, Integer capacity, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
-        return roomRepository.findByCursor(userNo, relation, tags, type, capacity, sort, decodedCursor, limitPlusOne);
+    public List<FindRoomsResponse> findByCursor(String userNo, RoomRelation relation, List<RoomType> types, List<Integer> capacities, List<ResidencePeriod> residencePeriods, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
+        return roomRepository.findByCursor(userNo, relation, types, capacities, residencePeriods, sort, decodedCursor, limitPlusOne);
+    }
+
+    public FindRoomsResponse findMyRoom(String userNo) {
+        return roomRepository.findMyRoom(userNo)
+                .orElseThrow(() -> new RestApiException(ROOM_NOT_FOUND));
     }
 }

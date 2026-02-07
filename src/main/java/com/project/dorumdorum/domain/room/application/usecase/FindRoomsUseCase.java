@@ -3,11 +3,9 @@ package com.project.dorumdorum.domain.room.application.usecase;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
+import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
-import com.project.dorumdorum.domain.room.domain.entity.Tag;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
-import com.project.dorumdorum.domain.room.domain.service.RoommateService;
-import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.pagination.CursorCodec;
 import com.project.dorumdorum.global.pagination.CursorPage;
 import com.project.dorumdorum.global.pagination.DecodedCursor;
@@ -17,36 +15,29 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.COMPLETED_ROOM_EXISTS;
-
 @Service
 @RequiredArgsConstructor
 public class FindRoomsUseCase {
 
     private final RoomService roomService;
     private final Integer limit = 50;
-    private final RoommateService roommateService;
 
     public CursorPage<FindRoomsResponse> execute(
-            Long userNo,
+            String userNo,
             RoomRelation relation,
-            List<Tag> tags,
-            RoomType type,
-            Integer capacity,
+            List<RoomType> types,
+            List<Integer> capacities,
+            List<ResidencePeriod> residencePeriods,
             RoomSort sort,
             String cursor
     ) {
-        // 내가 이미 확정된 방이 있는지
-        if(roommateService.isCompletedRoomExists(userNo))
-            throw new RestApiException(COMPLETED_ROOM_EXISTS);
-
         int limitPlusOne = PaginationHelper.limitPlusOne(limit);
         DecodedCursor decodedCursor = cursor == null
                 ? null
                 : CursorCodec.decode(cursor);
 
         List<FindRoomsResponse> responses = roomService.findByCursor(
-                userNo, relation, tags, type, capacity, sort, decodedCursor, limitPlusOne
+                userNo, relation, types, capacities, residencePeriods, sort, decodedCursor, limitPlusOne
         );
 
         return buildCursorPageFromResponses(sort, responses);

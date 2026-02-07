@@ -16,9 +16,9 @@ public class DecideApplicationRequestController implements DecideApplicationRequ
 
     @Override
     public BaseResponse<Void> approve(
-            @CurrentUser Long userNo,
-            @PathVariable Long roomNo,
-            @PathVariable Long requestNo
+            @CurrentUser String userNo,
+            @PathVariable String roomNo,
+            @PathVariable String requestNo
     ) {
         decideApplicationRequestUseCase.approve(userNo, roomNo, requestNo);
         return BaseResponse.onSuccess();
@@ -26,8 +26,8 @@ public class DecideApplicationRequestController implements DecideApplicationRequ
 
     @Override
     public BaseResponse<Void> reject(
-            @CurrentUser Long userNo,
-            @PathVariable Long requestNo
+            @CurrentUser String userNo,
+            @PathVariable String requestNo
     ) {
         decideApplicationRequestUseCase.reject(userNo, requestNo);
         return BaseResponse.onSuccess();

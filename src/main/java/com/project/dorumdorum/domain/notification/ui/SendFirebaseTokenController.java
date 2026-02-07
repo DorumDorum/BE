@@ -18,7 +18,7 @@ public class SendFirebaseTokenController implements SendFirebaseTokenApiSpec {
 
     @Override
     public BaseResponse<Void> sendFirebaseToken(
-            @CurrentUser Long userNo,
+            @CurrentUser String userNo,
             @RequestBody @Valid SendFirebaseTokenRequest request
     ) {
         sendFirebaseTokenUseCase.execute(userNo, request);

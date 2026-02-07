@@ -4,17 +4,29 @@ import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 
 public record ProfileResponse(
-        Long userNo,
+        String userNo,
+        String nickname,
         String name,
         String email,
-        Gender gender
+        Gender gender,
+        String studentNo,
+        String major,
+        String grade,
+        String birth,
+        Integer age
 ) {
     public static ProfileResponse create(User user) {
         return new ProfileResponse(
                 user.getUserNo(),
+                user.getNickname(),
                 user.getName(),
                 user.getEmail(),
-                user.getGender()
+                user.getGender(),
+                user.getStudentNo(),
+                user.getMajor(),
+                user.getGrade(),
+                user.getBirth(),
+                user.getAge()
         );
     }
 }

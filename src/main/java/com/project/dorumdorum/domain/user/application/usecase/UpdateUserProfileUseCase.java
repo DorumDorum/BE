@@ -14,7 +14,7 @@ public class UpdateUserProfileUseCase {
 
     private final UserProfileService userProfileService;
 
-    public ProfileResponse execute(Long userNo, UpdateProfileRequest updateProfileRequest) {
+    public ProfileResponse execute(String userNo, UpdateProfileRequest updateProfileRequest) {
         return userProfileService.updateProfile(userNo, updateProfileRequest);
     }
 }

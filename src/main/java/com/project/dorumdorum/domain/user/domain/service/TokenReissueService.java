@@ -22,7 +22,7 @@ public class TokenReissueService {
     private final RefreshTokenService refreshTokenService;
     private final UserService userService;
 
-    public TokenReissueResponse reissue(String refreshToken, Long userNo) {
+    public TokenReissueResponse reissue(String refreshToken, String userNo) {
         if (!refreshTokenService.isExist(refreshToken, userNo))
             throw new RestApiException(INVALID_REFRESH_TOKEN);
 

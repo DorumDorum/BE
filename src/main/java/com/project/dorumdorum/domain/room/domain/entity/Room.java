@@ -1,13 +1,11 @@
 package com.project.dorumdorum.domain.room.domain.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.project.dorumdorum.global.common.BaseEntity;
-import com.project.dorumdorum.global.converter.TagListConverter;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -17,7 +15,7 @@ import java.util.List;
 public class Room extends BaseEntity {
 
     @Id @Tsid
-    private Long roomNo;
+    private String roomNo;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -39,14 +37,15 @@ public class Room extends BaseEntity {
     @Column(nullable = false)
     private Integer confirmMateCount;
 
-    @Convert(converter = TagListConverter.class)
-    private List<Tag> tags = new ArrayList<>();
-
     @Column(nullable = false)
     private String title;
 
     @Column(nullable = false)
-    private Long hostUserNo;
+    private String hostUserNo;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ResidencePeriod residencePeriod; // 거주기간 (예: "학기(16주)", "반기(24주)", "계절학기")
 
     @PrePersist
     public void init() {
@@ -86,7 +85,24 @@ public class Room extends BaseEntity {
         this.roomStatus = roomStatus;
     }
 
-    public boolean isHost(Long userNo) {
+    public boolean isHost(String userNo) {
         return this.hostUserNo.equals(userNo);
+    }
+
+    public void updateCapacity(Integer capacity) {
+        this.capacity = capacity;
+        this.remaining = capacity - currentMateCount;
+    }
+
+    public void updateRoomType(RoomType roomType) {
+        this.roomType = roomType;
+    }
+
+    public void updateResidencePeriod(ResidencePeriod residencePeriod) {
+        this.residencePeriod = residencePeriod;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
     }
 }
