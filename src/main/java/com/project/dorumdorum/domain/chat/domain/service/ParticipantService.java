@@ -42,4 +42,9 @@ public class ParticipantService {
     public List<Participant> findActiveParticipantsByRoomNo(Long messageRoomNo) {
         return participantRepository.findByMessageRoomNoAndDeletedAtIsNull(messageRoomNo);
     }
+
+    public boolean isParticipantInMessageRoom(User user, Long messageRoomNo) {
+        Participant participant = participantRepository.findByUserAndMessageRoomNo(user, messageRoomNo);
+        return participant != null && participant.getDeletedAt() == null;
+    }
 }
