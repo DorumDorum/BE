@@ -11,15 +11,15 @@ import java.util.List;
 public record LoadMessagesResponse(
     List<MessageDto> messages,
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    Long nextCursor,
+    String nextCursor,
     boolean hasMore
 ) {
     @Builder
     public record MessageDto(
         @JsonFormat(shape = JsonFormat.Shape.STRING)
-        Long messageNo,
+        String messageNo,
         @JsonFormat(shape = JsonFormat.Shape.STRING)
-        Long senderNo,
+        String senderNo,
         String senderName,
         String content,
         MessageType messageType,

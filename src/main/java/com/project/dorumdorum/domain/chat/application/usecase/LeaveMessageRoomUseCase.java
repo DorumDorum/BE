@@ -22,7 +22,7 @@ public class LeaveMessageRoomUseCase {
     private final UserService userService;
 
     @Transactional
-    public void execute(Long userNo, Long messageRoomNo) {
+    public void execute(String userNo, String messageRoomNo) {
         // 유저 검증
         User user = userService.findById(userNo);
 

@@ -16,19 +16,19 @@ public class SseNotificationSender {
 
     private final SseEmitterRegistry emitterRegistry;
 
-    public boolean sendMessage(Long userId, MessageSentEvent event) {
+    public boolean sendMessage(String userId, MessageSentEvent event) {
         return send(userId, "chat.message", event);
     }
 
-    public boolean sendRequestCreated(Long userId, MessageRequestCreatedEvent event) {
+    public boolean sendRequestCreated(String userId, MessageRequestCreatedEvent event) {
         return send(userId, "chat.request.created", event);
     }
 
-    public boolean sendRequestDecided(Long userId, MessageRequestDecidedEvent event) {
+    public boolean sendRequestDecided(String userId, MessageRequestDecidedEvent event) {
         return send(userId, "chat.request.decided", event);
     }
 
-    private boolean send(Long userId, String eventName, Object payload) {
+    private boolean send(String userId, String eventName, Object payload) {
         SseEmitter emitter = emitterRegistry.get(userId).orElse(null);
         if (emitter == null) {
             return false;

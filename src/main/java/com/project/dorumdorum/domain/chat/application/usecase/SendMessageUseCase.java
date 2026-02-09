@@ -28,7 +28,7 @@ public class SendMessageUseCase {
     private final ChatEventPublisher chatEventPublisher;
 
     @Transactional
-    public MessageSentEvent execute(Long senderId, Long roomId, SendMessageSocketRequest request) {
+    public MessageSentEvent execute(String senderId, String roomId, SendMessageSocketRequest request) {
         if (request == null || request.content() == null || request.content().isBlank()) {
             throw new RestApiException(GlobalErrorStatus._BAD_REQUEST);
         }

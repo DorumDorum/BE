@@ -16,7 +16,7 @@ public interface DeleteMessageRoomApiSpec {
     )
     @DeleteMapping("/api/chat/rooms/{messageRoomNo}")
     BaseResponse<Void> deleteMessageRoom(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "채팅방 번호") @PathVariable Long messageRoomNo
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "채팅방 번호") @PathVariable String messageRoomNo
     );
 }

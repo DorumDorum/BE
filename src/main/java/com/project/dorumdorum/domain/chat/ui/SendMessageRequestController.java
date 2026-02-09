@@ -19,8 +19,8 @@ public class SendMessageRequestController implements SendMessageRequestApiSpec {
 
     @Override
     public BaseResponse<Void> send(
-            @CurrentUser Long userNo,
-            @PathVariable Long receiverNo,
+            @CurrentUser String userNo,
+            @PathVariable String receiverNo,
             @RequestBody @Valid SendMessageRequest request
     ) {
         sendMessageRequestUseCase.execute(userNo, receiverNo, request);

@@ -16,9 +16,9 @@ public class AddParticipantToMessageRoomController implements AddParticipantToMe
 
     @Override
     public BaseResponse<Void> addParticipant(
-            @CurrentUser Long userNo,
-            @PathVariable Long messageRoomNo,
-            @PathVariable Long targetUserNo
+            @CurrentUser String userNo,
+            @PathVariable String messageRoomNo,
+            @PathVariable String targetUserNo
     ) {
         addParticipantToMessageRoomUseCase.execute(userNo, messageRoomNo, targetUserNo);
         return BaseResponse.onSuccess();

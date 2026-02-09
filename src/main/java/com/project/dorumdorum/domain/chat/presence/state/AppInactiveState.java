@@ -4,12 +4,12 @@ import com.project.dorumdorum.domain.chat.presence.NotificationChannel;
 
 public class AppInactiveState implements PresenceState {
     @Override
-    public NotificationChannel decideMessageChannel(Long roomId) {
+    public NotificationChannel decideMessageChannel(String roomId) {
         return NotificationChannel.FCM;
     }
 
     @Override
-    public NotificationChannel decideRequestChannel(Long roomId) {
+    public NotificationChannel decideRequestChannel(String roomId) {
         return NotificationChannel.FCM;
     }
 }

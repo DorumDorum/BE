@@ -16,19 +16,19 @@ import java.time.LocalDateTime;
 public class Participant extends BaseEntity {
 
     @Id @Tsid
-    private Long participantNo;
+    private String participantNo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_no", nullable = false)
     private User user;
 
-    private Long messageRoomNo;
+    private String messageRoomNo;
 
     private LocalDateTime joinedAt;
 
     private LocalDateTime leftAt;
 
-    private Long lastReadMessageId;
+    private String lastReadMessageId;
 
     public void softDelete() {
         this.leftAt = LocalDateTime.now();

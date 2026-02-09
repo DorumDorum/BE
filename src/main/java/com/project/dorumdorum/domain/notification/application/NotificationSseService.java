@@ -22,7 +22,7 @@ public class NotificationSseService {
     private final TokenProvider tokenProvider;
 
     public SseEmitter connect(String accessToken, long timeoutMs) throws IOException {
-        Long userId = authenticate(accessToken);
+        String userId = authenticate(accessToken);
 
         SseEmitter emitter = new SseEmitter(timeoutMs);
         emitterRegistry.register(userId, emitter);
@@ -40,7 +40,7 @@ public class NotificationSseService {
         return emitter;
     }
 
-    private Long authenticate(String accessToken) {
+    private String authenticate(String accessToken) {
         if (accessToken == null || accessToken.isBlank()) {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
@@ -53,7 +53,7 @@ public class NotificationSseService {
                 .orElseThrow(() -> new RestApiException(GlobalErrorStatus._UNAUTHORIZED));
     }
 
-    private void onDisconnect(Long userId) {
+    private void onDisconnect(String userId) {
         emitterRegistry.remove(userId);
         PresenceSnapshot current = presenceService.getPresence(userId);
         if (current.status() == PresenceStatus.APP_ACTIVE) {

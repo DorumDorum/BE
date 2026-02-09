@@ -33,7 +33,7 @@ public class SendMessageRequestUseCase {
     private final ChatEventPublisher chatEventPublisher;
 
     @Transactional
-    public void execute(Long userNo, Long receiverNo, SendMessageRequest request) {
+    public void execute(String userNo, String receiverNo, SendMessageRequest request) {
         // 유저 존재 확인
         User sender = userService.findById(userNo);
         User receiver = userService.findById(receiverNo);
@@ -86,9 +86,13 @@ public class SendMessageRequestUseCase {
         chatEventPublisher.publishMessageRequestCreated(event);
     }
 
-    private String buildDirectRoomKey(Long userNo, Long receiverNo) {
-        long min = Math.min(userNo, receiverNo);
-        long max = Math.max(userNo, receiverNo);
-        return "DIRECT:" + min + ":" + max;
+    private String buildDirectRoomKey(String userNo, String receiverNo) {
+        String first = userNo;
+        String second = receiverNo;
+        if (first.compareTo(second) > 0) {
+            first = receiverNo;
+            second = userNo;
+        }
+        return "DIRECT:" + first + ":" + second;
     }
 }

@@ -19,35 +19,35 @@ public class PresenceService {
     @Value("${presence.ttl-seconds:300}")
     private long ttlSeconds;
 
-    public void setInRoom(Long userId, Long roomId) {
+    public void setInRoom(String userId, String roomId) {
         log.info("[Presence] IN_ROOM userId={} roomId={}", userId, roomId);
         presenceRepository.save(PresenceSnapshot.inRoom(userId, roomId), ttlSeconds);
     }
 
-    public void setAppActive(Long userId) {
+    public void setAppActive(String userId) {
         log.info("[Presence] APP_ACTIVE userId={}", userId);
         presenceRepository.save(PresenceSnapshot.appActive(userId), ttlSeconds);
     }
 
-    public void setAppInactive(Long userId) {
+    public void setAppInactive(String userId) {
         log.info("[Presence] APP_INACTIVE userId={}", userId);
         presenceRepository.save(PresenceSnapshot.appInactive(userId), ttlSeconds);
     }
 
-    public PresenceSnapshot getPresence(Long userId) {
+    public PresenceSnapshot getPresence(String userId) {
         PresenceSnapshot snapshot = presenceRepository.find(userId)
             .orElseGet(() -> PresenceSnapshot.appInactive(userId));
         log.info("[PresenceService] getPresence userId={} status={} roomId={}", userId, snapshot.status(), snapshot.roomId());
         return snapshot;
     }
 
-    public NotificationChannel decideMessageChannel(Long userId, Long roomId) {
+    public NotificationChannel decideMessageChannel(String userId, String roomId) {
         PresenceSnapshot snapshot = getPresence(userId);
         PresenceState state = toState(snapshot);
         return state.decideMessageChannel(roomId);
     }
 
-    public NotificationChannel decideRequestChannel(Long userId, Long roomId) {
+    public NotificationChannel decideRequestChannel(String userId, String roomId) {
         PresenceSnapshot snapshot = getPresence(userId);
         PresenceState state = toState(snapshot);
         return state.decideRequestChannel(roomId);

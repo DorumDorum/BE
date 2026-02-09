@@ -4,13 +4,13 @@ import java.security.Principal;
 
 public class UserIdPrincipal implements Principal {
 
-    private final Long userId;
+    private final String userId;
 
-    public UserIdPrincipal(Long userId) {
+    public UserIdPrincipal(String userId) {
         this.userId = userId;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 

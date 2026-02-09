@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class MessageRoom extends BaseEntity {
 
     @Id @Tsid
-    private Long messageRoomNo;
+    private String messageRoomNo;
 
     @Enumerated(EnumType.STRING)
     private MessageRoomType roomType;
@@ -37,7 +37,7 @@ public class MessageRoom extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MessageRoomStatus roomStatus;
 
-    private Long roomNo;
+    private String roomNo;
 
     public void approve() {
         this.roomStatus = MessageRoomStatus.APPROVED;

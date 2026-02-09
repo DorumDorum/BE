@@ -32,12 +32,13 @@ public class LoadMessagesUseCase {
     private final UserService userService;
 
     @Transactional(readOnly = true)
-    public LoadMessagesResponse execute(Long userId, Long messageRoomNo, LoadMessagesRequest request) {
+    public LoadMessagesResponse execute(String userId, String messageRoomNo, LoadMessagesRequest request) {
         // 사용자 및 채팅방 검증
         User user = userService.findById(userId);
         MessageRoom messageRoom = messageRoomService.findById(messageRoomNo);
-        
-        if (messageRoom.getRoomStatus() != MessageRoomStatus.APPROVED) {
+
+        // requested 도 되어야 함.
+        if (messageRoom.getRoomStatus() != MessageRoomStatus.APPROVED ) {
             throw new RestApiException(GlobalErrorStatus._BAD_REQUEST);
         }
 
@@ -62,19 +63,19 @@ public class LoadMessagesUseCase {
         }
 
         // 발신자 정보 조회 (닉네임)
-        List<Long> senderNos = messages.stream()
+        List<String> senderNos = messages.stream()
                 .map(Message::getSenderNo)
                 .distinct()
                 .toList();
         
-        Map<Long, String> senderNicknameMap = new HashMap<>();
-        for (Long senderNo : senderNos) {
+        Map<String, String> senderNicknameMap = new HashMap<>();
+        for (String senderNo : senderNos) {
             User sender = userService.findById(senderNo);
             senderNicknameMap.put(senderNo, sender.getNickname());
         }
 
         // nextCursor 계산
-        Long nextCursor = null;
+        String nextCursor = null;
         if (hasMore && !messages.isEmpty()) {
             nextCursor = messages.get(messages.size() - 1).getMessageNo();
         }

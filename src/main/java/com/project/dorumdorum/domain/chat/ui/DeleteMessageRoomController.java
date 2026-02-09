@@ -16,8 +16,8 @@ public class DeleteMessageRoomController implements DeleteMessageRoomApiSpec {
 
     @Override
     public BaseResponse<Void> deleteMessageRoom(
-            @CurrentUser Long userNo,
-            @PathVariable Long messageRoomNo
+            @CurrentUser String userNo,
+            @PathVariable String messageRoomNo
     ) {
         deleteMessageRoomUseCase.execute(userNo, messageRoomNo);
         return BaseResponse.onSuccess();

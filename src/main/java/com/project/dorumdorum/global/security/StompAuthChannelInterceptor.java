@@ -27,7 +27,7 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
     private static final String AUTHORIZATION = "Authorization";
     private static final String BEARER = "Bearer ";
-    private static final Pattern ROOM_DESTINATION_PATTERN = Pattern.compile("^/sub/rooms/(\\d+)$");
+    private static final Pattern ROOM_DESTINATION_PATTERN = Pattern.compile("^/sub/rooms/([A-Za-z0-9_-]+)$");
 
     private final TokenProvider tokenProvider;
     private final ParticipantRepository participantRepository;
@@ -61,7 +61,7 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
 
-        Long userId = tokenProvider.getId(token)
+        String userId = tokenProvider.getId(token)
                 .orElseThrow(() -> new RestApiException(GlobalErrorStatus._UNAUTHORIZED));
         accessor.setUser(new UserIdPrincipal(userId));
     }
@@ -79,14 +79,14 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
         }
 
         // 정규식에서 첫 번째 괄호로 캡처된 값 추출 (그게 roomId)
-        Long roomId = Long.parseLong(matcher.group(1));
+        String roomId = matcher.group(1);
         UserIdPrincipal principal = (UserIdPrincipal) accessor.getUser();
         
         if (principal == null) {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
 
-        Long userId = principal.getUserId();
+        String userId = principal.getUserId();
 
         // 채팅방 상태 검증 (APPROVED 여부)
         MessageRoom messageRoom = messageRoomRepository.findById(roomId)

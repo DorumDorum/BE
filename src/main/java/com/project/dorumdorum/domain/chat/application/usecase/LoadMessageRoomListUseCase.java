@@ -20,7 +20,7 @@ public class LoadMessageRoomListUseCase {
     private final MessageRoomService messageRoomService;
     private final Integer limit = 50;
 
-    public CursorPage<LoadMessageRoomResponse> execute(Long userNo, String cursor) {
+    public CursorPage<LoadMessageRoomResponse> execute(String userNo, String cursor) {
         // 유저 검증
         userService.validateExistsById(userNo);
 

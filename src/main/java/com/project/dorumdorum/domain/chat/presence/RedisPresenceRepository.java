@@ -29,7 +29,7 @@ public class RedisPresenceRepository implements PresenceRepository {
     }
 
     @Override
-    public Optional<PresenceSnapshot> find(Long userId) {
+    public Optional<PresenceSnapshot> find(String userId) {
         String value = redisTemplate.opsForValue().get(buildKey(userId));
         if (value == null) {
             return Optional.empty();
@@ -42,11 +42,11 @@ public class RedisPresenceRepository implements PresenceRepository {
     }
 
     @Override
-    public void delete(Long userId) {
+    public void delete(String userId) {
         redisTemplate.delete(buildKey(userId));
     }
 
-    private String buildKey(Long userId) {
+    private String buildKey(String userId) {
         return PREFIX + userId;
     }
 }

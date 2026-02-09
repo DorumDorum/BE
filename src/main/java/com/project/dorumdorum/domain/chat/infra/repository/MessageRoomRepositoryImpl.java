@@ -26,7 +26,7 @@ public class MessageRoomRepositoryImpl implements MessageRoomRepositoryCustom {
     private final JPAQueryFactory query;
 
     @Override
-    public List<LoadMessageRoomResponse> findByCursor(Long userNo, DecodedCursor cursor, int limitPlusOne) {
+    public List<LoadMessageRoomResponse> findByCursor(String userNo, DecodedCursor cursor, int limitPlusOne) {
         JPAQuery<LoadMessageRoomResponse> q = query
             .select(
                 constructor(LoadMessageRoomResponse.class,
@@ -36,7 +36,7 @@ public class MessageRoomRepositoryImpl implements MessageRoomRepositoryCustom {
                     new CaseBuilder()
                         .when(messageRoom.roomStatus.eq(MessageRoomStatus.REQUESTED))
                         .then(messageRequest.messageRequestNo)
-                        .otherwise((Long) null),
+                        .otherwise((String) null),
                     messageRoom.lastMessage,
                     messageRoom.lastMessageAt,
                     new CaseBuilder()
@@ -61,7 +61,7 @@ public class MessageRoomRepositoryImpl implements MessageRoomRepositoryCustom {
     private BooleanExpression cursorPredicate(DecodedCursor c) {
         if (c == null) return null;
         LocalDateTime t = c.createdAt();
-        Long pk = c.pk();
+        String pk = c.pk();
         return messageRoom.lastMessageAt.lt(t)
             .or(messageRoom.lastMessageAt.eq(t).and(messageRoom.messageRoomNo.lt(pk)));
     }

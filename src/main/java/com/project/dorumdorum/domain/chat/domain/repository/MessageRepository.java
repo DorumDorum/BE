@@ -6,13 +6,13 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface MessageRepository extends MongoRepository<Message, Long> {
+public interface MessageRepository extends MongoRepository<Message, String> {
     
-    List<Message> findByMessageRoomNoOrderByMessageNoDesc(Long messageRoomNo, Pageable pageable);
+    List<Message> findByMessageRoomNoOrderByMessageNoDesc(String messageRoomNo, Pageable pageable);
     
     List<Message> findByMessageRoomNoAndMessageNoLessThanOrderByMessageNoDesc(
-            Long messageRoomNo, 
-            Long cursor, 
+            String messageRoomNo, 
+            String cursor, 
             Pageable pageable
     );
 }

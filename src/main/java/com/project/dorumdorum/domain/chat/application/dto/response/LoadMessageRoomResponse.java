@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 @Builder
 public record LoadMessageRoomResponse(
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    Long messageRoomNo,
+    String messageRoomNo,
 
     MessageRoomType roomType,
 
     MessageRoomStatus roomStatus,
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    Long messageRequestNo,
+    String messageRequestNo,
 
     String lastMessage,
 

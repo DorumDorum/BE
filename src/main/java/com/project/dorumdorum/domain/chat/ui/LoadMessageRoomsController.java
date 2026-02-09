@@ -22,7 +22,7 @@ public class LoadMessageRoomsController implements LoadMessageRoomsApiSpec {
 
     @GetMapping("/api/message-rooms")
     public BaseResponse<CursorPage<LoadMessageRoomResponse>> loadMessageRoomList(
-        @CurrentUser Long userNo,
+        @CurrentUser String userNo,
         @RequestParam(required = false) String cursor
     ) {
         return BaseResponse.onSuccess(loadMessageRoomListUseCase.execute(userNo, cursor));

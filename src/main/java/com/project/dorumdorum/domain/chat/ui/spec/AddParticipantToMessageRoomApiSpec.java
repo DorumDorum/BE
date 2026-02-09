@@ -16,8 +16,8 @@ public interface AddParticipantToMessageRoomApiSpec {
     )
     @PostMapping("/api/chat/rooms/{messageRoomNo}/participants/{targetUserNo}")
     BaseResponse<Void> addParticipant(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "채팅방 번호") @PathVariable Long messageRoomNo,
-            @Parameter(description = "추가할 유저 번호") @PathVariable Long targetUserNo
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "채팅방 번호") @PathVariable String messageRoomNo,
+            @Parameter(description = "추가할 유저 번호") @PathVariable String targetUserNo
     );
 }

@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 
 @Builder
 public record MessageSentEvent(
-        Long messageId,
-        Long roomId,
-        Long senderId,
+        String messageId,
+        String roomId,
+        String senderId,
         String senderName,  // 추가
         String content,
         MessageType messageType,

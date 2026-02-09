@@ -12,9 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class SseEmitterRegistry {
 
-    private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
+    private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
-    public SseEmitter register(Long userId, SseEmitter emitter) {
+    public SseEmitter register(String userId, SseEmitter emitter) {
         SseEmitter previous = emitters.put(userId, emitter);
         if (previous != null) {
             previous.complete();
@@ -22,11 +22,11 @@ public class SseEmitterRegistry {
         return emitter;
     }
 
-    public Optional<SseEmitter> get(Long userId) {
+    public Optional<SseEmitter> get(String userId) {
         return Optional.ofNullable(emitters.get(userId));
     }
 
-    public void remove(Long userId) {
+    public void remove(String userId) {
         emitters.remove(userId);
     }
 }

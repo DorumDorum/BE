@@ -20,7 +20,7 @@ public interface LoadMessageRoomsApiSpec {
     )
     @GetMapping("/api/message-rooms")
     BaseResponse<CursorPage<LoadMessageRoomResponse>> loadMessageRoomList(
-            @Parameter(hidden = true) Long userNo,
+            @Parameter(hidden = true) String userNo,
             @Parameter(description = "다음 페이지 커서", required = false)
             @RequestParam(required = false) String cursor
     );

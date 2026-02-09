@@ -16,8 +16,8 @@ public class LeaveMessageRoomController implements LeaveMessageRoomApiSpec {
 
     @Override
     public BaseResponse<Void> leaveMessageRoom(
-            @CurrentUser Long userNo,
-            @PathVariable Long messageRoomNo
+            @CurrentUser String userNo,
+            @PathVariable String messageRoomNo
     ) {
         leaveMessageRoomUseCase.execute(userNo, messageRoomNo);
         return BaseResponse.onSuccess();

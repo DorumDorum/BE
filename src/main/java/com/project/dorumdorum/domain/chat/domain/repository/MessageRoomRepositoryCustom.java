@@ -6,5 +6,5 @@ import com.project.dorumdorum.global.pagination.DecodedCursor;
 import java.util.List;
 
 public interface MessageRoomRepositoryCustom {
-    List<LoadMessageRoomResponse> findByCursor(Long userNo, DecodedCursor cursor, int limitPlusOne);
+    List<LoadMessageRoomResponse> findByCursor(String userNo, DecodedCursor cursor, int limitPlusOne);
 }

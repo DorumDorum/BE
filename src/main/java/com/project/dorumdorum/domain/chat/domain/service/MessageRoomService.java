@@ -48,7 +48,7 @@ public class MessageRoomService {
         );
     }
 
-    public MessageRoom findById(Long messageRoomNo) {
+    public MessageRoom findById(String messageRoomNo) {
         return messageRoomRepository.findById(messageRoomNo)
             .orElseThrow(() -> new RestApiException(GlobalErrorStatus.MESSAGEROOM_NOT_FOUND));
     }
@@ -65,7 +65,7 @@ public class MessageRoomService {
         messageRoom.updateLastMessage(lastMessage, lastMessageAt);
     }
 
-    public List<LoadMessageRoomResponse> findByCursor(Long userNo, DecodedCursor decodedCursor, int limitPlusOne) {
+    public List<LoadMessageRoomResponse> findByCursor(String userNo, DecodedCursor decodedCursor, int limitPlusOne) {
         return messageRoomRepository.findByCursor(userNo, decodedCursor, limitPlusOne);
     }
 

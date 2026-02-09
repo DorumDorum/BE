@@ -4,14 +4,14 @@ import com.project.dorumdorum.domain.chat.presence.NotificationChannel;
 
 public class InRoomState implements PresenceState {
 
-    private final Long currentRoomId;
+    private final String currentRoomId;
 
-    public InRoomState(Long currentRoomId) {
+    public InRoomState(String currentRoomId) {
         this.currentRoomId = currentRoomId;
     }
 
     @Override
-    public NotificationChannel decideMessageChannel(Long roomId) {
+    public NotificationChannel decideMessageChannel(String roomId) {
         if (currentRoomId != null && currentRoomId.equals(roomId)) {
             return NotificationChannel.STOMP;
         }
@@ -19,7 +19,7 @@ public class InRoomState implements PresenceState {
     }
 
     @Override
-    public NotificationChannel decideRequestChannel(Long roomId) {
+    public NotificationChannel decideRequestChannel(String roomId) {
         return decideMessageChannel(roomId);
     }
 }

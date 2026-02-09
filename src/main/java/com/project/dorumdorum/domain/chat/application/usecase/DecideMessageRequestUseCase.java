@@ -30,7 +30,7 @@ public class DecideMessageRequestUseCase {
     private final ChatEventPublisher chatEventPublisher;
 
     @Transactional
-    public void execute(Long userId, Long messageRequestNo, DecideMessageRequest request) {
+    public void execute(String userId, String messageRequestNo, DecideMessageRequest request) {
 
         if(request == null || request.messageRequestDecision() == null) {
             throw new RestApiException(GlobalErrorStatus._BAD_REQUEST);

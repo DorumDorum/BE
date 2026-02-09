@@ -21,7 +21,7 @@ public class MessageSocketController {
 
     @MessageMapping("/rooms/{roomId}")
     public void send(
-            @DestinationVariable Long roomId,
+            @DestinationVariable String roomId,
             @Valid SendMessageSocketRequest request,
             Principal principal
     ) {

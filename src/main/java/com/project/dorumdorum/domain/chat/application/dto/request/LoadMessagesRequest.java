@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.chat.application.dto.request;
 
 public record LoadMessagesRequest(
-    Long cursor,
+    String cursor,
     Integer size
 ) {
     public LoadMessagesRequest {

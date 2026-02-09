@@ -20,9 +20,9 @@ public class LoadMessagesController implements LoadMessagesApiSpec {
 
     @GetMapping("/api/message-rooms/{messageRoomNo}/messages")
     public BaseResponse<LoadMessagesResponse> loadMessages(
-            @CurrentUser Long userId,
-            @PathVariable Long messageRoomNo,
-            @RequestParam(required = false) Long cursor,
+            @CurrentUser String userId,
+            @PathVariable String messageRoomNo,
+            @RequestParam(required = false) String cursor,
             @RequestParam(required = false) Integer size
     ) {
         LoadMessagesRequest request = new LoadMessagesRequest(cursor, size);

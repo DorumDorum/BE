@@ -5,9 +5,9 @@ import lombok.Builder;
 
 @Builder
 public record MessageRequestDecidedEvent(
-    Long roomId,
-    Long senderId,
-    Long receiverId,
+    String roomId,
+    String senderId,
+    String receiverId,
     MessageRequestDecision decision
 ) {
 }

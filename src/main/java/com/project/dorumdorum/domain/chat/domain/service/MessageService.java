@@ -18,9 +18,9 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
 
-    public Message saveMessage(Long roomId, Long senderId, String content) {
+    public Message saveMessage(String roomId, String senderId, String content) {
         Message message = Message.builder()
-                .messageNo(TsidCreator.getTsid256().toLong())
+                .messageNo(TsidCreator.getTsid256().toString())
                 .messageRoomNo(roomId)
                 .senderNo(senderId)
                 .content(content)
@@ -32,7 +32,7 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    public List<Message> findMessagesByCursor(Long messageRoomNo, Long cursor, int size) {
+    public List<Message> findMessagesByCursor(String messageRoomNo, String cursor, int size) {
         Pageable pageable = PageRequest.of(0, size);
         
         if (cursor == null) {

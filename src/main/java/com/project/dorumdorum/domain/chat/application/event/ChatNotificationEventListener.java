@@ -34,7 +34,7 @@ public class ChatNotificationEventListener {
         boolean shouldSendStomp = false;
 
         for (Participant participant : participants) {
-            Long userId = participant.getUser().getUserNo();
+            String userId = participant.getUser().getUserNo();
             NotificationChannel channel = presenceService.decideMessageChannel(userId, event.roomId());
             log.info("[NOTIFY] userId={} channel={}", userId, channel);
 
@@ -127,7 +127,7 @@ public class ChatNotificationEventListener {
         notifyDecision(event, event.receiverId());
     }
 
-    private void notifyDecision(MessageRequestDecidedEvent event, Long userId) {
+    private void notifyDecision(MessageRequestDecidedEvent event, String userId) {
         NotificationChannel channel = presenceService.decideRequestChannel(userId, event.roomId());
 
         if (channel == NotificationChannel.SSE) {

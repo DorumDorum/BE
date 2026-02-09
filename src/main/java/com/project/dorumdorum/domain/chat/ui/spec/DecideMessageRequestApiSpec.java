@@ -18,8 +18,8 @@ public interface DecideMessageRequestApiSpec {
     )
     @PatchMapping("/api/chat/request/{messageRequestNo}")
     BaseResponse<Void> decideMessageRequest(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "메시지 요청 번호") Long messageRequestNo,
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "메시지 요청 번호") String messageRequestNo,
             @RequestBody(
                     description = "메시지 전송 요청 수락/거절",
                     required = true

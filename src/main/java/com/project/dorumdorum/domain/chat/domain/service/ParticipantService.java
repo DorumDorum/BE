@@ -17,7 +17,7 @@ public class ParticipantService {
 
     private final ParticipantRepository participantRepository;
 
-    public void create(User user, Long messageRoomNo) {
+    public void create(User user, String messageRoomNo) {
         Participant participant = Participant.builder()
             .user(user)
             .messageRoomNo(messageRoomNo)
@@ -31,7 +31,7 @@ public class ParticipantService {
         participant.softDelete();
     }
 
-    public Participant findByUserNoAndMessageRoomNo(User user, Long messageRoomNo) {
+    public Participant findByUserNoAndMessageRoomNo(User user, String messageRoomNo) {
         Participant participant = participantRepository.findByUserAndMessageRoomNo(user, messageRoomNo);
         if (participant == null) {
             throw new RestApiException(GlobalErrorStatus.PARTICIPANT_NOT_FOUND);
@@ -39,11 +39,11 @@ public class ParticipantService {
         return participant;
     }
 
-    public List<Participant> findActiveParticipantsByRoomNo(Long messageRoomNo) {
+    public List<Participant> findActiveParticipantsByRoomNo(String messageRoomNo) {
         return participantRepository.findByMessageRoomNoAndDeletedAtIsNull(messageRoomNo);
     }
 
-    public boolean isParticipantInMessageRoom(User user, Long messageRoomNo) {
+    public boolean isParticipantInMessageRoom(User user, String messageRoomNo) {
         Participant participant = participantRepository.findByUserAndMessageRoomNo(user, messageRoomNo);
         return participant != null && participant.getDeletedAt() == null;
     }

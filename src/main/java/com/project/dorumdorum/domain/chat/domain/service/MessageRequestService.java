@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.chat.domain.service;
 
-import com.project.dorumdorum.domain.chat.application.dto.request.SendMessageRequest;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRequest;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRequestStatus;
 import com.project.dorumdorum.domain.chat.domain.repository.MessageRequestRepository;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class MessageRequestService {
     private final MessageRequestRepository messageRequestRepository;
 
-    public void save(Long senderNo, Long receiverNo, Long messageRoomNo) {
+    public void save(String senderNo, String receiverNo, String messageRoomNo) {
         MessageRequest entity = MessageRequest.builder()
             .senderNo(senderNo)
             .receiverNo(receiverNo)
@@ -25,7 +24,7 @@ public class MessageRequestService {
         messageRequestRepository.save(entity);
     }
 
-    public MessageRequest findById(Long messageRequestId) {
+    public MessageRequest findById(String messageRequestId) {
         return messageRequestRepository.findById(messageRequestId)
             .orElseThrow(() -> new RestApiException(GlobalErrorStatus.MESSAGEREQUEST_NOT_FOUND));
     }
@@ -38,11 +37,11 @@ public class MessageRequestService {
         messageRequest.reject();
     }
 
-    public boolean isMessageRequestReceiver(MessageRequest messageRequest, Long receiverNo) {
+    public boolean isMessageRequestReceiver(MessageRequest messageRequest, String receiverNo) {
         return messageRequest.getReceiverNo().equals(receiverNo);
     }
 
-    public boolean isExistMessageRequest(Long messageRequestNo) {
+    public boolean isExistMessageRequest(String messageRequestNo) {
         return messageRequestRepository.existsById(messageRequestNo);
     }
 

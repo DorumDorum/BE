@@ -16,8 +16,8 @@ public class DecideMessageRequestController implements DecideMessageRequestApiSp
 
     @Override
     public BaseResponse<Void> decideMessageRequest(
-        @CurrentUser Long userNo,
-        @PathVariable Long messageRequestNo,
+        @CurrentUser String userNo,
+        @PathVariable String messageRequestNo,
         @RequestBody DecideMessageRequest request
     ) {
         decideMessageRequestUseCase.execute(userNo, messageRequestNo, request);

@@ -7,7 +7,7 @@ import com.project.dorumdorum.domain.chat.domain.service.MessageRoomService;
 import com.project.dorumdorum.domain.chat.domain.service.ParticipantService;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
-import com.project.dorumdorum.domain.room.domain.service.RoommateService;
+import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
@@ -27,7 +27,7 @@ public class AddParticipantToMessageRoomUseCase {
     private final RoommateService roommateService;
 
     @Transactional
-    public void execute(Long userNo, Long messageRoomNo, Long targetUserNo) {
+    public void execute(String userNo, String messageRoomNo, String targetUserNo) {
         // 유저 검증
         User targetUser = userService.findById(targetUserNo);
 
@@ -58,7 +58,7 @@ public class AddParticipantToMessageRoomUseCase {
             }
             
             // 초대할 유저가 Room의 구성원인지 확인
-            if (!roommateService.isUserInRoom(targetUserNo, room)) {
+            if (!roommateService.isUserRoommate(targetUserNo, room.getRoomNo())) {
                 throw new RestApiException(GlobalErrorStatus.TARGET_USER_NOT_IN_ROOM);
             }
         }

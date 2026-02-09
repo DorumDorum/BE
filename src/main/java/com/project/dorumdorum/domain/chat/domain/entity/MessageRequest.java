@@ -16,13 +16,13 @@ import lombok.*;
 public class MessageRequest extends BaseEntity {
 
     @Id @Tsid
-    private Long messageRequestNo;
+    private String messageRequestNo;
 
-    private Long senderNo;
+    private String senderNo;
 
-    private Long receiverNo;
+    private String receiverNo;
 
-    private Long messageRoomNo;
+    private String messageRoomNo;
 
     @Enumerated(EnumType.STRING)
     private MessageRequestStatus status;

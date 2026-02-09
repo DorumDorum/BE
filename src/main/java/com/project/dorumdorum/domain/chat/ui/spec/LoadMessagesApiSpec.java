@@ -20,11 +20,11 @@ public interface LoadMessagesApiSpec {
     )
     @GetMapping("/api/message-rooms/{messageRoomNo}/messages")
     BaseResponse<LoadMessagesResponse> loadMessages(
-            @Parameter(hidden = true) Long userId,
+            @Parameter(hidden = true) String userId,
             @Parameter(description = "채팅방 ID", required = true)
-            @PathVariable Long messageRoomNo,
+            @PathVariable String messageRoomNo,
             @Parameter(description = "다음 페이지 커서 (메시지 ID)", required = false)
-            @RequestParam(required = false) Long cursor,
+            @RequestParam(required = false) String cursor,
             @Parameter(description = "페이지 크기 (기본값: 20)", required = false)
             @RequestParam(required = false) Integer size
     );
