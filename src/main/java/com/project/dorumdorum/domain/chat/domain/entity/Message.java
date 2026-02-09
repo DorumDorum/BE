@@ -16,10 +16,13 @@ public class Message {
 
     @Id
     @Field(name = "message_no")
-    private Long messageNo;
+    private String messageNo;
+
+    @Field(name = "message_room_no")
+    private String messageRoomNo;
 
     @Field(name = "sender_no")
-    private Long senderNo;
+    private String senderNo;
 
     @Field(name = "content")
     private String content;

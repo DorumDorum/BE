@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.chat.ui.spec;
 
-import com.project.dorumdorum.domain.chat.application.dto.SendMessageRequest;
+import com.project.dorumdorum.domain.chat.application.dto.request.SendMessageRequest;
 import com.project.dorumdorum.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,8 +18,8 @@ public interface SendMessageRequestApiSpec {
     )
     @PostMapping("/api/chat/request/{receiverNo}")
     BaseResponse<Void> send(
-            @Parameter(hidden = true) Long userNo,
-            @Parameter(description = "받는 유저 번호") Long receiverNo,
+            @Parameter(hidden = true) String userNo,
+            @Parameter(description = "받는 유저 번호") String receiverNo,
             @RequestBody(
                     description = "메시지 전송 요청 바디(시작 메세지)",
                     required = true

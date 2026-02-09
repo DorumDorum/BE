@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.chat.domain.entity;
 
-import com.project.dorumdorum.domain.user.domain.entity.Role;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.global.common.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
@@ -23,11 +22,16 @@ public class Participant extends BaseEntity {
     @JoinColumn(name = "user_no", nullable = false)
     private User user;
 
-    private Role role;
+    private String messageRoomNo;
 
     private LocalDateTime joinedAt;
 
     private LocalDateTime leftAt;
 
     private String lastReadMessageId;
+
+    public void softDelete() {
+        this.leftAt = LocalDateTime.now();
+        delete();
+    }
 }
