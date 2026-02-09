@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.chat.application.usecase;
 
-import com.project.dorumdorum.domain.chat.application.dto.request.LoadMessagesRequest;
 import com.project.dorumdorum.domain.chat.application.dto.response.LoadMessagesResponse;
 import com.project.dorumdorum.domain.chat.domain.entity.Message;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoom;
@@ -32,7 +31,7 @@ public class LoadMessagesUseCase {
     private final UserService userService;
 
     @Transactional(readOnly = true)
-    public LoadMessagesResponse execute(String userId, String messageRoomNo, LoadMessagesRequest request) {
+    public LoadMessagesResponse execute(String userId, String messageRoomNo, String cursor, Integer size) {
         // 사용자 및 채팅방 검증
         User user = userService.findById(userId);
         MessageRoom messageRoom = messageRoomService.findById(messageRoomNo);
@@ -49,10 +48,10 @@ public class LoadMessagesUseCase {
         }
 
         // 메시지 조회 (size + 1개 조회하여 hasMore 판단)
-        int pageSize = request.getPageSize();
+        int pageSize = getPageSize(size);
         List<Message> messages = messageService.findMessagesByCursor(
                 messageRoomNo, 
-                request.cursor(), 
+                cursor,
                 pageSize + 1
         );
 
@@ -98,5 +97,12 @@ public class LoadMessagesUseCase {
                 .nextCursor(nextCursor)
                 .hasMore(hasMore)
                 .build();
+    }
+
+    private int getPageSize(Integer size) {
+        if (size == null || size <= 0) {
+            return 20;
+        }
+        return size;
     }
 }

@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.chat.ui;
 
-import com.project.dorumdorum.domain.chat.application.dto.request.LoadMessagesRequest;
 import com.project.dorumdorum.domain.chat.application.dto.response.LoadMessagesResponse;
 import com.project.dorumdorum.domain.chat.application.usecase.LoadMessagesUseCase;
 import com.project.dorumdorum.domain.chat.ui.spec.LoadMessagesApiSpec;
@@ -25,8 +24,7 @@ public class LoadMessagesController implements LoadMessagesApiSpec {
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) Integer size
     ) {
-        LoadMessagesRequest request = new LoadMessagesRequest(cursor, size);
-        LoadMessagesResponse response = loadMessagesUseCase.execute(userId, messageRoomNo, request);
+        LoadMessagesResponse response = loadMessagesUseCase.execute(userId, messageRoomNo, cursor, size);
         return BaseResponse.onSuccess(response);
     }
 }
