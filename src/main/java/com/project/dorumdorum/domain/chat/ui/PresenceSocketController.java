@@ -25,14 +25,14 @@ public class PresenceSocketController {
         if (!(principal instanceof UserIdPrincipal userPrincipal)) {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
-        presenceService.setInRoom(userPrincipal.getUserId(), request.roomId());
+        presenceService.onRoomsEnter(userPrincipal.getUserId(), request.roomId());
     }
 
     @MessageMapping("/presence/leave")
-    public void leave(@Valid PresenceSignalRequest request, Principal principal) {
+    public void leave(Principal principal) {
         if (!(principal instanceof UserIdPrincipal userPrincipal)) {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
-        presenceService.setAppActive(userPrincipal.getUserId());
+        presenceService.onRoomsLeave(userPrincipal.getUserId());
     }
 }

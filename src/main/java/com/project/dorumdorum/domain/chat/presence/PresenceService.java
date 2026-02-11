@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -19,45 +21,125 @@ public class PresenceService {
     @Value("${presence.ttl-seconds:300}")
     private long ttlSeconds;
 
-    public void setInRoom(String userId, String roomId) {
-        log.info("[Presence] IN_ROOM userId={} roomId={}", userId, roomId);
-        presenceRepository.save(PresenceSnapshot.inRoom(userId, roomId), ttlSeconds);
+    public void onRoomsEnter(String userId, String roomId) {
+        log.info("[Presence] ENTER userId={} roomId={}", userId, roomId);
+        PresenceSnapshot current = getPresence(userId);
+        PresenceSnapshot updated = PresenceSnapshot.withRoom(
+            userId,
+            roomId,
+            true,
+            current.sseConnected()
+        );
+        presenceRepository.save(updated, ttlSeconds);
     }
 
-    public void setAppActive(String userId) {
-        log.info("[Presence] APP_ACTIVE userId={}", userId);
-        presenceRepository.save(PresenceSnapshot.appActive(userId), ttlSeconds);
+    public void onRoomsLeave(String userId) {
+        log.info("[Presence] LEAVE userId={}", userId);
+        PresenceSnapshot current = getPresence(userId);
+        PresenceSnapshot updated = PresenceSnapshot.withFlags(
+            userId,
+            current.wsConnected(),
+            current.sseConnected(),
+            null,
+            LocalDateTime.now()
+        );
+        presenceRepository.save(updated, ttlSeconds);
     }
 
-    public void setAppInactive(String userId) {
-        log.info("[Presence] APP_INACTIVE userId={}", userId);
-        presenceRepository.save(PresenceSnapshot.appInactive(userId), ttlSeconds);
+    public void onWsConnect(String userId) {
+        log.info("[Presence] WS_CONNECTED userId={}", userId);
+        PresenceSnapshot current = getPresence(userId);
+        PresenceSnapshot updated = PresenceSnapshot.withFlags(
+            userId,
+            true,
+            current.sseConnected(),
+            current.roomId(),
+            LocalDateTime.now()
+        );
+        presenceRepository.save(updated, ttlSeconds);
+    }
+
+    public void onWsDisconnect(String userId) {
+        log.info("[Presence] WS_DISCONNECTED userId={}", userId);
+        PresenceSnapshot current = getPresence(userId);
+        PresenceSnapshot updated = PresenceSnapshot.withFlags(
+            userId,
+            false,
+            current.sseConnected(),
+            null,
+            LocalDateTime.now()
+        );
+        presenceRepository.save(updated, ttlSeconds);
+    }
+
+    public void onSseConnect(String userId) {
+        log.info("[Presence] SSE_CONNECTED userId={}", userId);
+        PresenceSnapshot current = getPresence(userId);
+        PresenceSnapshot updated = PresenceSnapshot.withFlags(
+            userId,
+            current.wsConnected(),
+            true,
+            current.roomId(),
+            LocalDateTime.now()
+        );
+        presenceRepository.save(updated, ttlSeconds);
+    }
+
+    public void onSseDisconnect(String userId) {
+        log.info("[Presence] SSE_DISCONNECTED userId={}", userId);
+        PresenceSnapshot current = getPresence(userId);
+        PresenceSnapshot updated = PresenceSnapshot.withFlags(
+            userId,
+            current.wsConnected(),
+            false,
+            current.roomId(),
+            LocalDateTime.now()
+        );
+        presenceRepository.save(updated, ttlSeconds);
+    }
+
+    public void onSseHeartbeat(String userId) {
+        PresenceSnapshot current = getPresence(userId);
+        PresenceSnapshot updated = PresenceSnapshot.withFlags(
+            userId,
+            current.wsConnected(),
+            true,
+            current.roomId(),
+            LocalDateTime.now()
+        );
+        presenceRepository.save(updated, ttlSeconds);
     }
 
     public PresenceSnapshot getPresence(String userId) {
         PresenceSnapshot snapshot = presenceRepository.find(userId)
-            .orElseGet(() -> PresenceSnapshot.appInactive(userId));
-        log.info("[PresenceService] getPresence userId={} status={} roomId={}", userId, snapshot.status(), snapshot.roomId());
+            .orElseGet(() -> PresenceSnapshot.initial(userId));
+        log.info(
+            "[PresenceService] getPresence userId={} ws={} sse={} roomId={}",
+            userId,
+            snapshot.wsConnected(),
+            snapshot.sseConnected(),
+            snapshot.roomId()
+        );
         return snapshot;
     }
 
     public NotificationChannel decideMessageChannel(String userId, String roomId) {
-        PresenceSnapshot snapshot = getPresence(userId);
-        PresenceState state = toState(snapshot);
+        PresenceState state = toState(getPresence(userId));
         return state.decideMessageChannel(roomId);
     }
 
     public NotificationChannel decideRequestChannel(String userId, String roomId) {
-        PresenceSnapshot snapshot = getPresence(userId);
-        PresenceState state = toState(snapshot);
+        PresenceState state = toState(getPresence(userId));
         return state.decideRequestChannel(roomId);
     }
 
     private PresenceState toState(PresenceSnapshot snapshot) {
-        return switch (snapshot.status()) {
-            case IN_ROOM -> new InRoomState(snapshot.roomId());
-            case APP_ACTIVE -> new AppActiveState();
-            case APP_INACTIVE -> new AppInactiveState();
-        };
+        if (snapshot.wsConnected() && snapshot.roomId() != null) {
+            return new InRoomState(snapshot.roomId());
+        }
+        if (snapshot.sseConnected()) {
+            return new AppActiveState();
+        }
+        return new AppInactiveState();
     }
 }

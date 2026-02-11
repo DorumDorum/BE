@@ -4,19 +4,20 @@ import java.time.LocalDateTime;
 
 public record PresenceSnapshot(
     String userId,
-    PresenceStatus status,
     String roomId,
-    LocalDateTime updatedAt
+    boolean wsConnected,
+    boolean sseConnected,
+    LocalDateTime lastSeenAt
 ) {
-    public static PresenceSnapshot inRoom(String userId, String roomId) {
-        return new PresenceSnapshot(userId, PresenceStatus.IN_ROOM, roomId, LocalDateTime.now());
+    public static PresenceSnapshot initial(String userId) {
+        return new PresenceSnapshot(userId, null, false, false, LocalDateTime.now());
     }
 
-    public static PresenceSnapshot appActive(String userId) {
-        return new PresenceSnapshot(userId, PresenceStatus.APP_ACTIVE, null, LocalDateTime.now());
+    public static PresenceSnapshot withRoom(String userId, String roomId, boolean wsConnected, boolean sseConnected) {
+        return new PresenceSnapshot(userId, roomId, wsConnected, sseConnected, LocalDateTime.now());
     }
 
-    public static PresenceSnapshot appInactive(String userId) {
-        return new PresenceSnapshot(userId, PresenceStatus.APP_INACTIVE, null, LocalDateTime.now());
+    public static PresenceSnapshot withFlags(String userId, boolean wsConnected, boolean sseConnected, String roomId, LocalDateTime lastSeenAt) {
+        return new PresenceSnapshot(userId, roomId, wsConnected, sseConnected, lastSeenAt);
     }
 }
