@@ -5,6 +5,7 @@ import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomStatus;
 import com.project.dorumdorum.domain.chat.domain.entity.Participant;
 import com.project.dorumdorum.domain.chat.domain.repository.MessageRoomRepository;
 import com.project.dorumdorum.domain.chat.domain.repository.ParticipantRepository;
+import com.project.dorumdorum.domain.chat.presence.PresenceService;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
@@ -33,6 +34,7 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
     private final ParticipantRepository participantRepository;
     private final MessageRoomRepository messageRoomRepository;
     private final UserRepository userRepository;
+    private final PresenceService presenceService;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -45,6 +47,9 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
             handleConnect(accessor);
         } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
             handleSubscribe(accessor);
+            touchWsActivity(accessor);
+        } else if (StompCommand.SEND.equals(accessor.getCommand())) {
+            touchWsActivity(accessor);
         }
 
         return message;
@@ -104,6 +109,12 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
         
         if (participant == null || participant.getDeletedAt() != null) {
             throw new RestApiException(GlobalErrorStatus._FORBIDDEN);
+        }
+    }
+
+    private void touchWsActivity(StompHeaderAccessor accessor) {
+        if (accessor.getUser() instanceof UserIdPrincipal principal) {
+            presenceService.onWsActivity(principal.getUserId());
         }
     }
 }

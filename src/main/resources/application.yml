@@ -132,3 +132,11 @@ include-email-domains:
 firebase:
   service-account:
     path: "/firebase/dorumdorum-9ce75-firebase-adminsdk-fbsvc-8d66c0dccb.json"
+
+presence:
+  ttl-seconds: 1800 # 30분
+
+notification:
+  sse:
+    timeout-ms: 1800000 # 30분
+    heartbeat-interval-ms: 30000 # 30초 

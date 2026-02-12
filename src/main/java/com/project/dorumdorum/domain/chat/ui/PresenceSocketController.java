@@ -29,10 +29,18 @@ public class PresenceSocketController {
     }
 
     @MessageMapping("/presence/leave")
-    public void leave(Principal principal) {
+    public void leave(@Valid PresenceSignalRequest request, Principal principal) {
         if (!(principal instanceof UserIdPrincipal userPrincipal)) {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
         presenceService.onRoomsLeave(userPrincipal.getUserId());
+    }
+
+    @MessageMapping("/presence/ping")
+    public void ping(Principal principal) {
+        if (!(principal instanceof UserIdPrincipal userPrincipal)) {
+            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+        }
+        presenceService.onWsActivity(userPrincipal.getUserId());
     }
 }

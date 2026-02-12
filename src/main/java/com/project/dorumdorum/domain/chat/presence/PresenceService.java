@@ -110,6 +110,23 @@ public class PresenceService {
         presenceRepository.save(updated, ttlSeconds);
     }
 
+    public void onWsActivity(String userId) {
+        PresenceSnapshot current = getPresence(userId);
+        PresenceSnapshot updated = PresenceSnapshot.withFlags(
+            userId,
+            true,
+            current.sseConnected(),
+            current.roomId(),
+            LocalDateTime.now()
+        );
+        presenceRepository.save(updated, ttlSeconds);
+    }
+
+    public void clear(String userId) {
+        log.info("[Presence] CLEAR userId={}", userId);
+        presenceRepository.delete(userId);
+    }
+
     public PresenceSnapshot getPresence(String userId) {
         PresenceSnapshot snapshot = presenceRepository.find(userId)
             .orElseGet(() -> PresenceSnapshot.initial(userId));

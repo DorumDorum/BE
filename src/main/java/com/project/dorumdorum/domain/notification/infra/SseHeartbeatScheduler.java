@@ -18,7 +18,7 @@ public class SseHeartbeatScheduler {
     private final SseEmitterRegistry emitterRegistry;
     private final PresenceService presenceService;
 
-    @Scheduled(fixedDelay = 60000) // 1분마다 실행
+    @Scheduled(fixedDelayString = "${notification.sse.heartbeat-interval-ms:30000}")
     public void sendHeartbeat() {
         
         Map<String, SseEmitter> emitters = emitterRegistry.getEmitters();
