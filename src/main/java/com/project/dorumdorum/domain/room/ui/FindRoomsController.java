@@ -11,7 +11,6 @@ import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 import com.project.dorumdorum.global.pagination.CursorPage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 

@@ -6,7 +6,6 @@ import com.project.dorumdorum.domain.room.ui.spec.LoadMyRoomsApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

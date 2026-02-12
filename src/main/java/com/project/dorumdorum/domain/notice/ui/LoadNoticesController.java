@@ -6,7 +6,6 @@ import com.project.dorumdorum.domain.notice.ui.spec.LoadNoticesApiSpec;
 import com.project.dorumdorum.global.annotation.AccessToken;
 import com.project.dorumdorum.global.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;

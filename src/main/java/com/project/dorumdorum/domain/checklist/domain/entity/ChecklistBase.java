@@ -2,7 +2,9 @@ package com.project.dorumdorum.domain.checklist.domain.entity;
 
 import com.project.dorumdorum.domain.checklist.domain.entity.enums.*;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
