@@ -1,19 +1,11 @@
 spring:
+  application:
+    name: dorumdorum
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   datasource:
-    username: ${RDB_USERNAME}
-    url: ${RDB_URL}
-    password: ${RDB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
-  data:
-    redis:
-      host: localhost
-      port: 6379
-    mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/dorumdorum}
-
   jpa:
-    hibernate:
-      ddl-auto: update
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     open-in-view: false
@@ -27,13 +19,6 @@ spring:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
       mail.smtp.timeout: 5000
-
-jwt:
-  key: fdsafdsafdsafdsafdsafdsafdsafdsafdsafdsafda
-  access:
-    expiration: 900
-  refresh:
-    expiration: 1209600
 
 exclude-auth-path-patterns:
   paths:
@@ -63,6 +48,8 @@ exclude-auth-path-patterns:
       method: GET
     - path-pattern: /webjars
       method: GET
+    - path-pattern: /actuator/**
+      method: GET
 
 exclude-blacklist-path-patterns:
   paths:
@@ -85,6 +72,8 @@ exclude-blacklist-path-patterns:
     - path-pattern: /v3/api-docs/swagger-config
       method: GET
     - path-pattern: /webjars
+      method: GET
+    - path-pattern: /actuator/**
       method: GET
 
 exclude-whitelist-path-patterns:
@@ -113,15 +102,14 @@ exclude-whitelist-path-patterns:
       method: GET
     - path-pattern: /webjars
       method: GET
+    - path-pattern: /actuator/**
+      method: GET
 
 springdoc:
-  api-docs:
-    enabled: true
   swagger-ui:
-    groups-order: DESC # path, query, body, response 순서대로 출력
-    tags-sorter: alpha # 태그를 알파벳 순으로 정렬
-    operations-sorter: method # delete - get - patch - post - put 순으로 정렬
-    enabled: true
+    groups-order: DESC
+    tags-sorter: alpha
+    operations-sorter: method
   paths-to-match:
     - /api/**
 
@@ -129,6 +117,19 @@ include-email-domains:
   domains:
     - gachon.ac.kr
 
-firebase:
-  service-account:
-    path: "/firebase/dorumdorum-9ce75-firebase-adminsdk-fbsvc-8d66c0dccb.json"
+management:
+  metrics:
+    tags:
+      application: ${spring.application.name:dorumdorum}
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
