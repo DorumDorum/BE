@@ -5,6 +5,8 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.MessagingErrorCode;
 import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.WebpushConfig;
+import com.google.firebase.messaging.WebpushNotification;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
@@ -38,6 +40,13 @@ public class NotificationService {
     }
 
     @Transactional
+    public void clearToken(String userNo) {
+        User user = userRepository.findById(userNo)
+                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+        user.updateFirebaseToken(null);
+    }
+
+    @Transactional
     public String sendNotification(String receiverUserNo, String title, String body, Map<String, String> data, String imageUrl) {
         User receiver = userRepository.findById(receiverUserNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
@@ -53,6 +62,19 @@ public class NotificationService {
                                 .setTitle(title)
                                 .setBody(body)
                                 .setImage(imageUrl)
+                                .build()
+                )
+                .setWebpushConfig(
+                        WebpushConfig.builder()
+                                // 브라우저가 장시간 남겨두지 않도록 짧은 TTL 사용
+                                .putHeader("TTL", "60")
+                                .setNotification(
+                                        WebpushNotification.builder()
+                                                .setTitle(title)
+                                                .setBody(body)
+                                                .setRequireInteraction(false)
+                                                .build()
+                                )
                                 .build()
                 );
 

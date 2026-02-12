@@ -1,11 +1,12 @@
 package com.project.dorumdorum.domain.user.application.usecase;
 
+import com.project.dorumdorum.domain.chat.presence.PresenceService;
+import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
 import com.project.dorumdorum.domain.user.domain.service.RefreshTokenService;
 import com.project.dorumdorum.domain.user.domain.service.TokenBlacklistService;
 import com.project.dorumdorum.domain.user.domain.service.TokenWhitelistService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.security.TokenProvider;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,8 @@ public class LogoutUseCase {
     private final RefreshTokenService refreshTokenService;
     private final TokenBlacklistService tokenBlacklistService;
     private final TokenWhitelistService tokenWhitelistService;
+    private final PresenceService presenceService;
+    private final NotificationService notificationService;
 
     public void execute(String accessToken) {
         String userNo = tokenProvider.getId(accessToken)
@@ -34,5 +37,7 @@ public class LogoutUseCase {
         tokenWhitelistService.deleteWhitelistToken(accessToken);
         refreshTokenService.deleteRefreshToken(userNo);
         tokenBlacklistService.blacklist(accessToken, expiration);
+        notificationService.clearToken(userNo);
+        presenceService.clear(userNo);
     }
 }
