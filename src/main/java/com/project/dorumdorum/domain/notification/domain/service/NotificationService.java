@@ -67,7 +67,7 @@ public class NotificationService {
                 .setWebpushConfig(
                         WebpushConfig.builder()
                                 // 브라우저가 장시간 남겨두지 않도록 짧은 TTL 사용
-                                .putHeader("TTL", "60")
+                                .putHeader("TTL", "10")
                                 .setNotification(
                                         WebpushNotification.builder()
                                                 .setTitle(title)

@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.user.application.usecase;
 
-import com.project.dorumdorum.domain.chat.presence.PresenceService;
+import com.project.dorumdorum.domain.presence.domain.service.PresenceService;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
 import com.project.dorumdorum.domain.user.domain.service.RefreshTokenService;
 import com.project.dorumdorum.domain.user.domain.service.TokenBlacklistService;

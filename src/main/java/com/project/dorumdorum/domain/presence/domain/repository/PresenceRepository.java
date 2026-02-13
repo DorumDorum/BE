@@ -1,4 +1,6 @@
-package com.project.dorumdorum.domain.chat.presence;
+package com.project.dorumdorum.domain.presence.domain.repository;
+
+import com.project.dorumdorum.domain.presence.domain.entity.PresenceSnapshot;
 
 import java.util.Optional;
 

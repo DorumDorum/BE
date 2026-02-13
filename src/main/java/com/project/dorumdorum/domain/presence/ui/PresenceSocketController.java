@@ -1,7 +1,7 @@
-package com.project.dorumdorum.domain.chat.ui;
+package com.project.dorumdorum.domain.presence.ui;
 
 import com.project.dorumdorum.domain.chat.application.dto.request.PresenceSignalRequest;
-import com.project.dorumdorum.domain.chat.presence.PresenceService;
+import com.project.dorumdorum.domain.presence.domain.service.PresenceService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
 import com.project.dorumdorum.global.security.UserIdPrincipal;

@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.Map;
 import com.project.dorumdorum.domain.notification.sse.SseEmitterRegistry;
-import com.project.dorumdorum.domain.chat.presence.PresenceService;
+import com.project.dorumdorum.domain.presence.domain.service.PresenceService;
 import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 

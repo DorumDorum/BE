@@ -5,7 +5,7 @@ import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomStatus;
 import com.project.dorumdorum.domain.chat.domain.entity.Participant;
 import com.project.dorumdorum.domain.chat.domain.repository.MessageRoomRepository;
 import com.project.dorumdorum.domain.chat.domain.repository.ParticipantRepository;
-import com.project.dorumdorum.domain.chat.presence.PresenceService;
+import com.project.dorumdorum.domain.presence.domain.service.PresenceService;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import com.project.dorumdorum.global.exception.RestApiException;

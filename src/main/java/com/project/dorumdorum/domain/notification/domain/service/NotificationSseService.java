@@ -1,6 +1,6 @@
-package com.project.dorumdorum.domain.notification.application;
+package com.project.dorumdorum.domain.notification.domain.service;
 
-import com.project.dorumdorum.domain.chat.presence.PresenceService;
+import com.project.dorumdorum.domain.presence.domain.service.PresenceService;
 import com.project.dorumdorum.domain.notification.sse.SseEmitterRegistry;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;

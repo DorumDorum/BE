@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.notification.ui;
 
-import com.project.dorumdorum.domain.notification.application.NotificationSseService;
+import com.project.dorumdorum.domain.notification.domain.service.NotificationSseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;

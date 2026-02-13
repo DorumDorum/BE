@@ -1,7 +1,9 @@
-package com.project.dorumdorum.domain.chat.presence;
+package com.project.dorumdorum.domain.presence.infra;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.dorumdorum.domain.presence.domain.entity.PresenceSnapshot;
+import com.project.dorumdorum.domain.presence.domain.repository.PresenceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;

@@ -1,6 +1,6 @@
-package com.project.dorumdorum.domain.chat.presence.state;
+package com.project.dorumdorum.domain.presence.domain.state;
 
-import com.project.dorumdorum.domain.chat.presence.NotificationChannel;
+import com.project.dorumdorum.domain.notification.domain.NotificationChannel;
 
 public class AppActiveState implements PresenceState {
     @Override

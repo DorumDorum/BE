@@ -1,9 +1,12 @@
-package com.project.dorumdorum.domain.chat.presence;
+package com.project.dorumdorum.domain.presence.domain.service;
 
-import com.project.dorumdorum.domain.chat.presence.state.AppActiveState;
-import com.project.dorumdorum.domain.chat.presence.state.AppInactiveState;
-import com.project.dorumdorum.domain.chat.presence.state.InRoomState;
-import com.project.dorumdorum.domain.chat.presence.state.PresenceState;
+import com.project.dorumdorum.domain.notification.domain.NotificationChannel;
+import com.project.dorumdorum.domain.presence.domain.repository.PresenceRepository;
+import com.project.dorumdorum.domain.presence.domain.entity.PresenceSnapshot;
+import com.project.dorumdorum.domain.presence.domain.state.AppActiveState;
+import com.project.dorumdorum.domain.presence.domain.state.AppInactiveState;
+import com.project.dorumdorum.domain.presence.domain.state.InRoomState;
+import com.project.dorumdorum.domain.presence.domain.state.PresenceState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
