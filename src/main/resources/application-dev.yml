@@ -35,4 +35,4 @@ springdoc:
 
 firebase:
   service-account:
-    path: ${FIREBASE_SERVICE_ACCOUNT_PATH:src/main/resources/firebase/firebase-adminsdk.json}
+    path: ${FIREBASE_SERVICE_ACCOUNT_PATH:firebase/dorumdorum-9ce75-firebase-adminsdk-fbsvc-8d66c0dccb.json}
