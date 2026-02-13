@@ -41,8 +41,8 @@ public class RoomService {
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
-    public List<FindRoomsResponse> findByCursor(RoomRelation relation, List<RoomType> types, List<Integer> capacities, List<ResidencePeriod> residencePeriods, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
-        return roomRepository.findByCursor(relation, types, capacities, residencePeriods, sort, decodedCursor, limitPlusOne);
+    public List<FindRoomsResponse> searchByCursor(RoomRelation relation, List<RoomType> types, List<Integer> capacities, List<ResidencePeriod> residencePeriods, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
+        return roomRepository.searchByCursor(relation, types, capacities, residencePeriods, sort, decodedCursor, limitPlusOne);
     }
 
     public FindRoomsResponse findMyRoom(String userNo) {

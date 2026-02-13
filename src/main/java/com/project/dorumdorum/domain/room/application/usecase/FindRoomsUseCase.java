@@ -35,7 +35,7 @@ public class FindRoomsUseCase {
                 ? null
                 : CursorCodec.decode(cursor);
 
-        List<FindRoomsResponse> responses = roomService.findByCursor(
+        List<FindRoomsResponse> responses = roomService.searchByCursor(
                 relation, types, capacities, residencePeriods, sort, decodedCursor, limitPlusOne
         );
 

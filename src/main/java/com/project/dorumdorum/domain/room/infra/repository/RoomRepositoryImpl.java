@@ -32,7 +32,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     private final JPAQueryFactory query;
 
     @Override
-    public List<FindRoomsResponse> findByCursor(RoomRelation relation,
+    public List<FindRoomsResponse> searchByCursor(RoomRelation relation,
                                                 List<RoomType> types,
                                                 List<Integer> capacities,
                                                 List<ResidencePeriod> residencePeriods,
