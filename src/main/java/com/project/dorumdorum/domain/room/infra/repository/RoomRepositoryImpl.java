@@ -15,13 +15,12 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static com.project.dorumdorum.domain.room.domain.entity.QRoom.room;
-import static com.project.dorumdorum.domain.room.domain.entity.QRoomLike.roomLike;
-import static com.project.dorumdorum.domain.room.domain.entity.QRoomRequest.roomRequest;
 import static com.project.dorumdorum.domain.roommate.domain.entity.QRoommate.roommate;
 import static com.project.dorumdorum.domain.user.domain.entity.QUser.user;
 import static com.querydsl.core.types.Projections.constructor;
@@ -33,14 +32,18 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     private final JPAQueryFactory query;
 
     @Override
-    public List<FindRoomsResponse> findByCursor(String userNo,
-                                                RoomRelation relation,
+    public List<FindRoomsResponse> findByCursor(RoomRelation relation,
                                                 List<RoomType> types,
                                                 List<Integer> capacities,
                                                 List<ResidencePeriod> residencePeriods,
                                                 RoomSort sort,
                                                 DecodedCursor cursor,
                                                 int limitPlusOne) {
+        // 공개 API: RECRUITING만 지원 (userNo 없음)
+        if (relation != RoomRelation.RECRUITING) {
+            return Collections.emptyList();
+        }
+
         JPAQuery<FindRoomsResponse> q = query
                 .select(
                         constructor(FindRoomsResponse.class,
@@ -52,14 +55,13 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                 room.title,
                                 user.nickname,
                                 room.roomStatus,
-                                room.hostUserNo.eq(userNo),
                                 room.residencePeriod.stringValue()
                         )
                 )
                 .from(room)
                 .leftJoin(user).on(user.userNo.eq(room.hostUserNo))
                 .where(
-                        relationPredicate(userNo, relation),
+                        room.roomStatus.eq(RoomStatus.CONFIRM_PENDING),
                         types == null || types.isEmpty() ? null : room.roomType.in(types),
                         capacities == null || capacities.isEmpty() ? null : room.capacity.in(capacities),
                         residencePeriods == null || residencePeriods.isEmpty() ? null : room.residencePeriod.in(residencePeriods),
@@ -88,7 +90,6 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                 room.title,
                                 user.nickname,
                                 room.roomStatus,
-                                room.hostUserNo.eq(userNo),
                                 room.residencePeriod.stringValue()
                         )
                 )
@@ -104,28 +105,6 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .fetchOne();
 
         return Optional.ofNullable(result);
-    }
-
-    private BooleanExpression relationPredicate(String userNo, RoomRelation relation) {
-        if (relation == null) return null;
-        return switch (relation) {
-            case APPLIED -> JPAExpressions
-                    .selectOne()
-                    .from(roomRequest)
-                    .where(roomRequest.room.eq(room), roomRequest.userNo.eq(userNo))
-                    .exists();
-            case JOINED -> JPAExpressions
-                    .selectOne()
-                    .from(roommate)
-                    .where(roommate.room.eq(room), roommate.userNo.eq(userNo))
-                    .exists();
-            case LIKED -> JPAExpressions
-                    .selectOne()
-                    .from(roomLike)
-                    .where(roomLike.room.eq(room), roomLike.userNo.eq(userNo))
-                    .exists();
-            case RECRUITING -> room.roomStatus.eq(RoomStatus.CONFIRM_PENDING);
-        };
     }
 
     private BooleanExpression cursorPredicate(DecodedCursor c, RoomSort sort) {

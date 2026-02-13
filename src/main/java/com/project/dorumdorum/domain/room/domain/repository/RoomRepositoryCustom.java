@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface RoomRepositoryCustom {
 
-    List<FindRoomsResponse> findByCursor(String userNo, RoomRelation relation, List<RoomType> types, List<Integer> capacities, List<ResidencePeriod> residencePeriods, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne);
+    List<FindRoomsResponse> findByCursor(RoomRelation relation, List<RoomType> types, List<Integer> capacities, List<ResidencePeriod> residencePeriods, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne);
 
     Optional<FindRoomsResponse> findMyRoom(String userNo);
 }

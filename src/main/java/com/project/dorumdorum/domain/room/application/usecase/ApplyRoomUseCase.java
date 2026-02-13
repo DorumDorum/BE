@@ -30,6 +30,11 @@ public class ApplyRoomUseCase {
 
         Room room = roomService.findById(roomNo);
 
+        // 이미 이 방의 룸메인 경우 지원 불가 (자신의 방 포함)
+        if (roommateService.isUserRoommate(userNo, roomNo)) {
+            throw new RestApiException(CANNOT_APPLY_TO_OWN_ROOM);
+        }
+
         // 속한 방이 있는 유저인가 검증
         if(roommateService.existsByUserNo(userNo))
             throw new RestApiException(ALREADY_JOINED_USER);

@@ -50,6 +50,14 @@ exclude-auth-path-patterns:
       method: GET
     - path-pattern: /actuator/**
       method: GET
+    - path-pattern: /api/rooms
+      method: GET
+    - path-pattern: /api/rooms/**
+      method: GET
+    - path-pattern: /api/calendar/events
+      method: GET
+    - path-pattern: /api/notices
+      method: GET
 
 exclude-blacklist-path-patterns:
   paths:
@@ -74,6 +82,14 @@ exclude-blacklist-path-patterns:
     - path-pattern: /webjars
       method: GET
     - path-pattern: /actuator/**
+      method: GET
+    - path-pattern: /api/rooms
+      method: GET
+    - path-pattern: /api/rooms/**
+      method: GET
+    - path-pattern: /api/calendar/events
+      method: GET
+    - path-pattern: /api/notices
       method: GET
 
 exclude-whitelist-path-patterns:
@@ -121,6 +137,9 @@ management:
   metrics:
     tags:
       application: ${spring.application.name:dorumdorum}
+    export:
+      prometheus:
+        enabled: true
   endpoints:
     web:
       exposure:
@@ -129,7 +148,3 @@ management:
   endpoint:
     health:
       show-details: when-authorized
-  metrics:
-    export:
-      prometheus:
-        enabled: true

@@ -23,7 +23,6 @@ public interface FindRoomsApiSpec {
     )
     @GetMapping("/api/rooms")
     BaseResponse<CursorPage<FindRoomsResponse>> loadAll(
-            @Parameter(hidden = true) String userNo,
             @Parameter(description = "조회 기준 관계", required = true) RoomRelation relation,
             @Parameter(description = "방 타입 (복수 선택 가능)") List<RoomType> types,
             @Parameter(description = "최대 인원 수 필터 (복수 선택 가능)") List<Integer> capacities,

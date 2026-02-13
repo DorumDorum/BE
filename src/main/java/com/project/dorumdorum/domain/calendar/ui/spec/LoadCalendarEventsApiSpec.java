@@ -1,7 +1,6 @@
 package com.project.dorumdorum.domain.calendar.ui.spec;
 
 import com.project.dorumdorum.domain.calendar.application.dto.response.CalendarEventResponse;
-import com.project.dorumdorum.global.annotation.AccessToken;
 import com.project.dorumdorum.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,7 +21,6 @@ public interface LoadCalendarEventsApiSpec {
             @Parameter(description = "시작 날짜 (yyyy-MM-dd)", example = "2025-01-01")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(description = "종료 날짜 (yyyy-MM-dd)", example = "2025-12-31")
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @AccessToken String userNo
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     );
 }
