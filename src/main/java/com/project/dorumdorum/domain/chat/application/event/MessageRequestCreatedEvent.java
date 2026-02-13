@@ -9,4 +9,17 @@ public record MessageRequestCreatedEvent(
     String receiverId,
     String senderNickname
 ) {
+    public static MessageRequestCreatedEvent create(
+        String roomId,
+        String senderId,
+        String receiverId,
+        String senderNickname
+    ) {
+        return MessageRequestCreatedEvent.builder()
+            .roomId(roomId)
+            .senderId(senderId)
+            .receiverId(receiverId)
+            .senderNickname(senderNickname)
+            .build();
+    }
 }

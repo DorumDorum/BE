@@ -4,8 +4,9 @@ import com.project.dorumdorum.domain.chat.application.dto.request.SendMessageReq
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoom;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomStatus;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomType;
-import com.project.dorumdorum.domain.chat.application.event.ChatEventPublisher;
 import com.project.dorumdorum.domain.chat.application.event.MessageRequestCreatedEvent;
+import com.project.dorumdorum.domain.chat.application.aop.NotificationPublish;
+import com.project.dorumdorum.domain.chat.application.aop.NotificationSubject;
 import com.project.dorumdorum.domain.chat.domain.service.MessageRequestService;
 import com.project.dorumdorum.domain.chat.domain.service.MessageRoomService;
 import com.project.dorumdorum.domain.chat.domain.service.MessageService;
@@ -30,10 +31,10 @@ public class SendMessageRequestUseCase {
     private final MessageRequestService messageRequestService;
     private final ParticipantService participantService;
     private final UserService userService;
-    private final ChatEventPublisher chatEventPublisher;
 
     @Transactional
-    public void execute(String userNo, String receiverNo, SendMessageRequest request) {
+    @NotificationPublish(subject = NotificationSubject.MESSAGE_REQUEST_CREATED)
+    public MessageRequestCreatedEvent execute(String userNo, String receiverNo, SendMessageRequest request) {
         // 유저 존재 확인
         User sender = userService.findById(userNo);
         User receiver = userService.findById(receiverNo);
@@ -77,13 +78,12 @@ public class SendMessageRequestUseCase {
             );
         }
 
-        MessageRequestCreatedEvent event = MessageRequestCreatedEvent.builder()
-            .roomId(messageRoom.getMessageRoomNo())
-            .senderId(userNo)
-            .receiverId(receiverNo)
-            .senderNickname(sender.getNickname())
-            .build();
-        chatEventPublisher.publishMessageRequestCreated(event);
+        return MessageRequestCreatedEvent.create(
+            messageRoom.getMessageRoomNo(),
+            userNo,
+            receiverNo,
+            sender.getNickname()
+        );
     }
 
     private String buildDirectRoomKey(String userNo, String receiverNo) {

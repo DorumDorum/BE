@@ -1,8 +1,9 @@
 package com.project.dorumdorum.domain.chat.application.usecase;
 
 import com.project.dorumdorum.domain.chat.application.dto.request.SendMessageSocketRequest;
-import com.project.dorumdorum.domain.chat.application.event.ChatEventPublisher;
 import com.project.dorumdorum.domain.chat.application.event.MessageSentEvent;
+import com.project.dorumdorum.domain.chat.application.aop.NotificationPublish;
+import com.project.dorumdorum.domain.chat.application.aop.NotificationSubject;
 import com.project.dorumdorum.domain.chat.domain.entity.Message;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoom;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomStatus;
@@ -25,9 +26,9 @@ public class SendMessageUseCase {
     private final MessageRoomService messageRoomService;
     private final ParticipantService participantService;
     private final UserService userService;
-    private final ChatEventPublisher chatEventPublisher;
 
     @Transactional
+    @NotificationPublish(subject = NotificationSubject.MESSAGE_SENT)
     public MessageSentEvent execute(String senderId, String roomId, SendMessageSocketRequest request) {
         if (request == null || request.content() == null || request.content().isBlank()) {
             throw new RestApiException(GlobalErrorStatus._BAD_REQUEST);
@@ -45,8 +46,6 @@ public class SendMessageUseCase {
         Message message = messageService.saveMessage(roomId, senderId, content);
         messageRoomService.updateLastMessage(messageRoom, content, message.getSentAt());
 
-        MessageSentEvent event = MessageSentEvent.create(message, sender.getName());  // senderName 추가
-        chatEventPublisher.publishMessageSent(event);
-        return event;
+        return MessageSentEvent.create(message, sender.getName());  // senderName 추가
     }
 }

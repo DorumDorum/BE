@@ -3,8 +3,9 @@ package com.project.dorumdorum.domain.chat.application.usecase;
 
 import com.project.dorumdorum.domain.chat.application.dto.request.DecideMessageRequest;
 import com.project.dorumdorum.domain.chat.application.dto.request.MessageRequestDecision;
-import com.project.dorumdorum.domain.chat.application.event.ChatEventPublisher;
 import com.project.dorumdorum.domain.chat.application.event.MessageRequestDecidedEvent;
+import com.project.dorumdorum.domain.chat.application.aop.NotificationPublish;
+import com.project.dorumdorum.domain.chat.application.aop.NotificationSubject;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRequest;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRequestStatus;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoom;
@@ -27,10 +28,10 @@ public class DecideMessageRequestUseCase {
     private final MessageRequestService messageRequestService;
     private final MessageRoomService messageRoomService;
     private final ParticipantService participantService;
-    private final ChatEventPublisher chatEventPublisher;
 
     @Transactional
-    public void execute(String userId, String messageRequestNo, DecideMessageRequest request) {
+    @NotificationPublish(subject = NotificationSubject.MESSAGE_REQUEST_DECIDED)
+    public MessageRequestDecidedEvent execute(String userId, String messageRequestNo, DecideMessageRequest request) {
 
         if(request == null || request.messageRequestDecision() == null) {
             throw new RestApiException(GlobalErrorStatus._BAD_REQUEST);
@@ -75,12 +76,11 @@ public class DecideMessageRequestUseCase {
             );
         }
 
-        MessageRequestDecidedEvent event = MessageRequestDecidedEvent.builder()
-            .roomId(messageRoom.getMessageRoomNo())
-            .senderId(messageRequest.getSenderNo())
-            .receiverId(messageRequest.getReceiverNo())
-            .decision(decision)
-            .build();
-        chatEventPublisher.publishMessageRequestDecided(event);
+        return MessageRequestDecidedEvent.create(
+            messageRoom.getMessageRoomNo(),
+            messageRequest.getSenderNo(),
+            messageRequest.getReceiverNo(),
+            decision
+        );
     }
 }

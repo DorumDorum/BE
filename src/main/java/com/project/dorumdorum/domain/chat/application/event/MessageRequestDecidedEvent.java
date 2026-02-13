@@ -10,4 +10,17 @@ public record MessageRequestDecidedEvent(
     String receiverId,
     MessageRequestDecision decision
 ) {
+    public static MessageRequestDecidedEvent create(
+        String roomId,
+        String senderId,
+        String receiverId,
+        MessageRequestDecision decision
+    ) {
+        return MessageRequestDecidedEvent.builder()
+            .roomId(roomId)
+            .senderId(senderId)
+            .receiverId(receiverId)
+            .decision(decision)
+            .build();
+    }
 }
