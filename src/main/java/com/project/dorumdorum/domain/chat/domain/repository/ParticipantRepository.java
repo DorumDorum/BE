@@ -9,4 +9,5 @@ public interface ParticipantRepository extends JpaRepository<Participant, String
 
     Participant findByUserAndMessageRoomNo(User user, String messageRoomNo);
     List<Participant> findByMessageRoomNoAndDeletedAtIsNull(String messageRoomNo);
+    List<Participant> findByMessageRoomNoAndDeletedAtIsNullOrderByJoinedAtAsc(String messageRoomNo);
 }

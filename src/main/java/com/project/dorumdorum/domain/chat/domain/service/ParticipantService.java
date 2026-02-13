@@ -40,7 +40,7 @@ public class ParticipantService {
     }
 
     public List<Participant> findActiveParticipantsByRoomNo(String messageRoomNo) {
-        return participantRepository.findByMessageRoomNoAndDeletedAtIsNull(messageRoomNo);
+        return participantRepository.findByMessageRoomNoAndDeletedAtIsNullOrderByJoinedAtAsc(messageRoomNo);
     }
 
     public boolean isParticipantInMessageRoom(User user, String messageRoomNo) {
