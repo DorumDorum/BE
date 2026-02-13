@@ -4,19 +4,19 @@ import lombok.Builder;
 
 @Builder
 public record MessageRequestCreatedEvent(
-    String roomId,
+    String messageRoomId,
     String senderId,
     String receiverId,
     String senderNickname
 ) {
     public static MessageRequestCreatedEvent create(
-        String roomId,
+        String messageRoomId,
         String senderId,
         String receiverId,
         String senderNickname
     ) {
         return MessageRequestCreatedEvent.builder()
-            .roomId(roomId)
+            .messageRoomId(messageRoomId)
             .senderId(senderId)
             .receiverId(receiverId)
             .senderNickname(senderNickname)

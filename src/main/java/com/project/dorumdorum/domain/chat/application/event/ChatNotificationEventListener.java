@@ -87,7 +87,7 @@ public class ChatNotificationEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageRequestCreated(MessageRequestCreatedEvent event) {
-        NotificationChannel channel = presenceService.decideRequestChannel(event.receiverId(), event.roomId());
+        NotificationChannel channel = presenceService.decideRequestChannel(event.receiverId(), event.messageRoomId());
 
         if (channel == NotificationChannel.SSE) {
             boolean delivered = false;
@@ -95,7 +95,7 @@ public class ChatNotificationEventListener {
                 delivered = sseNotificationSender.sendRequestCreated(event.receiverId(), event);
             } catch (Exception e) {
                 log.warn("[SSE] 채팅 요청 전송 실패. receiverId={} roomId={}",
-                    event.receiverId(), event.roomId(), e);
+                    event.receiverId(), event.messageRoomId(), e);
             }
             if (delivered) {
                 return;
@@ -109,14 +109,14 @@ public class ChatNotificationEventListener {
                     "새 채팅 요청",
                     event.senderNickname() + "님이 채팅 요청이 도착했습니다.",
                     Map.of(
-                        "roomId", String.valueOf(event.roomId()),
+                        "roomId", String.valueOf(event.messageRoomId()),
                         "senderId", String.valueOf(event.senderId())
                     ),
                     null
                 );
             } catch (Exception e) {
                 log.warn("[FCM] 채팅 요청 알림 전송 실패. receiverId={} roomId={}",
-                    event.receiverId(), event.roomId(), e);
+                    event.receiverId(), event.messageRoomId(), e);
             }
         }
     }
@@ -128,14 +128,14 @@ public class ChatNotificationEventListener {
     }
 
     private void notifyDecision(MessageRequestDecidedEvent event, String userId) {
-        NotificationChannel channel = presenceService.decideRequestChannel(userId, event.roomId());
+        NotificationChannel channel = presenceService.decideRequestChannel(userId, event.messageRoomId());
 
         if (channel == NotificationChannel.SSE) {
             boolean delivered = false;
             try {
                 delivered = sseNotificationSender.sendRequestDecided(userId, event);
             } catch (Exception e) {
-                log.warn("[SSE] 채팅 요청 결과 전송 실패. userId={} roomId={}", userId, event.roomId(), e);
+                log.warn("[SSE] 채팅 요청 결과 전송 실패. userId={} roomId={}", userId, event.messageRoomId(), e);
             }
             if (delivered) {
                 return;
@@ -149,7 +149,7 @@ public class ChatNotificationEventListener {
                     "채팅 요청 결과",
                     "요청이 " + event.decision().name() + "되었습니다.",
                     Map.of(
-                        "roomId", String.valueOf(event.roomId()),
+                        "roomId", String.valueOf(event.messageRoomId()),
                         "senderId", String.valueOf(event.senderId()),
                         "receiverId", String.valueOf(event.receiverId()),
                         "decision", event.decision().name()
@@ -158,7 +158,7 @@ public class ChatNotificationEventListener {
                 );
             } catch (Exception e) {
                 log.warn("[FCM] 채팅 요청 결과 알림 전송 실패. userId={} roomId={}",
-                    userId, event.roomId(), e);
+                    userId, event.messageRoomId(), e);
             }
         }
     }

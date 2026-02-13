@@ -5,19 +5,19 @@ import lombok.Builder;
 
 @Builder
 public record MessageRequestDecidedEvent(
-    String roomId,
+    String messageRoomId,
     String senderId,
     String receiverId,
     MessageRequestDecision decision
 ) {
     public static MessageRequestDecidedEvent create(
-        String roomId,
+        String messageRoomId,
         String senderId,
         String receiverId,
         MessageRequestDecision decision
     ) {
         return MessageRequestDecidedEvent.builder()
-            .roomId(roomId)
+            .messageRoomId(messageRoomId)
             .senderId(senderId)
             .receiverId(receiverId)
             .decision(decision)
