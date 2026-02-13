@@ -36,8 +36,8 @@ public class LoadMessagesUseCase {
         User user = userService.findById(userId);
         MessageRoom messageRoom = messageRoomService.findById(messageRoomNo);
 
-        // requested 도 되어야 함.
-        if (messageRoom.getRoomStatus() != MessageRoomStatus.APPROVED ) {
+        if (messageRoom.getRoomStatus() != MessageRoomStatus.APPROVED
+                && messageRoom.getRoomStatus() != MessageRoomStatus.REQUESTED) {
             throw new RestApiException(GlobalErrorStatus._BAD_REQUEST);
         }
 
