@@ -6,6 +6,7 @@ import com.project.dorumdorum.domain.user.domain.service.TokenBlacklistService;
 import com.project.dorumdorum.domain.user.domain.service.TokenWhitelistService;
 import com.project.dorumdorum.domain.user.fixture.TokenFixture;
 import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.logging.DomainEventLogger;
 import com.project.dorumdorum.global.security.TokenProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,8 @@ class LogoutUseCaseTest {
 
     @Mock
     private TokenWhitelistService tokenWhitelistService;
+    @Mock
+    private DomainEventLogger domainEventLogger;
 
     @InjectMocks
     private LogoutUseCase logoutUseCase;

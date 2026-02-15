@@ -2,6 +2,7 @@ package com.project.dorumdorum.domain.user.unit.usecase;
 
 import com.project.dorumdorum.domain.user.application.usecase.VerifyEmailUseCase;
 import com.project.dorumdorum.domain.user.domain.service.EmailVerificationService;
+import com.project.dorumdorum.global.logging.DomainEventLogger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,8 @@ class VerifyEmailUseCaseTest {
 
     @Mock
     private EmailVerificationService emailVerificationService;
+    @Mock
+    private DomainEventLogger domainEventLogger;
 
     @InjectMocks
     private VerifyEmailUseCase verifyEmailUseCase;

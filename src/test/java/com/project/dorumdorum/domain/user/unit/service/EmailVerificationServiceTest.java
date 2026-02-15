@@ -4,6 +4,7 @@ import com.project.dorumdorum.domain.user.domain.repository.VerificationCodeRepo
 import com.project.dorumdorum.domain.user.domain.service.EmailVerificationService;
 import com.project.dorumdorum.domain.user.infra.smtp.SmtpEmailSender;
 import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.logging.DomainEventLogger;
 import com.project.dorumdorum.global.properties.IncludeEmailDomainProperties;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,8 @@ class EmailVerificationServiceTest {
 
     @Mock
     private SmtpEmailSender smtpEmailSender;
+    @Mock
+    private DomainEventLogger domainEventLogger;
 
     @InjectMocks
     private EmailVerificationService emailVerificationService;

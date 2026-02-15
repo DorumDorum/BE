@@ -7,6 +7,7 @@ import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.domain.user.fixture.RequestFixture;
 import com.project.dorumdorum.domain.user.fixture.UserFixture;
 import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.logging.DomainEventLogger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,8 @@ class SignUpUseCaseTest {
 
     @Mock
     private UserService userService;
+    @Mock
+    private DomainEventLogger domainEventLogger;
 
     @InjectMocks
     private SignUpUseCase signUpUseCase;

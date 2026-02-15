@@ -5,7 +5,6 @@ import com.project.dorumdorum.domain.user.domain.service.TokenBlacklistService;
 import com.project.dorumdorum.domain.user.domain.service.TokenWhitelistService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.security.TokenProvider;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

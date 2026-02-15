@@ -27,8 +27,9 @@ public class LoginUseCase {
     public LoginResponse execute(LoginRequest request) {
         User user = userService.findByEmail(request.email());
 
-        if (!passwordEncoder.matches(request.password(), user.getPassword()))
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new RestApiException(LOGIN_ERROR);
+        }
 
         String accessToken = tokenProvider.createAccessToken(user.getUserNo(), user.getRole());
         String refreshToken = tokenProvider.createRefreshToken(user.getUserNo(), user.getRole());

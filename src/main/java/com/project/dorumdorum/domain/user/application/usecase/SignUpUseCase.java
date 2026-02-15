@@ -1,7 +1,6 @@
 package com.project.dorumdorum.domain.user.application.usecase;
 
 import com.project.dorumdorum.domain.user.application.dto.request.SignUpRequest;
-import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +18,13 @@ public class SignUpUseCase {
     private final UserService userService;
 
     public void execute(SignUpRequest request) {
-        if(!request.isCheckedPassword())
+        if(!request.isCheckedPassword()) {
             throw new RestApiException(_PASSWORD_NOT_MATCHES);
+        }
 
-        if (userService.isAlreadyRegistered(request.email()))
+        if (userService.isAlreadyRegistered(request.email())) {
             throw new RestApiException(ALREADY_REGISTERED_EMAIL);
+        }
 
         userService.save(request);
     }

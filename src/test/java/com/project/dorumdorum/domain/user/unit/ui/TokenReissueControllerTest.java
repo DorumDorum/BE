@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.user.unit.ui;
 
 import com.project.dorumdorum.domain.user.application.dto.response.TokenReissueResponse;
-import com.project.dorumdorum.domain.user.domain.service.TokenReissueService;
+import com.project.dorumdorum.domain.user.application.usecase.TokenReissueUseCase;
 import com.project.dorumdorum.domain.user.ui.TokenReissueController;
 import com.project.dorumdorum.global.common.BaseResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 class TokenReissueControllerTest {
 
     @Mock
-    private TokenReissueService tokenReissueService;
+    private TokenReissueUseCase tokenReissueUseCase;
 
     @InjectMocks
     private TokenReissueController controller;
@@ -31,11 +31,11 @@ class TokenReissueControllerTest {
         String userNo = "0000000000000001";
         String refreshToken = "refresh";
         TokenReissueResponse expected = new TokenReissueResponse("new-access", "new-refresh");
-        when(tokenReissueService.reissue(refreshToken, userNo)).thenReturn(expected);
+        when(tokenReissueUseCase.execute(userNo, refreshToken)).thenReturn(expected);
 
         BaseResponse<TokenReissueResponse> response = controller.reissue(userNo, refreshToken);
 
-        verify(tokenReissueService).reissue(refreshToken, userNo);
+        verify(tokenReissueUseCase).execute(userNo, refreshToken);
         assertThat(response.getResult()).isEqualTo(expected);
     }
 }

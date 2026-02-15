@@ -4,6 +4,7 @@ import com.project.dorumdorum.domain.user.application.usecase.SendVerificationEm
 import com.project.dorumdorum.domain.user.domain.service.EmailVerificationService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.logging.DomainEventLogger;
 import com.project.dorumdorum.global.util.SecureRandomGenerator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,8 @@ class SendVerificationEmailUseCaseTest {
 
     @Mock
     private SecureRandomGenerator secureRandomGenerator;
+    @Mock
+    private DomainEventLogger domainEventLogger;
 
     @InjectMocks
     private SendVerificationEmailUseCase sendVerificationEmailUseCase;

@@ -23,8 +23,9 @@ public class TokenReissueService {
     private final UserService userService;
 
     public TokenReissueResponse reissue(String refreshToken, String userNo) {
-        if (!refreshTokenService.isExist(refreshToken, userNo))
+        if (!refreshTokenService.isExist(refreshToken, userNo)) {
             throw new RestApiException(INVALID_REFRESH_TOKEN);
+        }
 
         refreshTokenService.deleteRefreshToken(userNo);
 

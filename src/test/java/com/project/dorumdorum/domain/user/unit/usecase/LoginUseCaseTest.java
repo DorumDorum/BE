@@ -11,6 +11,7 @@ import com.project.dorumdorum.domain.user.fixture.RequestFixture;
 import com.project.dorumdorum.domain.user.fixture.TokenFixture;
 import com.project.dorumdorum.domain.user.fixture.UserFixture;
 import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.logging.DomainEventLogger;
 import com.project.dorumdorum.global.security.TokenProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,8 @@ class LoginUseCaseTest {
 
     @Mock
     private RefreshTokenService refreshTokenService;
+    @Mock
+    private DomainEventLogger domainEventLogger;
 
     @InjectMocks
     private LoginUseCase loginUseCase;
