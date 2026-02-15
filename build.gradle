@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.3'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.project'
@@ -28,9 +29,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
-
-    // Kafka
-    implementation 'org.springframework.kafka:spring-kafka'
 
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
@@ -77,11 +75,11 @@ dependencies {
 
     // Firebase
     implementation 'com.google.firebase:firebase-admin:9.2.0'
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
-    testImplementation 'org.springframework.kafka:spring-kafka-test'
     testImplementation 'org.awaitility:awaitility:4.2.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
@@ -108,4 +106,67 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += [
             "-Aquerydsl.generatedAnnotationClass=javax.annotation.Generated"
     ]
+}
+
+// JaCoCo Configuration
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        html.required = true
+        xml.required = true
+        csv.required = false
+
+        html.outputLocation = layout.buildDirectory.dir('reports/jacoco/test/html')
+        xml.outputLocation = layout.buildDirectory.file('reports/jacoco/test/jacocoTestReport.xml')
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                '**/Q*',  // QueryDSL generated classes
+                '**/*Config*',
+                '**/*Application*',
+                '**/dto/**',
+                '**/entity/**',
+                '**/ui/spec/**',  // API spec interfaces
+                '**/domain/**/domain/repository/**'  // domain repository interfaces
+            ])
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    dependsOn jacocoTestReport
+
+    violationRules {
+        rule {
+            enabled = true
+            element = 'PACKAGE'
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.75
+            }
+
+            includes = [
+                'com.project.dorumdorum.domain.user.*'
+            ]
+        }
+    }
+}
+
+test {
+    finalizedBy jacocoTestReport
 }

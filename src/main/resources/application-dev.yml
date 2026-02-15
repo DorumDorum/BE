@@ -23,6 +23,8 @@ jwt:
     expiration: ${JWT_REFRESH_EXPIRATION:1209600}
 
 logging:
+  policy:
+    include-stack-trace: true
   level:
     com.project.dorumdorum: DEBUG
     org.hibernate.SQL: DEBUG

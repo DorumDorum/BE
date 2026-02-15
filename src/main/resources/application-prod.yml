@@ -23,6 +23,8 @@ jwt:
     expiration: ${JWT_REFRESH_EXPIRATION}
 
 logging:
+  policy:
+    include-stack-trace: false
   level:
     com.project.dorumdorum: INFO
     org.hibernate.SQL: WARN
