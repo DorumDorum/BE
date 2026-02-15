@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.INVALID_EMAIL_DOMAIN;
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.DUPLICATE_EMAIL;
+import static com.project.dorumdorum.global.exception.code.status.UserErrorStatus.DUPLICATE_EMAIL;
 
 @Service
 @RequiredArgsConstructor

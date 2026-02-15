@@ -4,6 +4,7 @@ import com.project.dorumdorum.domain.room.application.dto.request.JoinRoomReques
 import com.project.dorumdorum.domain.room.application.usecase.ApplyRoomUseCase;
 import com.project.dorumdorum.domain.room.domain.entity.Direction;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
+import com.project.dorumdorum.domain.room.domain.entity.RoomRequest;
 import com.project.dorumdorum.domain.room.domain.service.RoomRequestService;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
@@ -16,7 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -39,16 +40,26 @@ class ApplyRoomUseCaseTest {
         String roomNo = "r1";
         Room room = Room.builder().roomNo(roomNo).build();
         JoinRoomRequest request = new JoinRoomRequest("intro", "msg");
+        RoomRequest createdRequest = RoomRequest.builder()
+                .roomRequestNo("req-1")
+                .room(room)
+                .userNo(userNo)
+                .direction(Direction.USER_TO_ROOM)
+                .introduction(request.introduction())
+                .additionalMessage(request.additionalMessage())
+                .build();
 
         when(roomService.findById(roomNo)).thenReturn(room);
         when(roommateService.isUserRoommate(userNo, roomNo)).thenReturn(false);
         when(roommateService.existsByUserNo(userNo)).thenReturn(false);
         when(roomRequestService.isDuplicateJoinRequest(userNo, room)).thenReturn(false);
+        when(roomRequestService.create(userNo, room, request, Direction.USER_TO_ROOM)).thenReturn(createdRequest);
 
-        assertThatCode(() -> useCase.execute(userNo, roomNo, request)).doesNotThrowAnyException();
+        String requestNo = useCase.execute(userNo, roomNo, request);
 
         verify(userService).validateExistsById(userNo);
         verify(roomRequestService).create(userNo, room, request, Direction.USER_TO_ROOM);
+        assertThat(requestNo).isEqualTo("req-1");
     }
 
     @Test

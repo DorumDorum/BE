@@ -2,7 +2,7 @@ package com.project.dorumdorum.domain.room.unit.ui;
 
 import com.project.dorumdorum.domain.room.application.usecase.DecideApplicationRequestUseCase;
 import com.project.dorumdorum.domain.room.ui.DecideApplicationRequestController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,18 +23,20 @@ class DecideApplicationRequestControllerTest {
     @Test
     @DisplayName("Should approve application request via use case")
     void approve_CallsUseCase() {
-        BaseResponse<Void> response = controller.approve("host", "r1", "rq1");
+        ResponseEntity<Void> response = controller.approve("host", "r1", "rq1");
 
         verify(useCase).approve("host", "r1", "rq1");
-        assertThat(response.getCode()).isEqualTo("COMMON200");
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(response.getBody()).isNull();
     }
 
     @Test
     @DisplayName("Should reject application request via use case")
     void reject_CallsUseCase() {
-        BaseResponse<Void> response = controller.reject("host", "rq1");
+        ResponseEntity<Void> response = controller.reject("host", "rq1");
 
         verify(useCase).reject("host", "rq1");
-        assertThat(response.getCode()).isEqualTo("COMMON200");
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(response.getBody()).isNull();
     }
 }

@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.room.ui;
 import com.project.dorumdorum.domain.room.application.usecase.ConfirmRoomAssignmentUseCase;
 import com.project.dorumdorum.domain.room.ui.spec.ConfirmRoomAssignmentApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,11 +15,11 @@ public class ConfirmRoomAssignmentController implements ConfirmRoomAssignmentApi
     private final ConfirmRoomAssignmentUseCase confirmRoomAssignmentUseCase;
 
     @Override
-    public BaseResponse<Void> confirm(
+    public ResponseEntity<Void> confirm(
             @CurrentUser String userNo,
             @RequestParam String roomNo
     ) {
         confirmRoomAssignmentUseCase.execute(userNo, roomNo);
-        return BaseResponse.onSuccess(null);
+        return ResponseEntity.ok().build();
     }
 }

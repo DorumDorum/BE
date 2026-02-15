@@ -1,8 +1,8 @@
 package com.project.dorumdorum.domain.user.ui.spec;
 
 import com.project.dorumdorum.domain.user.application.dto.response.ProfileResponse;
-import com.project.dorumdorum.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +15,7 @@ public interface LoadUserProfileApiSpec {
             description = "현재 로그인한 사용자의 프로필을 조회합니다."
     )
     @GetMapping("/api/users/profile/me")
-    BaseResponse<ProfileResponse> loadMyProfile(
+    ResponseEntity<ProfileResponse> loadMyProfile(
             @Parameter(hidden = true) String userNo
     );
 
@@ -24,7 +24,7 @@ public interface LoadUserProfileApiSpec {
             description = "userNo에 해당하는 사용자의 공개 프로필을 조회합니다."
     )
     @GetMapping("/api/users/profile/{userNo}")
-    BaseResponse<ProfileResponse> loadProfile(
+    ResponseEntity<ProfileResponse> loadProfile(
             @Parameter(description = "번호") String userNo
     );
 }

@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.checklist.unit.ui;
 import com.project.dorumdorum.domain.checklist.application.dto.response.UserChecklistResponse;
 import com.project.dorumdorum.domain.checklist.application.usecase.LoadUserChecklistUseCase;
 import com.project.dorumdorum.domain.checklist.ui.LoadUserChecklistController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,10 +27,10 @@ class LoadUserChecklistControllerTest {
         UserChecklistResponse payload = UserChecklistResponse.builder().bedtime("23:00").build();
         when(useCase.execute("u1")).thenReturn(payload);
 
-        BaseResponse<UserChecklistResponse> response = controller.loadMyChecklist("u1");
+        ResponseEntity<UserChecklistResponse> response = controller.loadMyChecklist("u1");
 
         verify(useCase).execute("u1");
-        assertThat(response.getResult()).isEqualTo(payload);
+        assertThat(response.getBody()).isEqualTo(payload);
     }
 
     @Test
@@ -38,9 +38,9 @@ class LoadUserChecklistControllerTest {
         UserChecklistResponse payload = UserChecklistResponse.builder().bedtime("23:00").build();
         when(useCase.execute("u2")).thenReturn(payload);
 
-        BaseResponse<UserChecklistResponse> response = controller.loadUserChecklist("u2");
+        ResponseEntity<UserChecklistResponse> response = controller.loadUserChecklist("u2");
 
         verify(useCase).execute("u2");
-        assertThat(response.getResult()).isEqualTo(payload);
+        assertThat(response.getBody()).isEqualTo(payload);
     }
 }

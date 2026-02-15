@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.room.unit.ui;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.application.usecase.LoadMyRoomsUseCase;
 import com.project.dorumdorum.domain.room.ui.LoadMyRoomController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,9 +27,9 @@ class LoadMyRoomControllerTest {
         FindRoomsResponse payload = org.mockito.Mockito.mock(FindRoomsResponse.class);
         when(useCase.execute("u1")).thenReturn(payload);
 
-        BaseResponse<FindRoomsResponse> response = controller.load("u1");
+        ResponseEntity<FindRoomsResponse> response = controller.load("u1");
 
         verify(useCase).execute("u1");
-        assertThat(response.getResult()).isEqualTo(payload);
+        assertThat(response.getBody()).isEqualTo(payload);
     }
 }

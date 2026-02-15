@@ -7,7 +7,7 @@ import com.project.dorumdorum.domain.room.application.usecase.FindRoomsUseCase;
 import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.ui.spec.FindRoomsApiSpec;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import com.project.dorumdorum.global.pagination.CursorPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +22,7 @@ public class FindRoomsController implements FindRoomsApiSpec {
     private final FindRoomsUseCase findRoomsUseCase;
 
     @Override
-    public BaseResponse<CursorPage<FindRoomsResponse>> loadAll(
+    public ResponseEntity<CursorPage<FindRoomsResponse>> loadAll(
             @RequestParam RoomRelation relation,
             @RequestParam(required = false) List<RoomType> types,
             @RequestParam(required = false) List<Integer> capacities,
@@ -30,7 +30,7 @@ public class FindRoomsController implements FindRoomsApiSpec {
             @RequestParam(required = false) RoomSort sort,
             @RequestParam(required = false) String cursor
     ) {
-        return BaseResponse.onSuccess(findRoomsUseCase.execute(
+        return ResponseEntity.ok(findRoomsUseCase.execute(
                 relation, types, capacities, residencePeriods, sort, cursor
         ));
     }

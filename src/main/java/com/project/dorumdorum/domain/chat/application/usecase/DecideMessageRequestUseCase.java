@@ -14,7 +14,8 @@ import com.project.dorumdorum.domain.chat.domain.service.ParticipantService;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.ChatErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,7 +34,7 @@ public class DecideMessageRequestUseCase {
     public void execute(String userId, String messageRequestNo, DecideMessageRequest request) {
 
         if(request == null || request.messageRequestDecision() == null) {
-            throw new RestApiException(GlobalErrorStatus._BAD_REQUEST);
+            throw new RestApiException(CommonErrorStatus._BAD_REQUEST);
         }
 
         // 유저 검증
@@ -42,11 +43,11 @@ public class DecideMessageRequestUseCase {
         MessageRequest messageRequest = messageRequestService.findById(messageRequestNo);
         // 채팅 요청 수신자 검증
         if(!messageRequestService.isMessageRequestReceiver(messageRequest, userId)) {
-            throw new RestApiException(GlobalErrorStatus.NOT_MESSAGE_REQUEST_RECEIVER);
+            throw new RestApiException(ChatErrorStatus.NOT_MESSAGE_REQUEST_RECEIVER);
         }
         // 채팅 요청 검증
         if(messageRequest.getStatus() != MessageRequestStatus.REQUESTED) {
-            throw new RestApiException(GlobalErrorStatus.MESSAGEREQUEST_ALREADY_DECIDED);
+            throw new RestApiException(ChatErrorStatus.MESSAGEREQUEST_ALREADY_DECIDED);
         }
 
 

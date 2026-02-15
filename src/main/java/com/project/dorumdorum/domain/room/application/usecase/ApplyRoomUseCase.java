@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.*;
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.*;
 
 @Service
 @Transactional
@@ -24,7 +24,7 @@ public class ApplyRoomUseCase {
     private final RoomService roomService;
     private final RoommateService roommateService;
 
-    public void execute(String userNo, String roomNo, JoinRoomRequest request) {
+    public String execute(String userNo, String roomNo, JoinRoomRequest request) {
         // 유저 존재 유무 검증
         userService.validateExistsById(userNo);
 
@@ -43,7 +43,7 @@ public class ApplyRoomUseCase {
             throw new RestApiException(DUPLICATE_JOIN_REQUEST);
 
         // 요청 생성
-        roomRequestService.create(userNo, room, request, Direction.USER_TO_ROOM);
+        return roomRequestService.create(userNo, room, request, Direction.USER_TO_ROOM).getRoomRequestNo();
         // todo: 방장에게 알림
     }
 }

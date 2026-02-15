@@ -2,7 +2,7 @@ package com.project.dorumdorum.domain.user.unit.ui;
 
 import com.project.dorumdorum.domain.user.application.usecase.LogoutUseCase;
 import com.project.dorumdorum.domain.user.ui.LogoutController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,9 +28,10 @@ class LogoutControllerTest {
     void logout_CallsUseCaseAndReturnsSuccess() {
         String accessToken = "access-token";
 
-        BaseResponse<Void> response = controller.logout(accessToken);
+        ResponseEntity<Void> response = controller.logout(accessToken);
 
         verify(logoutUseCase).execute(accessToken);
-        assertThat(response.getCode()).isEqualTo("COMMON200");
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(response.getBody()).isNull();
     }
 }

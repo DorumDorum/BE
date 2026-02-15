@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.user.application.dto.response.ProfileRespon
 import com.project.dorumdorum.domain.user.application.usecase.LoadUserProfileUseCase;
 import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.project.dorumdorum.domain.user.ui.LoadUserProfileController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,10 +36,10 @@ class LoadUserProfileControllerTest {
         );
         when(loadUserProfileUseCase.execute(userNo)).thenReturn(expected);
 
-        BaseResponse<ProfileResponse> response = controller.loadMyProfile(userNo);
+        ResponseEntity<ProfileResponse> response = controller.loadMyProfile(userNo);
 
         verify(loadUserProfileUseCase).execute(userNo);
-        assertThat(response.getResult()).isEqualTo(expected);
+        assertThat(response.getBody()).isEqualTo(expected);
     }
 
     @Test
@@ -52,9 +52,9 @@ class LoadUserProfileControllerTest {
         );
         when(loadUserProfileUseCase.execute(userNo)).thenReturn(expected);
 
-        BaseResponse<ProfileResponse> response = controller.loadProfile(userNo);
+        ResponseEntity<ProfileResponse> response = controller.loadProfile(userNo);
 
         verify(loadUserProfileUseCase).execute(userNo);
-        assertThat(response.getResult()).isEqualTo(expected);
+        assertThat(response.getBody()).isEqualTo(expected);
     }
 }

@@ -2,7 +2,7 @@ package com.project.dorumdorum.domain.room.unit.ui;
 
 import com.project.dorumdorum.domain.room.application.usecase.CancelRoomApplicationUseCase;
 import com.project.dorumdorum.domain.room.ui.CancelRoomApplicationController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,9 +23,10 @@ class CancelRoomApplicationControllerTest {
     @Test
     @DisplayName("Should cancel room application via use case")
     void cancel_CallsUseCase() {
-        BaseResponse<Void> response = controller.cancel("u1", "r1");
+        ResponseEntity<Void> response = controller.cancel("u1", "r1");
 
         verify(useCase).execute("u1", "r1");
-        assertThat(response.getCode()).isEqualTo("COMMON200");
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(response.getBody()).isNull();
     }
 }

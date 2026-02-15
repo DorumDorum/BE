@@ -11,7 +11,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._UNAUTHORIZED;
+import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._UNAUTHORIZED;
 
 @RequiredArgsConstructor
 public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolver {

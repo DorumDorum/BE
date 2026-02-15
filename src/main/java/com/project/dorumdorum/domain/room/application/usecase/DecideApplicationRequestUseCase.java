@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.*;
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.*;
 
 @Service
 @Transactional

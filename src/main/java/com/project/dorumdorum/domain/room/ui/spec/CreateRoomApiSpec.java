@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.room.ui.spec;
 
 import com.project.dorumdorum.domain.room.application.dto.request.RoomCreateRequest;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -18,7 +18,7 @@ public interface CreateRoomApiSpec {
                     "방 이름/설명/최대 인원 정보를 함께 전달합니다."
     )
     @PostMapping("/api/rooms")
-    BaseResponse<Void> create(
+    ResponseEntity<Void> create(
             @Parameter(hidden = true) String userNo,
             @RequestBody(
                     description = "생성할 방 정보 (방 타입, 수용 인원 수, 방 이름, 태그 리스트)",

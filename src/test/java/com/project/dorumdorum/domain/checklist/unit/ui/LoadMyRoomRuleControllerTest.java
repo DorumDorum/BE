@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.checklist.unit.ui;
 import com.project.dorumdorum.domain.checklist.application.dto.response.MyRoomRuleResponse;
 import com.project.dorumdorum.domain.checklist.application.usecase.LoadMyRoomRuleUseCase;
 import com.project.dorumdorum.domain.checklist.ui.LoadMyRoomRuleController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,9 +27,9 @@ class LoadMyRoomRuleControllerTest {
         MyRoomRuleResponse payload = MyRoomRuleResponse.builder().bedtime("23:00").build();
         when(useCase.execute("r1")).thenReturn(payload);
 
-        BaseResponse<MyRoomRuleResponse> response = controller.load("r1");
+        ResponseEntity<MyRoomRuleResponse> response = controller.load("r1");
 
         verify(useCase).execute("r1");
-        assertThat(response.getResult()).isEqualTo(payload);
+        assertThat(response.getBody()).isEqualTo(payload);
     }
 }

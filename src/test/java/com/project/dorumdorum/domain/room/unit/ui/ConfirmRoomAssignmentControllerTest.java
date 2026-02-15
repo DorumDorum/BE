@@ -2,7 +2,7 @@ package com.project.dorumdorum.domain.room.unit.ui;
 
 import com.project.dorumdorum.domain.room.application.usecase.ConfirmRoomAssignmentUseCase;
 import com.project.dorumdorum.domain.room.ui.ConfirmRoomAssignmentController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,8 +22,9 @@ class ConfirmRoomAssignmentControllerTest {
 
     @Test
     void confirm_CallsUseCase() {
-        BaseResponse<Void> response = controller.confirm("u1", "r1");
+        ResponseEntity<Void> response = controller.confirm("u1", "r1");
         verify(useCase).execute("u1", "r1");
-        assertThat(response.getCode()).isEqualTo("COMMON200");
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(response.getBody()).isNull();
     }
 }

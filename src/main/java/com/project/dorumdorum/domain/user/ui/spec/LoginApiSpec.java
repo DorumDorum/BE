@@ -2,8 +2,8 @@ package com.project.dorumdorum.domain.user.ui.spec;
 
 import com.project.dorumdorum.domain.user.application.dto.request.LoginRequest;
 import com.project.dorumdorum.domain.user.application.dto.response.LoginResponse;
-import com.project.dorumdorum.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +17,7 @@ public interface LoginApiSpec {
                     + "JWT 토큰을 포함한 인증 정보를 반환합니다."
     )
     @PostMapping("/api/users/login")
-    BaseResponse<LoginResponse> login(
+    ResponseEntity<LoginResponse> login(
             @RequestBody(
                     description = "로그인 요청 바디 (이메일, 비밀번호)",
                     required = true

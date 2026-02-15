@@ -7,7 +7,7 @@ import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomStatus;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRoomType;
 import com.project.dorumdorum.domain.chat.domain.repository.MessageRoomRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.ChatErrorStatus;
 import com.project.dorumdorum.global.pagination.DecodedCursor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ public class MessageRoomService {
 
     public MessageRoom findById(String messageRoomNo) {
         return messageRoomRepository.findById(messageRoomNo)
-            .orElseThrow(() -> new RestApiException(GlobalErrorStatus.MESSAGEROOM_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(ChatErrorStatus.MESSAGEROOM_NOT_FOUND));
     }
 
     public void updateStatusToApprove(MessageRoom messageRoom) {

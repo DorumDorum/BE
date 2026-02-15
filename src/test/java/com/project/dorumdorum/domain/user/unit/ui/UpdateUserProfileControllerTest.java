@@ -5,7 +5,7 @@ import com.project.dorumdorum.domain.user.application.dto.response.ProfileRespon
 import com.project.dorumdorum.domain.user.application.usecase.UpdateUserProfileUseCase;
 import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.project.dorumdorum.domain.user.ui.UpdateUserProfileController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,9 +38,9 @@ class UpdateUserProfileControllerTest {
         );
         when(updateUserProfileUseCase.execute(userNo, request)).thenReturn(expected);
 
-        BaseResponse<ProfileResponse> response = controller.updateProfile(userNo, request);
+        ResponseEntity<ProfileResponse> response = controller.updateProfile(userNo, request);
 
         verify(updateUserProfileUseCase).execute(userNo, request);
-        assertThat(response.getResult()).isEqualTo(expected);
+        assertThat(response.getBody()).isEqualTo(expected);
     }
 }

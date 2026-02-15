@@ -69,8 +69,8 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // Jwt 커스텀 필터 등록
-        http.addFilterBefore(requestLoggingFilter(), JwtAuthenticationFilter.class);
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(requestLoggingFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(jwtAuthenticationFilter(), RequestLoggingFilter.class);
 
         // Token Exception Handling
         http.exceptionHandling(except -> except

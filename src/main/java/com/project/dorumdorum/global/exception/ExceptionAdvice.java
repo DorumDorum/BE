@@ -1,8 +1,7 @@
 package com.project.dorumdorum.global.exception;
 
-import com.project.dorumdorum.global.common.BaseResponse;
 import com.project.dorumdorum.global.exception.code.BaseCode;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
 import com.project.dorumdorum.global.logging.LogRedactor;
 import com.project.dorumdorum.global.logging.RequestLogContext;
 import com.project.dorumdorum.global.logging.RequestLogContextResolver;
@@ -15,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -47,9 +45,9 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     private final LoggingPolicyProperties loggingPolicyProperties;
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<BaseResponse<String>> handle500Exception(Exception e) {
+    public ResponseEntity<ErrorResponse> handle500Exception(Exception e) {
         logError(e, 500);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        return handleExceptionInternal(CommonErrorStatus._INTERNAL_SERVER_ERROR.getCode());
     }
 
     /*
@@ -57,7 +55,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
      */
     // @ExceptionHandler는 Controller계층에서 발생하는 에러를 잡아서 메서드로 처리해주는 기능
     @ExceptionHandler(value = RestApiException.class)
-    public ResponseEntity<BaseResponse<String>> handleRestApiException(RestApiException e) {
+    public ResponseEntity<ErrorResponse> handleRestApiException(RestApiException e) {
         logError(e, e.getErrorCode().getHttpStatus().value());
         BaseCode errorCode = e.getErrorCode();
         return handleExceptionInternal(errorCode);
@@ -68,9 +66,9 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
      * 메서드 파라미터, 또는 메서드 리턴 값에 문제가 있을 경우, @Validated 검증 실패한 경우
      */
     @ExceptionHandler
-    public ResponseEntity<BaseResponse<String>> handleConstraintViolationException(ConstraintViolationException e) {
-        logError(e, GlobalErrorStatus._VALIDATION_ERROR.getCode().getHttpStatus().value());
-        return handleExceptionInternal(GlobalErrorStatus._VALIDATION_ERROR.getCode());
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
+        logError(e, CommonErrorStatus._VALIDATION_ERROR.getCode().getHttpStatus().value());
+        return handleExceptionInternal(CommonErrorStatus._VALIDATION_ERROR.getCode());
     }
 
     /*
@@ -78,9 +76,9 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
      * 메서드의 인자 타입이 예상과 다른 경우
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<BaseResponse<String>> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e) {
-        logError(e, GlobalErrorStatus._METHOD_ARGUMENT_ERROR.getCode().getHttpStatus().value());
-        return handleExceptionInternal(GlobalErrorStatus._METHOD_ARGUMENT_ERROR.getCode());
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e) {
+        logError(e, CommonErrorStatus._METHOD_ARGUMENT_ERROR.getCode().getHttpStatus().value());
+        return handleExceptionInternal(CommonErrorStatus._METHOD_ARGUMENT_ERROR.getCode());
     }
 
     /*
@@ -99,27 +97,20 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
                     errors.merge(fieldName, errorMessage, (existingErrorMessage, newErrorMessage) -> existingErrorMessage + ", " + newErrorMessage);
                 });
 
-        logError(e, GlobalErrorStatus._VALIDATION_ERROR.getCode().getHttpStatus().value());
-        return handleExceptionInternalArgs(GlobalErrorStatus._VALIDATION_ERROR.getCode(), errors);
+        logError(e, CommonErrorStatus._VALIDATION_ERROR.getCode().getHttpStatus().value());
+        return ResponseEntity
+                .status(CommonErrorStatus._VALIDATION_ERROR.getCode().getHttpStatus().value())
+                .body(ErrorResponse.of(
+                        CommonErrorStatus._VALIDATION_ERROR.getCode().getCode(),
+                        CommonErrorStatus._VALIDATION_ERROR.getCode().getMessage(),
+                        errors));
 
     }
 
-    private ResponseEntity<BaseResponse<String>> handleExceptionInternal(BaseCode errorCode) {
+    private ResponseEntity<ErrorResponse> handleExceptionInternal(BaseCode errorCode) {
         return ResponseEntity
                 .status(errorCode.getHttpStatus().value())
-                .body(BaseResponse.onFailure(errorCode.getCode(), errorCode.getMessage(), errorCode.getMessage()));
-    }
-
-    private ResponseEntity<Object> handleExceptionInternalArgs(BaseCode errorCode, Map<String, String> errorArgs) {
-        return ResponseEntity
-                .status(errorCode.getHttpStatus().value())
-                .body(BaseResponse.onFailure(errorCode.getCode(), errorCode.getMessage(), errorArgs));
-    }
-
-    private ResponseEntity<BaseResponse<String>> handleExceptionInternalFalse(BaseCode errorCode, String errorPoint) {
-        return ResponseEntity
-                .status(errorCode.getHttpStatus().value())
-                .body(BaseResponse.onFailure(errorCode.getCode(), errorCode.getMessage(), errorPoint));
+                .body(ErrorResponse.of(errorCode.getCode(), errorCode.getMessage()));
     }
 
     private void logError(Exception e, int fallbackStatus) {

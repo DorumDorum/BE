@@ -5,7 +5,7 @@ import com.project.dorumdorum.domain.chat.presence.PresenceSnapshot;
 import com.project.dorumdorum.domain.chat.presence.PresenceStatus;
 import com.project.dorumdorum.domain.notification.sse.SseEmitterRegistry;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
 import com.project.dorumdorum.global.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,15 +42,15 @@ public class NotificationSseService {
 
     private String authenticate(String accessToken) {
         if (accessToken == null || accessToken.isBlank()) {
-            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+            throw new RestApiException(CommonErrorStatus._UNAUTHORIZED);
         }
 
         if (!tokenProvider.validateToken(accessToken) || !tokenProvider.isAccessToken(accessToken)) {
-            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+            throw new RestApiException(CommonErrorStatus._UNAUTHORIZED);
         }
 
         return tokenProvider.getId(accessToken)
-                .orElseThrow(() -> new RestApiException(GlobalErrorStatus._UNAUTHORIZED));
+                .orElseThrow(() -> new RestApiException(CommonErrorStatus._UNAUTHORIZED));
     }
 
     private void onDisconnect(String userId) {

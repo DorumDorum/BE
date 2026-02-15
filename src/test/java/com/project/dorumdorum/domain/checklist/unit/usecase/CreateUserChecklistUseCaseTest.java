@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,11 +29,14 @@ class CreateUserChecklistUseCaseTest {
     void execute_MapsAndSavesChecklist() {
         CreateUserChecklistRequest request = ChecklistFixtures.createUserChecklistRequest();
         UserChecklist entity = UserChecklist.builder().userNo("u1").build();
+        UserChecklist savedEntity = UserChecklist.builder().userChecklistNo("uc1").userNo("u1").build();
         when(userChecklistMapper.toUserChecklist("u1", request)).thenReturn(entity);
+        when(userChecklistService.save(entity)).thenReturn(savedEntity);
 
-        useCase.execute("u1", request);
+        String userChecklistNo = useCase.execute("u1", request);
 
         verify(userChecklistMapper).toUserChecklist("u1", request);
         verify(userChecklistService).save(entity);
+        assertThat(userChecklistNo).isEqualTo("uc1");
     }
 }

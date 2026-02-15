@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.ROOM_REQUEST_NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.ROOM_REQUEST_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

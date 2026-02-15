@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.user.application.dto.request.LoginRequest;
 import com.project.dorumdorum.domain.user.application.dto.response.LoginResponse;
 import com.project.dorumdorum.domain.user.application.usecase.LoginUseCase;
 import com.project.dorumdorum.domain.user.ui.LoginController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,9 +33,9 @@ class LoginControllerTest {
         LoginResponse expected = new LoginResponse("access", "refresh");
         when(loginUseCase.execute(request)).thenReturn(expected);
 
-        BaseResponse<LoginResponse> response = controller.login(request);
+        ResponseEntity<LoginResponse> response = controller.login(request);
 
         verify(loginUseCase).execute(request);
-        assertThat(response.getResult()).isEqualTo(expected);
+        assertThat(response.getBody()).isEqualTo(expected);
     }
 }

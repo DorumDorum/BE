@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.calendar.ui;
 import com.project.dorumdorum.domain.calendar.application.dto.response.CalendarEventResponse;
 import com.project.dorumdorum.domain.calendar.application.usecase.LoadCalendarEventsUseCase;
 import com.project.dorumdorum.domain.calendar.ui.spec.LoadCalendarEventsApiSpec;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,11 +21,11 @@ public class LoadCalendarEventsController implements LoadCalendarEventsApiSpec {
 
     @Override
     @GetMapping("/api/calendar/events")
-    public BaseResponse<List<CalendarEventResponse>> loadCalendarEvents(
+    public ResponseEntity<List<CalendarEventResponse>> loadCalendarEvents(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         List<CalendarEventResponse> events = loadCalendarEventsUseCase.execute(startDate, endDate);
-        return BaseResponse.onSuccess(events);
+        return ResponseEntity.ok(events);
     }
 }

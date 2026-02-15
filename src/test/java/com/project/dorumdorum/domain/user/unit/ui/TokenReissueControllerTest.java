@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.user.unit.ui;
 import com.project.dorumdorum.domain.user.application.dto.response.TokenReissueResponse;
 import com.project.dorumdorum.domain.user.application.usecase.TokenReissueUseCase;
 import com.project.dorumdorum.domain.user.ui.TokenReissueController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,9 +33,9 @@ class TokenReissueControllerTest {
         TokenReissueResponse expected = new TokenReissueResponse("new-access", "new-refresh");
         when(tokenReissueUseCase.execute(userNo, refreshToken)).thenReturn(expected);
 
-        BaseResponse<TokenReissueResponse> response = controller.reissue(userNo, refreshToken);
+        ResponseEntity<TokenReissueResponse> response = controller.reissue(userNo, refreshToken);
 
         verify(tokenReissueUseCase).execute(userNo, refreshToken);
-        assertThat(response.getResult()).isEqualTo(expected);
+        assertThat(response.getBody()).isEqualTo(expected);
     }
 }

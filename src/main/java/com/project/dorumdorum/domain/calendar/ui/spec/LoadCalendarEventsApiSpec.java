@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.calendar.ui.spec;
 
 import com.project.dorumdorum.domain.calendar.application.dto.response.CalendarEventResponse;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,7 +17,7 @@ public interface LoadCalendarEventsApiSpec {
 
     @Operation(summary = "캘린더 일정 조회", description = "지정된 기간의 기숙사 일정을 조회합니다.")
     @GetMapping("/api/calendar/events")
-    BaseResponse<List<CalendarEventResponse>> loadCalendarEvents(
+    ResponseEntity<List<CalendarEventResponse>> loadCalendarEvents(
             @Parameter(description = "시작 날짜 (yyyy-MM-dd)", example = "2025-01-01")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(description = "종료 날짜 (yyyy-MM-dd)", example = "2025-12-31")

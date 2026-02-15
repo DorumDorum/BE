@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.room.unit.ui;
 import com.project.dorumdorum.domain.room.application.dto.response.RoomRequestApplicationResponse;
 import com.project.dorumdorum.domain.room.application.usecase.LoadRoomApplicationsUseCase;
 import com.project.dorumdorum.domain.room.ui.LoadRoomApplicationsController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,9 +32,9 @@ class LoadRoomApplicationsControllerTest {
         );
         when(useCase.execute("u1", "r1")).thenReturn(payload);
 
-        BaseResponse<List<RoomRequestApplicationResponse>> response = controller.loadApplications("u1", "r1");
+        ResponseEntity<List<RoomRequestApplicationResponse>> response = controller.loadApplications("u1", "r1");
 
         verify(useCase).execute("u1", "r1");
-        assertThat(response.getResult()).isEqualTo(payload);
+        assertThat(response.getBody()).isEqualTo(payload);
     }
 }

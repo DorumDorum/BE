@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.checklist.application.dto.request.UpdateUse
 import com.project.dorumdorum.domain.checklist.application.usecase.UpdateUserChecklistUseCase;
 import com.project.dorumdorum.domain.checklist.ui.UpdateUserChecklistController;
 import com.project.dorumdorum.domain.checklist.unit.ChecklistFixtures;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,9 +25,10 @@ class UpdateUserChecklistControllerTest {
     @Test
     void update_CallsUseCase() {
         UpdateUserChecklistRequest request = ChecklistFixtures.updateUserChecklistRequest();
-        BaseResponse<Void> response = controller.update("u1", request);
+        ResponseEntity<Void> response = controller.update("u1", request);
 
         verify(useCase).execute("u1", request);
-        assertThat(response.getCode()).isEqualTo("COMMON200");
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(response.getBody()).isNull();
     }
 }

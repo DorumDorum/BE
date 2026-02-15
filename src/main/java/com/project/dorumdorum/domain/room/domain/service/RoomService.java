@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.ROOM_NOT_FOUND;
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.ROOM_NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

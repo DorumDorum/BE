@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.roommate.ui.spec;
 
 import com.project.dorumdorum.domain.roommate.application.dto.response.MyRoommateResponse;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,7 +16,7 @@ public interface LoadMyRoommatesApiSpec {
             summary = "내가 속한 방 룸메 조회 API"
     )
     @GetMapping("/api/rooms/me/roommates")
-    BaseResponse<List<MyRoommateResponse>> load(
+    ResponseEntity<List<MyRoommateResponse>> load(
             @Parameter(hidden = true) String userNo
     );
 }

@@ -17,9 +17,9 @@ import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.FIREBASE_TOKEN_NOT_FOUND;
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.NOTIFICATION_FAILED;
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.NotificationErrorStatus.FIREBASE_TOKEN_NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.NotificationErrorStatus.NOTIFICATION_FAILED;
+import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

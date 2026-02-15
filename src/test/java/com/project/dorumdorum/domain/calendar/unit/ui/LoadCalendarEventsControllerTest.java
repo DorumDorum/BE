@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.calendar.unit.ui;
 import com.project.dorumdorum.domain.calendar.application.dto.response.CalendarEventResponse;
 import com.project.dorumdorum.domain.calendar.application.usecase.LoadCalendarEventsUseCase;
 import com.project.dorumdorum.domain.calendar.ui.LoadCalendarEventsController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,10 +32,9 @@ class LoadCalendarEventsControllerTest {
         List<CalendarEventResponse> payload = List.of(new CalendarEventResponse(start, "event"));
         when(loadCalendarEventsUseCase.execute(start, end)).thenReturn(payload);
 
-        BaseResponse<List<CalendarEventResponse>> response = controller.loadCalendarEvents(start, end);
+        ResponseEntity<List<CalendarEventResponse>> response = controller.loadCalendarEvents(start, end);
 
         verify(loadCalendarEventsUseCase).execute(start, end);
-        assertThat(response.getCode()).isEqualTo("COMMON200");
-        assertThat(response.getResult()).isEqualTo(payload);
+        assertThat(response.getBody()).isEqualTo(payload);
     }
 }

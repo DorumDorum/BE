@@ -5,8 +5,8 @@ import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.application.usecase.FindRoomsUseCase;
 import com.project.dorumdorum.domain.room.ui.FindRoomsController;
-import com.project.dorumdorum.global.common.BaseResponse;
 import com.project.dorumdorum.global.pagination.CursorPage;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,10 +33,10 @@ class FindRoomsControllerTest {
         CursorPage<FindRoomsResponse> page = new CursorPage<>(List.of(), null, false);
         when(useCase.execute(RoomRelation.RECRUITING, null, null, null, RoomSort.CREATED_AT, null)).thenReturn(page);
 
-        BaseResponse<CursorPage<FindRoomsResponse>> response =
+        ResponseEntity<CursorPage<FindRoomsResponse>> response =
                 controller.loadAll(RoomRelation.RECRUITING, null, null, null, RoomSort.CREATED_AT, null);
 
         verify(useCase).execute(RoomRelation.RECRUITING, null, null, null, RoomSort.CREATED_AT, null);
-        assertThat(response.getResult()).isEqualTo(page);
+        assertThat(response.getBody()).isEqualTo(page);
     }
 }

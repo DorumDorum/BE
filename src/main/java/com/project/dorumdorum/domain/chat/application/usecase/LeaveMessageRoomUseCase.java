@@ -8,7 +8,7 @@ import com.project.dorumdorum.domain.chat.domain.service.ParticipantService;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.ChatErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,14 +30,14 @@ public class LeaveMessageRoomUseCase {
         MessageRoom messageRoom = messageRoomService.findById(messageRoomNo);
         
         if (messageRoom.getRoomStatus() == MessageRoomStatus.DELETED) {
-            throw new RestApiException(GlobalErrorStatus.MESSAGEROOM_NOT_FOUND);
+            throw new RestApiException(ChatErrorStatus.MESSAGEROOM_NOT_FOUND);
         }
 
         // 참여자 검증
         Participant participant = participantService.findByUserNoAndMessageRoomNo(user, messageRoomNo);
         
         if (participant.getDeletedAt() != null) {
-            throw new RestApiException(GlobalErrorStatus.MESSAGEROOM_ALREADY_LEFT);
+            throw new RestApiException(ChatErrorStatus.MESSAGEROOM_ALREADY_LEFT);
         }
 
         // 퇴장 처리 (leftAt 설정)

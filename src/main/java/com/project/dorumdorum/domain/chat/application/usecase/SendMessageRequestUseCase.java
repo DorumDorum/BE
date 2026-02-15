@@ -13,7 +13,7 @@ import com.project.dorumdorum.domain.chat.domain.service.ParticipantService;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.ChatErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -40,12 +40,12 @@ public class SendMessageRequestUseCase {
 
         // 본인 요청 방지
         if(userNo.equals(receiverNo))
-            throw new RestApiException(GlobalErrorStatus.MESSAGE_SELF_REQUEST);
+            throw new RestApiException(ChatErrorStatus.MESSAGE_SELF_REQUEST);
 
         // 이미 채팅방이 존재하는지 확인
         String directRoomKey = buildDirectRoomKey(userNo, receiverNo);
         if (messageRoomService.existsActiveDirectRoomByKey(directRoomKey)) {
-            throw new RestApiException(GlobalErrorStatus.MESSAGEROOM_ALREADY_EXIST);
+            throw new RestApiException(ChatErrorStatus.MESSAGEROOM_ALREADY_EXIST);
         }
 
         // 채팅방 생성
@@ -58,7 +58,7 @@ public class SendMessageRequestUseCase {
                     directRoomKey
             );
         } catch (DataIntegrityViolationException e) {
-            throw new RestApiException(GlobalErrorStatus.MESSAGEROOM_ALREADY_EXIST);
+            throw new RestApiException(ChatErrorStatus.MESSAGEROOM_ALREADY_EXIST);
         }
 
         // 채팅 요청 생성

@@ -6,7 +6,7 @@ import com.project.dorumdorum.domain.roommate.domain.entity.ConfirmStatus;
 import com.project.dorumdorum.domain.roommate.domain.entity.RoomRole;
 import com.project.dorumdorum.domain.roommate.ui.LoadMyRoommatesController;
 import com.project.dorumdorum.domain.user.domain.entity.Gender;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,9 +40,9 @@ class LoadMyRoommatesControllerTest {
         );
         when(loadMyRoommatesUseCase.execute(userNo)).thenReturn(expected);
 
-        BaseResponse<List<MyRoommateResponse>> response = controller.load(userNo);
+        ResponseEntity<List<MyRoommateResponse>> response = controller.load(userNo);
 
         verify(loadMyRoommatesUseCase).execute(userNo);
-        assertThat(response.getResult()).isEqualTo(expected);
+        assertThat(response.getBody()).isEqualTo(expected);
     }
 }

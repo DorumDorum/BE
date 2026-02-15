@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.user.ui.spec;
 
-import com.project.dorumdorum.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +15,7 @@ public interface SendVerificationEmailApiSpec {
                     + "회원가입 시 사용됩니다."
     )
     @PostMapping("/api/email/send")
-    BaseResponse<Void> send(
+    ResponseEntity<Void> send(
             @Parameter(description = "인증 이메일을 받을 사용자 이메일 주소") String email
     );
 }

@@ -12,7 +12,7 @@ import com.project.dorumdorum.domain.chat.domain.service.ParticipantService;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,14 +30,14 @@ public class SendMessageUseCase {
     @Transactional
     public MessageSentEvent execute(String senderId, String roomId, SendMessageSocketRequest request) {
         if (request == null || request.content() == null || request.content().isBlank()) {
-            throw new RestApiException(GlobalErrorStatus._BAD_REQUEST);
+            throw new RestApiException(CommonErrorStatus._BAD_REQUEST);
         }
 
         // 유저 검증
         User sender = userService.findById(senderId);
         MessageRoom messageRoom = messageRoomService.findById(roomId);
         if (messageRoom.getRoomStatus() != MessageRoomStatus.APPROVED) {
-            throw new RestApiException(GlobalErrorStatus._BAD_REQUEST);
+            throw new RestApiException(CommonErrorStatus._BAD_REQUEST);
         }
         participantService.findByUserNoAndMessageRoomNo(sender, roomId);
 

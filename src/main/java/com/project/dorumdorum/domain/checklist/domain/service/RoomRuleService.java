@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

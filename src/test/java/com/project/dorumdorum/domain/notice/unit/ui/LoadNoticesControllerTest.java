@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.notice.unit.ui;
 import com.project.dorumdorum.domain.notice.application.dto.response.NoticeResponse;
 import com.project.dorumdorum.domain.notice.application.usecase.LoadNoticesUseCase;
 import com.project.dorumdorum.domain.notice.ui.LoadNoticesController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,10 +36,9 @@ class LoadNoticesControllerTest {
         );
         when(loadNoticesUseCase.execute()).thenReturn(payload);
 
-        BaseResponse<List<NoticeResponse>> response = controller.loadNotices();
+        ResponseEntity<List<NoticeResponse>> response = controller.loadNotices();
 
         verify(loadNoticesUseCase).execute();
-        assertThat(response.getCode()).isEqualTo("COMMON200");
-        assertThat(response.getResult()).isEqualTo(payload);
+        assertThat(response.getBody()).isEqualTo(payload);
     }
 }

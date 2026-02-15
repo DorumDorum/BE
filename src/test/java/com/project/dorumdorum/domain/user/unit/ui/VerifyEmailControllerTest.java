@@ -2,7 +2,7 @@ package com.project.dorumdorum.domain.user.unit.ui;
 
 import com.project.dorumdorum.domain.user.application.usecase.VerifyEmailUseCase;
 import com.project.dorumdorum.domain.user.ui.VerifyEmailController;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,12 +31,11 @@ class VerifyEmailControllerTest {
         String code = "123456";
 
         // Act
-        BaseResponse<Void> response = verifyEmailController.verifyEmail(email, code);
+        ResponseEntity<Void> response = verifyEmailController.verifyEmail(email, code);
 
         // Assert
         verify(verifyEmailUseCase).execute(email, code);
-        assertThat(response).isNotNull();
-        assertThat(response.getCode()).isEqualTo("COMMON200");
-        assertThat(response.getMessage()).isEqualTo("요청에 성공하였습니다.");
+        assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(response.getBody()).isNull();
     }
 }
