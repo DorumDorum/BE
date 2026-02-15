@@ -3,7 +3,14 @@ package com.project.dorumdorum.global.exception;
 import com.project.dorumdorum.global.common.BaseResponse;
 import com.project.dorumdorum.global.exception.code.BaseCode;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.logging.LogRedactor;
+import com.project.dorumdorum.global.logging.RequestLogContext;
+import com.project.dorumdorum.global.logging.RequestLogContextResolver;
+import com.project.dorumdorum.global.logging.StructuredLogFactory;
+import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
 import io.swagger.v3.oas.annotations.Hidden;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
@@ -15,6 +22,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -23,15 +33,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static net.logstash.logback.argument.StructuredArguments.entries;
+
 @Slf4j
 @Hidden
 @RestControllerAdvice(annotations = {RestController.class})
 @RequiredArgsConstructor
 public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 
+    private final RequestLogContextResolver requestLogContextResolver;
+    private final StructuredLogFactory structuredLogFactory;
+    private final LogRedactor logRedactor;
+    private final LoggingPolicyProperties loggingPolicyProperties;
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<String>> handle500Exception(Exception e) {
-        log.error("An error occurred: {}", e.getMessage(), e);
+        logError(e, 500);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
@@ -41,9 +58,8 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     // @ExceptionHandler는 Controller계층에서 발생하는 에러를 잡아서 메서드로 처리해주는 기능
     @ExceptionHandler(value = RestApiException.class)
     public ResponseEntity<BaseResponse<String>> handleRestApiException(RestApiException e) {
-        log.info("handleRestApiException: {}", e.getErrorCode().getMessage());
+        logError(e, e.getErrorCode().getHttpStatus().value());
         BaseCode errorCode = e.getErrorCode();
-        e.printStackTrace();
         return handleExceptionInternal(errorCode);
     }
 
@@ -53,6 +69,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler
     public ResponseEntity<BaseResponse<String>> handleConstraintViolationException(ConstraintViolationException e) {
+        logError(e, GlobalErrorStatus._VALIDATION_ERROR.getCode().getHttpStatus().value());
         return handleExceptionInternal(GlobalErrorStatus._VALIDATION_ERROR.getCode());
     }
 
@@ -62,7 +79,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<BaseResponse<String>> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e) {
-        // 예외 처리 로직
+        logError(e, GlobalErrorStatus._METHOD_ARGUMENT_ERROR.getCode().getHttpStatus().value());
         return handleExceptionInternal(GlobalErrorStatus._METHOD_ARGUMENT_ERROR.getCode());
     }
 
@@ -82,6 +99,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
                     errors.merge(fieldName, errorMessage, (existingErrorMessage, newErrorMessage) -> existingErrorMessage + ", " + newErrorMessage);
                 });
 
+        logError(e, GlobalErrorStatus._VALIDATION_ERROR.getCode().getHttpStatus().value());
         return handleExceptionInternalArgs(GlobalErrorStatus._VALIDATION_ERROR.getCode(), errors);
 
     }
@@ -102,5 +120,34 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .status(errorCode.getHttpStatus().value())
                 .body(BaseResponse.onFailure(errorCode.getCode(), errorCode.getMessage(), errorPoint));
+    }
+
+    private void logError(Exception e, int fallbackStatus) {
+        HttpServletRequest request = getCurrentRequest();
+        HttpServletResponse response = getCurrentResponse();
+        RequestLogContext context = requestLogContextResolver.resolve(request, response, fallbackStatus);
+        String message = logRedactor.redactText(e.getMessage() == null ? "" : e.getMessage());
+        var payload = structuredLogFactory.requestFailed(context, e, 0L, message);
+        if (loggingPolicyProperties.includeStackTrace()) {
+            log.error("요청 실패 {}", entries(payload), e);
+        } else {
+            log.error("요청 실패 {}", entries(payload));
+        }
+    }
+
+    private HttpServletRequest getCurrentRequest() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes instanceof ServletRequestAttributes servletRequestAttributes) {
+            return servletRequestAttributes.getRequest();
+        }
+        return null;
+    }
+
+    private HttpServletResponse getCurrentResponse() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes instanceof ServletRequestAttributes servletRequestAttributes) {
+            return servletRequestAttributes.getResponse();
+        }
+        return null;
     }
 }

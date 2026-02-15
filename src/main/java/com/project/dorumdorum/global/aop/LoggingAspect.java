@@ -1,109 +1,93 @@
 package com.project.dorumdorum.global.aop;
 
+import com.project.dorumdorum.global.logging.LogRedactor;
+import com.project.dorumdorum.global.logging.RequestLogContext;
+import com.project.dorumdorum.global.logging.RequestLogContextResolver;
+import com.project.dorumdorum.global.logging.StructuredLogFactory;
+import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
+import static net.logstash.logback.argument.StructuredArguments.entries;
 
 @Slf4j
 @Aspect
 @Component
+@RequiredArgsConstructor
 public class LoggingAspect {
-
-    private static final List<String> SENSITIVE_PATTERNS = List.of(
-            "password",
-            "accesstoken",
-            "refreshtoken",
-            "verificationcode",
-            "apikey",
-            "apisecret",
-            "email",
-            "phone",
-            "phonenumber",
-            "fcmtoken",
-            "address",
-            "username",
-            "token"
-    );
+    private final RequestLogContextResolver requestLogContextResolver;
+    private final LogRedactor logRedactor;
+    private final StructuredLogFactory structuredLogFactory;
+    private final LoggingPolicyProperties loggingPolicyProperties;
 
     @Around("execution(* com.project.dorumdorum..*Controller.*(..))")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        String className = signature.getDeclaringTypeName();
-        String methodName = signature.getName();
         Object[] args = joinPoint.getArgs();
+        HttpServletRequest request = getCurrentRequest();
+        HttpServletResponse response = getCurrentResponse();
+        RequestLogContext requestContext = requestLogContextResolver.resolve(request, response, 200);
+        String argsMessage = logRedactor.redactArgs(args);
 
-        log.info("[Request] {}.{}() | args={}",
-                className,
-                methodName,
-                formatArgs(args));
+        Map<String, Object> requestLog = structuredLogFactory.requestReceived(requestContext, argsMessage);
+        log.info("요청 수신 {}", entries(requestLog));
 
         long start = System.currentTimeMillis();
         try {
             Object result = joinPoint.proceed();
             long elapsed = System.currentTimeMillis() - start;
-
-            log.info("[Response] {}.{}() | elapsed={}ms | result={}",
-                    className,
-                    methodName,
-                    elapsed,
-                    formatResult(result));
+            String redactedResult = logRedactor.redactResult(result);
+            int responseSize = redactedResult.getBytes(StandardCharsets.UTF_8).length;
+            RequestLogContext successContext = requestLogContextResolver.resolve(request, response, 200);
+            Map<String, Object> responseLog = structuredLogFactory.requestCompleted(successContext, elapsed, responseSize);
+            responseLog = append(responseLog, "result", redactedResult);
+            log.info("요청 완료 {}", entries(responseLog));
 
             return result;
         } catch (Throwable e) {
             long elapsed = System.currentTimeMillis() - start;
-
-            log.error("[Exception] {}.{}() | elapsed={}ms | exception={}: {}",
-                    className,
-                    methodName,
-                    elapsed,
-                    e.getClass().getSimpleName(),
-                    e.getMessage());
-
+            RequestLogContext failureContext = requestLogContextResolver.resolve(request, response, 500);
+            String redactedMessage = logRedactor.redactText(e.getMessage());
+            Map<String, Object> errorLog = structuredLogFactory.requestFailed(failureContext, e, elapsed, redactedMessage);
+            if (loggingPolicyProperties.includeStackTrace()) {
+                log.error("요청 실패 {}", entries(errorLog), e);
+            } else {
+                log.error("요청 실패 {}", entries(errorLog));
+            }
             throw e;
         }
     }
 
-    private String formatArgs(Object[] args) {
-        if (args == null || args.length == 0) {
-            return "[]";
+    private HttpServletRequest getCurrentRequest() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes instanceof ServletRequestAttributes servletRequestAttributes) {
+            return servletRequestAttributes.getRequest();
         }
-        return Arrays.stream(args)
-                .map(this::formatArg)
-                .collect(Collectors.joining(", ", "[", "]"));
+        return null;
     }
 
-    private String formatArg(Object arg) {
-        if (arg == null) {
-            return "null";
+    private HttpServletResponse getCurrentResponse() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes instanceof ServletRequestAttributes servletRequestAttributes) {
+            return servletRequestAttributes.getResponse();
         }
-        String str = arg.toString();
-        if (containsSensitiveData(str)) {
-            return "[MASKED]";
-        }
-        return str.length() > 200 ? str.substring(0, 200) + "..." : str;
+        return null;
     }
 
-    private String formatResult(Object result) {
-        if (result == null) {
-            return "void";
-        }
-        String str = result.toString();
-        if (containsSensitiveData(str)) {
-            return "[MASKED]";
-        }
-        return str.length() > 300 ? str.substring(0, 300) + "..." : str;
-    }
-
-    private boolean containsSensitiveData(String str) {
-        String lower = str.toLowerCase();
-        return SENSITIVE_PATTERNS.stream()
-                .anyMatch(lower::contains);
+    private Map<String, Object> append(Map<String, Object> source, String key, Object value) {
+        java.util.LinkedHashMap<String, Object> map = new java.util.LinkedHashMap<>(source);
+        map.put(key, value);
+        return Map.copyOf(map);
     }
 }

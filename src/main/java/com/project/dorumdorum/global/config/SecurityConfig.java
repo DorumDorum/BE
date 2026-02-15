@@ -1,6 +1,7 @@
 package com.project.dorumdorum.global.config;
 
 import com.project.dorumdorum.domain.user.domain.service.TokenWhitelistService;
+import com.project.dorumdorum.global.logging.RequestLoggingFilter;
 import com.project.dorumdorum.global.properties.ExcludeAuthPathProperties;
 import com.project.dorumdorum.global.properties.ExcludeWhitelistPathProperties;
 import com.project.dorumdorum.global.security.JwtAuthenticationFilter;
@@ -64,6 +65,7 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // Jwt 커스텀 필터 등록
+        http.addFilterBefore(requestLoggingFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         // Token Exception Handling
@@ -78,6 +80,12 @@ public class SecurityConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(tokenProvider, excludeAuthPathProperties, tokenWhitelistService, excludeWhitelistPathProperties);
     }
+
+    @Bean
+    public RequestLoggingFilter requestLoggingFilter() {
+        return new RequestLoggingFilter();
+    }
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
