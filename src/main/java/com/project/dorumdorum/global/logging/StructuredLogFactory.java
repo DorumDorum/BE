@@ -8,6 +8,16 @@ import java.util.Map;
 @Component
 public class StructuredLogFactory {
 
+    public Map<String, Object> requestStarted(RequestLogContext context) {
+        return base(LogCategory.REQUEST, LogEvent.REQUEST_RECEIVED.name(), context).build();
+    }
+
+    public Map<String, Object> requestFinished(RequestLogContext context, long elapsedMs) {
+        return base(LogCategory.RESPONSE, LogEvent.REQUEST_COMPLETED.name(), context)
+                .append("elapsedMs", elapsedMs)
+                .build();
+    }
+
     public Map<String, Object> requestReceived(RequestLogContext context, String args) {
         return base(LogCategory.REQUEST, LogEvent.REQUEST_RECEIVED.name(), context)
                 .append("args", args)
