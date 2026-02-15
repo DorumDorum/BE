@@ -8,6 +8,7 @@ import com.project.dorumdorum.domain.user.domain.entity.Role;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.logging.DomainEventLogger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +32,8 @@ class NotificationServiceTest {
     private UserRepository userRepository;
     @Mock
     private FirebaseMessaging firebaseMessaging;
+    @Mock
+    private DomainEventLogger domainEventLogger;
 
     @InjectMocks
     private NotificationService notificationService;
