@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: dorumdorum
+  
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    show-sql: false
+    open-in-view: false
+
+  data:
+    mongodb:
+      # Testcontainers가 자동으로 MongoDB URI를 설정함
+      # @DynamicPropertySource를 사용하거나 자동 감지됨
+    redis:
+      host: localhost
+      port: 6379
+
+  mail:
+    host: localhost
+    port: 25
+    username: test
+    password: test
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
+      mail.smtp.timeout: 5000
+
+jwt:
+  key: test-secret-key-for-jwt-token-generation-minimum-256-bits-required-for-hs256-algorithm
+  access:
+    expiration: 3600000
+  refresh:
+    expiration: 604800000
+
+exclude-auth-path-patterns:
+  paths: []
+
+exclude-blacklist-path-patterns:
+  paths: []
+
+exclude-whitelist-path-patterns:
+  paths: []
+
+include-email-domains:
+  domains:
+    - gachon.ac.kr
+
+firebase:
+  service-account:
+    path: dummy-firebase-config.json
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.data.mongodb: DEBUG
