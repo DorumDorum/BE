@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.room.ui;
 import com.project.dorumdorum.domain.room.application.usecase.RoomLikeUseCase;
 import com.project.dorumdorum.domain.room.ui.spec.RoomLikeApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,21 +15,21 @@ public class RoomLikeController implements RoomLikeApiSpec {
     private final RoomLikeUseCase roomLikeUseCase;
 
     @Override
-    public BaseResponse<Void> like(
+    public ResponseEntity<Void> like(
             @CurrentUser String userNo,
             @PathVariable String roomNo
     ) {
         roomLikeUseCase.like(userNo, roomNo);
-        return BaseResponse.onSuccess();
+        return ResponseEntity.ok().build();
     }
 
     @Override
-    public BaseResponse<Void> unlike(
+    public ResponseEntity<Void> unlike(
             @CurrentUser String userNo,
             @PathVariable String roomNo
     ) {
         roomLikeUseCase.unlike(userNo, roomNo);
-        return BaseResponse.onSuccess();
+        return ResponseEntity.ok().build();
     }
 }
 

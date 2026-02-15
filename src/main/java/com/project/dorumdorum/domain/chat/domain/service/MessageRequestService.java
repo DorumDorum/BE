@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.chat.domain.entity.MessageRequest;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageRequestStatus;
 import com.project.dorumdorum.domain.chat.domain.repository.MessageRequestRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.ChatErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ public class MessageRequestService {
 
     public MessageRequest findById(String messageRequestId) {
         return messageRequestRepository.findById(messageRequestId)
-            .orElseThrow(() -> new RestApiException(GlobalErrorStatus.MESSAGEREQUEST_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(ChatErrorStatus.MESSAGEREQUEST_NOT_FOUND));
     }
 
     public void approveMessageRequest(MessageRequest messageRequest) {

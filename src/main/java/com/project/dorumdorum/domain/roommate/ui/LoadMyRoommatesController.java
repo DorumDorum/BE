@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.roommate.application.dto.response.MyRoommat
 import com.project.dorumdorum.domain.roommate.application.usecase.LoadMyRoommatesUseCase;
 import com.project.dorumdorum.domain.roommate.ui.spec.LoadMyRoommatesApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,9 +17,9 @@ public class LoadMyRoommatesController implements LoadMyRoommatesApiSpec {
     private final LoadMyRoommatesUseCase loadMyRoommatesUseCase;
 
     @Override
-    public BaseResponse<List<MyRoommateResponse>> load(
+    public ResponseEntity<List<MyRoommateResponse>> load(
             @CurrentUser String userNo
     ) {
-        return BaseResponse.onSuccess(loadMyRoommatesUseCase.execute(userNo));
+        return ResponseEntity.ok(loadMyRoommatesUseCase.execute(userNo));
     }
 }

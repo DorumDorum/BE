@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.AGE_PARSING_ERROR;
+import static com.project.dorumdorum.global.exception.code.status.UserErrorStatus.AGE_PARSING_ERROR;
 
 public record SignUpRequest(
         @NotBlank String name,

@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.chat.ui;
 import com.project.dorumdorum.domain.chat.application.dto.request.SendMessageSocketRequest;
 import com.project.dorumdorum.domain.chat.application.usecase.SendMessageUseCase;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
 import com.project.dorumdorum.global.security.UserIdPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class MessageSocketController {
             Principal principal
     ) {
         if (!(principal instanceof UserIdPrincipal userPrincipal)) {
-            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+            throw new RestApiException(CommonErrorStatus._UNAUTHORIZED);
         }
 
         sendMessageUseCase.execute(userPrincipal.getUserId(), roomId, request);

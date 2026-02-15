@@ -22,11 +22,12 @@ public class CreateRoomUseCase {
     private final RoomRuleService roomRuleService;
     private final RoomRuleMapper roomRuleMapper;
 
-    public void execute(String userNo, RoomCreateRequest request) {
+    public String execute(String userNo, RoomCreateRequest request) {
         Room room = roomService.create(userNo, request);
         roommateService.create(userNo, room, RoomRole.HOST);
 
         RoomRule roomRule = roomRuleMapper.toRoomRule(room.getRoomNo(), request.rule());
         roomRuleService.save(roomRule);
+        return room.getRoomNo();
     }
 }

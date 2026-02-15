@@ -5,8 +5,8 @@ import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
-import com.project.dorumdorum.global.common.BaseResponse;
 import com.project.dorumdorum.global.pagination.CursorPage;
+import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +22,7 @@ public interface FindRoomsApiSpec {
                     + "커서 기반 페이지네이션을 지원합니다."
     )
     @GetMapping("/api/rooms")
-    BaseResponse<CursorPage<FindRoomsResponse>> loadAll(
-            @Parameter(hidden = true) String userNo,
+    ResponseEntity<CursorPage<FindRoomsResponse>> loadAll(
             @Parameter(description = "조회 기준 관계", required = true) RoomRelation relation,
             @Parameter(description = "방 타입 (복수 선택 가능)") List<RoomType> types,
             @Parameter(description = "최대 인원 수 필터 (복수 선택 가능)") List<Integer> capacities,

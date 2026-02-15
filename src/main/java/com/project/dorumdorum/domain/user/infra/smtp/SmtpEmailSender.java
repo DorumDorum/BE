@@ -8,7 +8,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.FAILED_SEND_VERIFY_CODE;
+import static com.project.dorumdorum.global.exception.code.status.UserErrorStatus.FAILED_SEND_VERIFY_CODE;
 
 @Component
 @RequiredArgsConstructor

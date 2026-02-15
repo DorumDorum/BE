@@ -11,7 +11,7 @@ import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.ChatErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,14 +36,14 @@ public class DeleteMessageRoomUseCase {
         MessageRoom messageRoom = messageRoomService.findById(messageRoomNo);
         
         if (messageRoom.getRoomStatus() == MessageRoomStatus.DELETED) {
-            throw new RestApiException(GlobalErrorStatus.MESSAGEROOM_NOT_FOUND);
+            throw new RestApiException(ChatErrorStatus.MESSAGEROOM_NOT_FOUND);
         }
 
         // 요청자가 참여자인지 검증
         Participant requestParticipant = participantService.findByUserNoAndMessageRoomNo(user, messageRoomNo);
         
         if (requestParticipant.getDeletedAt() != null) {
-            throw new RestApiException(GlobalErrorStatus.PARTICIPANT_NOT_FOUND);
+            throw new RestApiException(ChatErrorStatus.PARTICIPANT_NOT_FOUND);
         }
 
         // 모든 활성 참여자 조회
@@ -55,7 +55,7 @@ public class DeleteMessageRoomUseCase {
                 .count();
         
         if (otherActiveParticipantsCount > 0) {
-            throw new RestApiException(GlobalErrorStatus.CANNOT_DELETE_ROOM_WITH_PARTICIPANTS);
+            throw new RestApiException(ChatErrorStatus.CANNOT_DELETE_ROOM_WITH_PARTICIPANTS);
         }
 
         // GROUP 채팅방인 경우 방장만 삭제 가능
@@ -63,7 +63,7 @@ public class DeleteMessageRoomUseCase {
             Room room = roomService.findById(messageRoom.getRoomNo());
             
             if (!room.isHost(userNo)) {
-                throw new RestApiException(GlobalErrorStatus.ONLY_HOST_CAN_DELETE_GROUP_ROOM);
+                throw new RestApiException(ChatErrorStatus.ONLY_HOST_CAN_DELETE_GROUP_ROOM);
             }
         }
 

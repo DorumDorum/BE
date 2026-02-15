@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.chat.ui;
 import com.project.dorumdorum.domain.chat.application.dto.request.PresenceSignalRequest;
 import com.project.dorumdorum.domain.chat.presence.PresenceService;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
 import com.project.dorumdorum.global.security.UserIdPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class PresenceSocketController {
     @MessageMapping("/presence/enter")
     public void enter(@Valid PresenceSignalRequest request, Principal principal) {
         if (!(principal instanceof UserIdPrincipal userPrincipal)) {
-            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+            throw new RestApiException(CommonErrorStatus._UNAUTHORIZED);
         }
         presenceService.setInRoom(userPrincipal.getUserId(), request.roomId());
     }
@@ -31,7 +31,7 @@ public class PresenceSocketController {
     @MessageMapping("/presence/leave")
     public void leave(@Valid PresenceSignalRequest request, Principal principal) {
         if (!(principal instanceof UserIdPrincipal userPrincipal)) {
-            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+            throw new RestApiException(CommonErrorStatus._UNAUTHORIZED);
         }
         presenceService.setAppActive(userPrincipal.getUserId());
     }

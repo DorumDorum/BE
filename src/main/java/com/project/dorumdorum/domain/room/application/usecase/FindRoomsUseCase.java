@@ -23,7 +23,6 @@ public class FindRoomsUseCase {
     private final Integer limit = 50;
 
     public CursorPage<FindRoomsResponse> execute(
-            String userNo,
             RoomRelation relation,
             List<RoomType> types,
             List<Integer> capacities,
@@ -36,8 +35,8 @@ public class FindRoomsUseCase {
                 ? null
                 : CursorCodec.decode(cursor);
 
-        List<FindRoomsResponse> responses = roomService.findByCursor(
-                userNo, relation, types, capacities, residencePeriods, sort, decodedCursor, limitPlusOne
+        List<FindRoomsResponse> responses = roomService.searchByCursor(
+                relation, types, capacities, residencePeriods, sort, decodedCursor, limitPlusOne
         );
 
         return buildCursorPageFromResponses(sort, responses);

@@ -16,8 +16,9 @@ public class CreateUserChecklistUseCase {
     private final UserChecklistService userChecklistService;
     private final UserChecklistMapper userChecklistMapper;
 
-    public void execute(String userNo, CreateUserChecklistRequest request) {
+    public String execute(String userNo, CreateUserChecklistRequest request) {
         UserChecklist checklist = userChecklistMapper.toUserChecklist(userNo, request);
-        userChecklistService.save(checklist);
+        UserChecklist savedChecklist = userChecklistService.save(checklist);
+        return savedChecklist.getUserChecklistNo();
     }
 }

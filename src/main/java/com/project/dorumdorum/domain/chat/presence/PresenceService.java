@@ -4,40 +4,46 @@ import com.project.dorumdorum.domain.chat.presence.state.AppActiveState;
 import com.project.dorumdorum.domain.chat.presence.state.AppInactiveState;
 import com.project.dorumdorum.domain.chat.presence.state.InRoomState;
 import com.project.dorumdorum.domain.chat.presence.state.PresenceState;
+import com.project.dorumdorum.global.logging.DomainEventLogger;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PresenceService {
 
     private final PresenceRepository presenceRepository;
+    private final DomainEventLogger domainEventLogger;
 
     @Value("${presence.ttl-seconds:300}")
     private long ttlSeconds;
 
     public void setInRoom(String userId, String roomId) {
-        log.info("[Presence] IN_ROOM userId={} roomId={}", userId, roomId);
+        domainEventLogger.info("presence", "IN_ROOM", Map.of("userNo", userId, "roomId", roomId));
         presenceRepository.save(PresenceSnapshot.inRoom(userId, roomId), ttlSeconds);
     }
 
     public void setAppActive(String userId) {
-        log.info("[Presence] APP_ACTIVE userId={}", userId);
+        domainEventLogger.info("presence", "APP_ACTIVE", Map.of("userNo", userId));
         presenceRepository.save(PresenceSnapshot.appActive(userId), ttlSeconds);
     }
 
     public void setAppInactive(String userId) {
-        log.info("[Presence] APP_INACTIVE userId={}", userId);
+        domainEventLogger.info("presence", "APP_INACTIVE", Map.of("userNo", userId));
         presenceRepository.save(PresenceSnapshot.appInactive(userId), ttlSeconds);
     }
 
     public PresenceSnapshot getPresence(String userId) {
         PresenceSnapshot snapshot = presenceRepository.find(userId)
             .orElseGet(() -> PresenceSnapshot.appInactive(userId));
-        log.info("[PresenceService] getPresence userId={} status={} roomId={}", userId, snapshot.status(), snapshot.roomId());
+        domainEventLogger.info("presence", "GET_PRESENCE", Map.of(
+                "userNo", userId,
+                "status", snapshot.status().name(),
+                "roomId", String.valueOf(snapshot.roomId())
+        ));
         return snapshot;
     }
 

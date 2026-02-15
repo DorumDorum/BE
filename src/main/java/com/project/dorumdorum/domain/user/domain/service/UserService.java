@@ -9,8 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.EMAIL_NOT_FOUND;
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.UserErrorStatus.EMAIL_NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

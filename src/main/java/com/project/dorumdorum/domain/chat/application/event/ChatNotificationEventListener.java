@@ -6,8 +6,8 @@ import com.project.dorumdorum.domain.chat.notification.SseNotificationSender;
 import com.project.dorumdorum.domain.chat.presence.NotificationChannel;
 import com.project.dorumdorum.domain.chat.presence.PresenceService;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
+import com.project.dorumdorum.global.logging.DomainEventLogger;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -18,7 +18,6 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class ChatNotificationEventListener {
 
     private final ParticipantService participantService;
@@ -26,17 +25,24 @@ public class ChatNotificationEventListener {
     private final SseNotificationSender sseNotificationSender;
     private final NotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final DomainEventLogger domainEventLogger;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageSent(MessageSentEvent event) {
-        log.info("[NOTIFY] 메시지 전송 roomId={} senderId={}", event.roomId(), event.senderId());
+        domainEventLogger.info("chat_notification", "MESSAGE_SENT_EVENT", Map.of(
+                "roomId", event.roomId(),
+                "senderId", event.senderId()
+        ));
         List<Participant> participants = participantService.findActiveParticipantsByRoomNo(event.roomId());
         boolean shouldSendStomp = false;
 
         for (Participant participant : participants) {
             String userId = participant.getUser().getUserNo();
             NotificationChannel channel = presenceService.decideMessageChannel(userId, event.roomId());
-            log.info("[NOTIFY] userId={} channel={}", userId, channel);
+            domainEventLogger.info("chat_notification", "MESSAGE_CHANNEL_DECIDED", Map.of(
+                    "userNo", userId,
+                    "channel", channel.name()
+            ));
 
             if (channel == NotificationChannel.STOMP) {
                 shouldSendStomp = true;
@@ -52,7 +58,10 @@ public class ChatNotificationEventListener {
                 try {
                     delivered = sseNotificationSender.sendMessage(userId, event);
                 } catch (Exception e) {
-                    log.warn("[SSE] 메시지 전송 실패. userId={} roomId={}", userId, event.roomId(), e);
+                    domainEventLogger.warn("chat_notification", "SSE_MESSAGE_DELIVERY_FAILED", Map.of(
+                            "userNo", userId,
+                            "roomId", event.roomId()
+                    ), e);
                 }
                 if (delivered) {
                     continue;
@@ -61,26 +70,29 @@ public class ChatNotificationEventListener {
 
             if (channel == NotificationChannel.FCM || channel == NotificationChannel.SSE) {
                 try {
-                log.info("[FCM] 전송 userId={}", userId);
-                notificationService.sendNotification(
-                    userId,
-                    "새 메시지",
-                    event.content(),
-                    Map.of(
-                        "roomId", String.valueOf(event.roomId()),
-                        "senderId", String.valueOf(event.senderId()),
-                        "messageId", String.valueOf(event.messageId())
-                    ),
-                    null
-                );
+                    domainEventLogger.info("chat_notification", "FCM_SEND_ATTEMPT", Map.of("userNo", userId));
+                    notificationService.sendNotification(
+                            userId,
+                            "새 메시지",
+                            event.content(),
+                            Map.of(
+                                    "roomId", String.valueOf(event.roomId()),
+                                    "senderId", String.valueOf(event.senderId()),
+                                    "messageId", String.valueOf(event.messageId())
+                            ),
+                            null
+                    );
                 } catch (Exception e) {
-                    log.warn("[FCM] 메시지 알림 전송 실패. userId={} roomId={}", userId, event.roomId(), e);
+                    domainEventLogger.warn("chat_notification", "FCM_MESSAGE_DELIVERY_FAILED", Map.of(
+                            "userNo", userId,
+                            "roomId", event.roomId()
+                    ), e);
                 }
             }
         }
 
         if (shouldSendStomp) {
-            log.info("[STOMP] 브로드캐스트 roomId={}", event.roomId());
+            domainEventLogger.info("chat_notification", "STOMP_BROADCAST", Map.of("roomId", event.roomId()));
             messagingTemplate.convertAndSend("/sub/rooms/" + event.roomId(), event);
         }
     }
@@ -94,8 +106,10 @@ public class ChatNotificationEventListener {
             try {
                 delivered = sseNotificationSender.sendRequestCreated(event.receiverId(), event);
             } catch (Exception e) {
-                log.warn("[SSE] 채팅 요청 전송 실패. receiverId={} roomId={}",
-                    event.receiverId(), event.roomId(), e);
+                domainEventLogger.warn("chat_notification", "SSE_REQUEST_CREATED_DELIVERY_FAILED", Map.of(
+                        "receiverId", event.receiverId(),
+                        "roomId", event.roomId()
+                ), e);
             }
             if (delivered) {
                 return;
@@ -115,8 +129,10 @@ public class ChatNotificationEventListener {
                     null
                 );
             } catch (Exception e) {
-                log.warn("[FCM] 채팅 요청 알림 전송 실패. receiverId={} roomId={}",
-                    event.receiverId(), event.roomId(), e);
+                domainEventLogger.warn("chat_notification", "FCM_REQUEST_CREATED_DELIVERY_FAILED", Map.of(
+                        "receiverId", event.receiverId(),
+                        "roomId", event.roomId()
+                ), e);
             }
         }
     }
@@ -135,7 +151,10 @@ public class ChatNotificationEventListener {
             try {
                 delivered = sseNotificationSender.sendRequestDecided(userId, event);
             } catch (Exception e) {
-                log.warn("[SSE] 채팅 요청 결과 전송 실패. userId={} roomId={}", userId, event.roomId(), e);
+                domainEventLogger.warn("chat_notification", "SSE_REQUEST_DECIDED_DELIVERY_FAILED", Map.of(
+                        "userNo", userId,
+                        "roomId", event.roomId()
+                ), e);
             }
             if (delivered) {
                 return;
@@ -157,8 +176,10 @@ public class ChatNotificationEventListener {
                     null
                 );
             } catch (Exception e) {
-                log.warn("[FCM] 채팅 요청 결과 알림 전송 실패. userId={} roomId={}",
-                    userId, event.roomId(), e);
+                domainEventLogger.warn("chat_notification", "FCM_REQUEST_DECIDED_DELIVERY_FAILED", Map.of(
+                        "userNo", userId,
+                        "roomId", event.roomId()
+                ), e);
             }
         }
     }

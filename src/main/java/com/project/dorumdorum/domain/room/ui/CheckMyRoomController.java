@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.room.application.dto.response.CheckMyRoomRe
 import com.project.dorumdorum.domain.room.application.usecase.CheckMyRoomUseCase;
 import com.project.dorumdorum.domain.room.ui.spec.CheckMyRoomApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,9 +15,9 @@ public class CheckMyRoomController implements CheckMyRoomApiSpec {
     private final CheckMyRoomUseCase checkMyRoomUseCase;
 
     @Override
-    public BaseResponse<CheckMyRoomResponse> check(
+    public ResponseEntity<CheckMyRoomResponse> check(
             @CurrentUser String userNo
     ) {
-        return BaseResponse.onSuccess(checkMyRoomUseCase.execute(userNo));
+        return ResponseEntity.ok(checkMyRoomUseCase.execute(userNo));
     }
 }

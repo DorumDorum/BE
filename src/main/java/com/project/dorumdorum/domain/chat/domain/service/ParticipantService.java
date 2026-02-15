@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.chat.domain.entity.Participant;
 import com.project.dorumdorum.domain.chat.domain.repository.ParticipantRepository;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.ChatErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +34,7 @@ public class ParticipantService {
     public Participant findByUserNoAndMessageRoomNo(User user, String messageRoomNo) {
         Participant participant = participantRepository.findByUserAndMessageRoomNo(user, messageRoomNo);
         if (participant == null) {
-            throw new RestApiException(GlobalErrorStatus.PARTICIPANT_NOT_FOUND);
+            throw new RestApiException(ChatErrorStatus.PARTICIPANT_NOT_FOUND);
         }
         return participant;
     }

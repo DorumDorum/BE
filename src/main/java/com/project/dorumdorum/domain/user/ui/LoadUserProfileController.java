@@ -4,9 +4,10 @@ import com.project.dorumdorum.domain.user.application.dto.response.ProfileRespon
 import com.project.dorumdorum.domain.user.application.usecase.LoadUserProfileUseCase;
 import com.project.dorumdorum.domain.user.ui.spec.LoadUserProfileApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
-import com.project.dorumdorum.global.common.BaseResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,16 +16,16 @@ public class LoadUserProfileController implements LoadUserProfileApiSpec {
     private final LoadUserProfileUseCase loadUserProfileUseCase;
 
     @Override
-    public BaseResponse<ProfileResponse> loadMyProfile(
+    public ResponseEntity<ProfileResponse> loadMyProfile(
             @CurrentUser String userNo
     ) {
-        return BaseResponse.onSuccess(loadUserProfileUseCase.execute(userNo));
+        return ResponseEntity.ok(loadUserProfileUseCase.execute(userNo));
     }
 
     @Override
-    public BaseResponse<ProfileResponse> loadProfile(
+    public ResponseEntity<ProfileResponse> loadProfile(
             @PathVariable("userNo") String userNo
     ) {
-        return BaseResponse.onSuccess(loadUserProfileUseCase.execute(userNo));
+        return ResponseEntity.ok(loadUserProfileUseCase.execute(userNo));
     }
 }

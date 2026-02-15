@@ -7,9 +7,9 @@ import com.google.firebase.messaging.MessagingErrorCode;
 import com.google.firebase.messaging.Notification;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
+import com.project.dorumdorum.global.logging.DomainEventLogger;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -17,17 +17,17 @@ import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.FIREBASE_TOKEN_NOT_FOUND;
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus.NOTIFICATION_FAILED;
-import static com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus._NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.NotificationErrorStatus.FIREBASE_TOKEN_NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.NotificationErrorStatus.NOTIFICATION_FAILED;
+import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class NotificationService {
 
     private final UserRepository userRepository;
     private final FirebaseMessaging firebaseMessaging;
+    private final DomainEventLogger domainEventLogger;
 
     @Transactional
     public void saveToken(String userNo, String firebaseToken) {
@@ -63,21 +63,33 @@ public class NotificationService {
         try {
             // 알림 보내기
             String messageId = firebaseMessaging.send(messageBuilder.build());
-            log.info("[FCM] sent messageId={} to userNo={} tokenExists={}", messageId, receiverUserNo, true);
+            domainEventLogger.info("notification", "FCM_SENT", Map.of(
+                    "messageId", messageId,
+                    "userNo", receiverUserNo,
+                    "tokenExists", true
+            ));
             return messageId;
         } catch (FirebaseMessagingException e) {
             MessagingErrorCode errorCode = e.getMessagingErrorCode();
 
             // 만료/등록 해제된 토큰이면 토큰을 비우고 클라이언트가 재등록하도록 유도
             if (errorCode == MessagingErrorCode.UNREGISTERED || errorCode == MessagingErrorCode.INVALID_ARGUMENT) {
-                log.warn("[FCM] invalid/expired token. userNo={} token={} errorCode={} message={}",
-                        receiverUserNo, receiver.getFirebaseToken(), errorCode, e.getMessage());
+                domainEventLogger.warn("notification", "FCM_INVALID_OR_EXPIRED_TOKEN", Map.of(
+                        "userNo", receiverUserNo,
+                        "token", receiver.getFirebaseToken(),
+                        "errorCode", String.valueOf(errorCode),
+                        "message", String.valueOf(e.getMessage())
+                ), e);
                 receiver.updateFirebaseToken(null);
                 throw new RestApiException(FIREBASE_TOKEN_NOT_FOUND);
             }
 
-            log.error("[FCM] send failed. userNo={} token={} errorCode={} message={}",
-                    receiverUserNo, receiver.getFirebaseToken(), errorCode, e.getMessage(), e);
+            domainEventLogger.error("notification", "FCM_SEND_FAILED", Map.of(
+                    "userNo", receiverUserNo,
+                    "token", receiver.getFirebaseToken(),
+                    "errorCode", String.valueOf(errorCode),
+                    "message", String.valueOf(e.getMessage())
+            ), e);
             throw new RestApiException(NOTIFICATION_FAILED);
         }
     }

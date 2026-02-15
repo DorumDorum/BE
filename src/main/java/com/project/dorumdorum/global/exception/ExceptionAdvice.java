@@ -1,20 +1,28 @@
 package com.project.dorumdorum.global.exception;
 
-import com.project.dorumdorum.global.common.BaseResponse;
 import com.project.dorumdorum.global.exception.code.BaseCode;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
+import com.project.dorumdorum.global.logging.LogRedactor;
+import com.project.dorumdorum.global.logging.RequestLogContext;
+import com.project.dorumdorum.global.logging.RequestLogContextResolver;
+import com.project.dorumdorum.global.logging.StructuredLogFactory;
+import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
 import io.swagger.v3.oas.annotations.Hidden;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -23,16 +31,23 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static net.logstash.logback.argument.StructuredArguments.entries;
+
 @Slf4j
 @Hidden
 @RestControllerAdvice(annotations = {RestController.class})
 @RequiredArgsConstructor
 public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 
+    private final RequestLogContextResolver requestLogContextResolver;
+    private final StructuredLogFactory structuredLogFactory;
+    private final LogRedactor logRedactor;
+    private final LoggingPolicyProperties loggingPolicyProperties;
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<BaseResponse<String>> handle500Exception(Exception e) {
-        log.error("An error occurred: {}", e.getMessage(), e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    public ResponseEntity<ErrorResponse> handle500Exception(Exception e) {
+        logError(e, 500);
+        return handleExceptionInternal(CommonErrorStatus._INTERNAL_SERVER_ERROR.getCode());
     }
 
     /*
@@ -40,10 +55,9 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
      */
     // @ExceptionHandler는 Controller계층에서 발생하는 에러를 잡아서 메서드로 처리해주는 기능
     @ExceptionHandler(value = RestApiException.class)
-    public ResponseEntity<BaseResponse<String>> handleRestApiException(RestApiException e) {
-        log.info("handleRestApiException: {}", e.getErrorCode().getMessage());
+    public ResponseEntity<ErrorResponse> handleRestApiException(RestApiException e) {
+        logError(e, e.getErrorCode().getHttpStatus().value());
         BaseCode errorCode = e.getErrorCode();
-        e.printStackTrace();
         return handleExceptionInternal(errorCode);
     }
 
@@ -52,8 +66,9 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
      * 메서드 파라미터, 또는 메서드 리턴 값에 문제가 있을 경우, @Validated 검증 실패한 경우
      */
     @ExceptionHandler
-    public ResponseEntity<BaseResponse<String>> handleConstraintViolationException(ConstraintViolationException e) {
-        return handleExceptionInternal(GlobalErrorStatus._VALIDATION_ERROR.getCode());
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
+        logError(e, CommonErrorStatus._VALIDATION_ERROR.getCode().getHttpStatus().value());
+        return handleExceptionInternal(CommonErrorStatus._VALIDATION_ERROR.getCode());
     }
 
     /*
@@ -61,9 +76,9 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
      * 메서드의 인자 타입이 예상과 다른 경우
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<BaseResponse<String>> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e) {
-        // 예외 처리 로직
-        return handleExceptionInternal(GlobalErrorStatus._METHOD_ARGUMENT_ERROR.getCode());
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e) {
+        logError(e, CommonErrorStatus._METHOD_ARGUMENT_ERROR.getCode().getHttpStatus().value());
+        return handleExceptionInternal(CommonErrorStatus._METHOD_ARGUMENT_ERROR.getCode());
     }
 
     /*
@@ -82,25 +97,48 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
                     errors.merge(fieldName, errorMessage, (existingErrorMessage, newErrorMessage) -> existingErrorMessage + ", " + newErrorMessage);
                 });
 
-        return handleExceptionInternalArgs(GlobalErrorStatus._VALIDATION_ERROR.getCode(), errors);
+        logError(e, CommonErrorStatus._VALIDATION_ERROR.getCode().getHttpStatus().value());
+        return ResponseEntity
+                .status(CommonErrorStatus._VALIDATION_ERROR.getCode().getHttpStatus().value())
+                .body(ErrorResponse.of(
+                        CommonErrorStatus._VALIDATION_ERROR.getCode().getCode(),
+                        CommonErrorStatus._VALIDATION_ERROR.getCode().getMessage(),
+                        errors));
 
     }
 
-    private ResponseEntity<BaseResponse<String>> handleExceptionInternal(BaseCode errorCode) {
+    private ResponseEntity<ErrorResponse> handleExceptionInternal(BaseCode errorCode) {
         return ResponseEntity
                 .status(errorCode.getHttpStatus().value())
-                .body(BaseResponse.onFailure(errorCode.getCode(), errorCode.getMessage(), errorCode.getMessage()));
+                .body(ErrorResponse.of(errorCode.getCode(), errorCode.getMessage()));
     }
 
-    private ResponseEntity<Object> handleExceptionInternalArgs(BaseCode errorCode, Map<String, String> errorArgs) {
-        return ResponseEntity
-                .status(errorCode.getHttpStatus().value())
-                .body(BaseResponse.onFailure(errorCode.getCode(), errorCode.getMessage(), errorArgs));
+    private void logError(Exception e, int fallbackStatus) {
+        HttpServletRequest request = getCurrentRequest();
+        HttpServletResponse response = getCurrentResponse();
+        RequestLogContext context = requestLogContextResolver.resolve(request, response, fallbackStatus);
+        String message = logRedactor.redactText(e.getMessage() == null ? "" : e.getMessage());
+        var payload = structuredLogFactory.requestFailed(context, e, 0L, message);
+        if (loggingPolicyProperties.includeStackTrace()) {
+            log.error("요청 실패 {}", entries(payload), e);
+        } else {
+            log.error("요청 실패 {}", entries(payload));
+        }
     }
 
-    private ResponseEntity<BaseResponse<String>> handleExceptionInternalFalse(BaseCode errorCode, String errorPoint) {
-        return ResponseEntity
-                .status(errorCode.getHttpStatus().value())
-                .body(BaseResponse.onFailure(errorCode.getCode(), errorCode.getMessage(), errorPoint));
+    private HttpServletRequest getCurrentRequest() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes instanceof ServletRequestAttributes servletRequestAttributes) {
+            return servletRequestAttributes.getRequest();
+        }
+        return null;
+    }
+
+    private HttpServletResponse getCurrentResponse() {
+        RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+        if (attributes instanceof ServletRequestAttributes servletRequestAttributes) {
+            return servletRequestAttributes.getResponse();
+        }
+        return null;
     }
 }

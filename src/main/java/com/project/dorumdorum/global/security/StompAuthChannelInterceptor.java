@@ -8,7 +8,7 @@ import com.project.dorumdorum.domain.chat.domain.repository.ParticipantRepositor
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -53,16 +53,16 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
     private void handleConnect(StompHeaderAccessor accessor) {
         String authHeader = accessor.getFirstNativeHeader(AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith(BEARER)) {
-            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+            throw new RestApiException(CommonErrorStatus._UNAUTHORIZED);
         }
 
         String token = authHeader.substring(BEARER.length());
         if (!tokenProvider.validateToken(token) || !tokenProvider.isAccessToken(token)) {
-            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+            throw new RestApiException(CommonErrorStatus._UNAUTHORIZED);
         }
 
         String userId = tokenProvider.getId(token)
-                .orElseThrow(() -> new RestApiException(GlobalErrorStatus._UNAUTHORIZED));
+                .orElseThrow(() -> new RestApiException(CommonErrorStatus._UNAUTHORIZED));
         accessor.setUser(new UserIdPrincipal(userId));
     }
 
@@ -83,27 +83,27 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
         UserIdPrincipal principal = (UserIdPrincipal) accessor.getUser();
         
         if (principal == null) {
-            throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
+            throw new RestApiException(CommonErrorStatus._UNAUTHORIZED);
         }
 
         String userId = principal.getUserId();
 
         // 채팅방 상태 검증 (APPROVED 여부)
         MessageRoom messageRoom = messageRoomRepository.findById(roomId)
-                .orElseThrow(() -> new RestApiException(GlobalErrorStatus._BAD_REQUEST));
+                .orElseThrow(() -> new RestApiException(CommonErrorStatus._BAD_REQUEST));
 
         if (messageRoom.getRoomStatus() != MessageRoomStatus.APPROVED) {
-            throw new RestApiException(GlobalErrorStatus._FORBIDDEN);
+            throw new RestApiException(CommonErrorStatus._FORBIDDEN);
         }
 
         // 참여자 검증
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RestApiException(GlobalErrorStatus._UNAUTHORIZED));
+                .orElseThrow(() -> new RestApiException(CommonErrorStatus._UNAUTHORIZED));
 
         Participant participant = participantRepository.findByUserAndMessageRoomNo(user, roomId);
         
         if (participant == null || participant.getDeletedAt() != null) {
-            throw new RestApiException(GlobalErrorStatus._FORBIDDEN);
+            throw new RestApiException(CommonErrorStatus._FORBIDDEN);
         }
     }
 }

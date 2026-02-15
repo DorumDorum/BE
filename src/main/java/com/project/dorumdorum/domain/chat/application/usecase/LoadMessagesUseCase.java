@@ -12,7 +12,7 @@ import com.project.dorumdorum.domain.chat.domain.service.ParticipantService;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,13 +39,13 @@ public class LoadMessagesUseCase {
 
         // requested 도 되어야 함.
         if (messageRoom.getRoomStatus() != MessageRoomStatus.APPROVED ) {
-            throw new RestApiException(GlobalErrorStatus._BAD_REQUEST);
+            throw new RestApiException(CommonErrorStatus._BAD_REQUEST);
         }
 
         // 참여자 검증
         Participant participant = participantService.findByUserNoAndMessageRoomNo(user, messageRoomNo);
         if (participant.getLeftAt() != null) {
-            throw new RestApiException(GlobalErrorStatus._FORBIDDEN);
+            throw new RestApiException(CommonErrorStatus._FORBIDDEN);
         }
 
         // 메시지 조회 (size + 1개 조회하여 hasMore 판단)

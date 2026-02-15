@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.room.application.dto.response.RoomRequestAp
 import com.project.dorumdorum.domain.room.application.usecase.LoadRoomApplicationsUseCase;
 import com.project.dorumdorum.domain.room.ui.spec.LoadRoomApplicationsApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,10 +18,10 @@ public class LoadRoomApplicationsController implements LoadRoomApplicationsApiSp
     private final LoadRoomApplicationsUseCase loadRoomApplicationsUseCase;
 
     @Override
-    public BaseResponse<List<RoomRequestApplicationResponse>> loadApplications(
+    public ResponseEntity<List<RoomRequestApplicationResponse>> loadApplications(
             @CurrentUser String userNo,
             @PathVariable String roomNo
     ) {
-        return BaseResponse.onSuccess(loadRoomApplicationsUseCase.execute(userNo, roomNo));
+        return ResponseEntity.ok(loadRoomApplicationsUseCase.execute(userNo, roomNo));
     }
 }

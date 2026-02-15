@@ -1,7 +1,11 @@
 package com.project.dorumdorum.global.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.dorumdorum.domain.user.domain.service.TokenWhitelistService;
+import com.project.dorumdorum.global.exception.ErrorResponse;
 import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.exception.code.BaseCode;
+import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
 import com.project.dorumdorum.global.properties.ExcludeAuthPathProperties;
 import com.project.dorumdorum.global.properties.ExcludeWhitelistPathProperties;
 import jakarta.servlet.FilterChain;
@@ -17,7 +21,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.time.Duration;
 
 import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.EMPTY_JWT;
@@ -31,6 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final TokenWhitelistService tokenWhitelistService;
     private final ExcludeWhitelistPathProperties excludeWhitelistPathProperties;
     private static final PathPatternParser pathPatternParser = new PathPatternParser();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -61,15 +65,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (RestApiException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json;charset=UTF-8");
-
-            String jsonResponse = String.format("{\"message\": \"%s\"}", e.getMessage());
-
-            PrintWriter writer = response.getWriter();
-            writer.write(jsonResponse);
-            writer.flush();
-            writer.close();
+            writeErrorResponse(response, e.getErrorCode());
+        } catch (Exception e) {
+            writeErrorResponse(response, CommonErrorStatus._INTERNAL_SERVER_ERROR.getCode());
         }
     }
 
@@ -102,5 +100,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = tokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+    }
+
+    private void writeErrorResponse(HttpServletResponse response, BaseCode errorCode) throws IOException {
+        response.setStatus(errorCode.getHttpStatus().value());
+        response.setContentType("application/json;charset=UTF-8");
+        ErrorResponse body = ErrorResponse.of(errorCode.getCode(), errorCode.getMessage());
+        response.getWriter().write(objectMapper.writeValueAsString(body));
+        response.getWriter().flush();
     }
 }

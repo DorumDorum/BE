@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.room.ui.spec;
 
 import com.project.dorumdorum.domain.room.application.dto.request.JoinRoomRequest;
-import com.project.dorumdorum.global.common.BaseResponse;
+import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 public interface ApplyRoomApiSpec {
 
     @Operation(
-            summary = "방 초대 요청 API",
-            description = "특정 유저에게 방 초대를 보냅니다. "
-                    + "방 번호(roomNo)와 초대 대상 사용자 번호(toUser)는 Path로 전달하고, "
-                    + "초대 메시지(introduction)는 Body로 전달합니다."
+            summary = "방 참여 요청 API",
+            description = "현재 로그인한 사용자가 특정 방(roomNo)에 참여 요청을 보냅니다. "
+                    + "방 번호(roomNo)는 Path로 전달하고, "
+                    + "소개 메시지(introduction)는 Body로 전달합니다."
     )
-    @PostMapping("/api/rooms/{roomNo}/join-request")
-    BaseResponse<Void> join(
+    @PostMapping("/api/rooms/{roomNo}/request")
+    ResponseEntity<Void> join(
             @Parameter(hidden = true) String userNo,
             @Parameter(description = "방 번호") String roomNo,
             @RequestBody(
-                    description = "초대 요청 바디(소개 메시지 포함)",
+                    description = "참여 요청 바디(소개 메시지 포함)",
                     required = true
             ) JoinRoomRequest request
     );

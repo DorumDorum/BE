@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    username: ${RDB_USERNAME:root}
+    url: ${RDB_URL:jdbc:mysql://localhost:3306/dorumdorum}
+    password: ${RDB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6379
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/dorumdorum}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+jwt:
+  key: ${JWT_KEY:fdsafdsafdsafdsafdsafdsafdsafdsafdsafdsafda}
+  access:
+    expiration: ${JWT_ACCESS_EXPIRATION:900}
+  refresh:
+    expiration: ${JWT_REFRESH_EXPIRATION:1209600}
+
+logging:
+  policy:
+    include-stack-trace: true
+  level:
+    com.project.dorumdorum: DEBUG
+    org.hibernate.SQL: DEBUG
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
+firebase:
+  service-account:
+    path: ${FIREBASE_SERVICE_ACCOUNT_PATH:firebase/dorumdorum-9ce75-firebase-adminsdk-fbsvc-8d66c0dccb.json}

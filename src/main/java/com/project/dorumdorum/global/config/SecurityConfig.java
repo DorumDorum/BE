@@ -1,6 +1,9 @@
 package com.project.dorumdorum.global.config;
 
 import com.project.dorumdorum.domain.user.domain.service.TokenWhitelistService;
+import com.project.dorumdorum.global.logging.RequestLoggingFilter;
+import com.project.dorumdorum.global.logging.RequestLogContextResolver;
+import com.project.dorumdorum.global.logging.StructuredLogFactory;
 import com.project.dorumdorum.global.properties.ExcludeAuthPathProperties;
 import com.project.dorumdorum.global.properties.ExcludeWhitelistPathProperties;
 import com.project.dorumdorum.global.security.JwtAuthenticationFilter;
@@ -33,6 +36,8 @@ public class SecurityConfig {
     private final ExcludeAuthPathProperties excludeAuthPathProperties;
     private final TokenWhitelistService tokenWhitelistService;
     private final ExcludeWhitelistPathProperties excludeWhitelistPathProperties;
+    private final RequestLogContextResolver requestLogContextResolver;
+    private final StructuredLogFactory structuredLogFactory;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -64,7 +69,8 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // Jwt 커스텀 필터 등록
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(requestLoggingFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(jwtAuthenticationFilter(), RequestLoggingFilter.class);
 
         // Token Exception Handling
         http.exceptionHandling(except -> except
@@ -78,6 +84,12 @@ public class SecurityConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(tokenProvider, excludeAuthPathProperties, tokenWhitelistService, excludeWhitelistPathProperties);
     }
+
+    @Bean
+    public RequestLoggingFilter requestLoggingFilter() {
+        return new RequestLoggingFilter(requestLogContextResolver, structuredLogFactory);
+    }
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
