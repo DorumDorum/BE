@@ -12,7 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class RequestLoggingFilterTest {
 
-    private final RequestLoggingFilter requestLoggingFilter = new RequestLoggingFilter();
+    private final RequestLoggingFilter requestLoggingFilter =
+            new RequestLoggingFilter(new RequestLogContextResolver(), new StructuredLogFactory());
 
     @AfterEach
     void tearDown() {
