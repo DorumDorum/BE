@@ -118,7 +118,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         HttpServletResponse response = getCurrentResponse();
         RequestLogContext context = requestLogContextResolver.resolve(request, response, fallbackStatus);
         String message = logRedactor.redactText(e.getMessage() == null ? "" : e.getMessage());
-        var payload = structuredLogFactory.requestFailed(context, e, 0L, message);
+        Map<String, Object> payload = structuredLogFactory.requestFailed(context, e, 0L, message);
         if (loggingPolicyProperties.includeStackTrace()) {
             log.error("요청 실패 {}", entries(payload), e);
         } else {

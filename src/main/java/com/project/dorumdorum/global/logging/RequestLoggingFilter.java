@@ -10,6 +10,7 @@ import org.slf4j.MDC;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.entries;
@@ -43,7 +44,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         } finally {
             long elapsedMs = System.currentTimeMillis() - start;
             RequestLogContext endContext = requestLogContextResolver.resolve(request, response, 200);
-            var endLog = structuredLogFactory.requestFinished(endContext, elapsedMs);
+            Map<String, Object> endLog = structuredLogFactory.requestFinished(endContext, elapsedMs);
             if (endContext.status() >= 500) {
                 log.error("요청 종료 {}", entries(endLog));
             } else if (endContext.status() >= 400) {
