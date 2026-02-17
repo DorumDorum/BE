@@ -1,5 +1,6 @@
 package com.project.dorumdorum.global.logging;
 
+import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
 
     private final RequestLogContextResolver requestLogContextResolver;
     private final StructuredLogFactory structuredLogFactory;
+    private final LoggingPolicyProperties loggingPolicyProperties;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -47,7 +49,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             Map<String, Object> endLog = structuredLogFactory.requestFinished(endContext, elapsedMs);
             if (endContext.status() >= 500) {
                 log.error("요청 종료 {}", entries(endLog));
-            } else if (endContext.status() >= 400) {
+            } else if (elapsedMs >= loggingPolicyProperties.slowResponseThresholdMs()) {
                 log.warn("요청 종료 {}", entries(endLog));
             } else {
                 log.info("요청 종료 {}", entries(endLog));

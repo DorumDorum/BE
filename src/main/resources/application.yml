@@ -40,6 +40,7 @@ logging:
     max-arg-length: 200
     max-result-length: 300
     include-stack-trace: false
+    slow-response-threshold-ms: 1000
 
 exclude-auth-path-patterns:
   paths:

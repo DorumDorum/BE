@@ -6,6 +6,7 @@ import com.project.dorumdorum.global.logging.RequestLogContextResolver;
 import com.project.dorumdorum.global.logging.StructuredLogFactory;
 import com.project.dorumdorum.global.properties.ExcludeAuthPathProperties;
 import com.project.dorumdorum.global.properties.ExcludeWhitelistPathProperties;
+import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
 import com.project.dorumdorum.global.security.JwtAuthenticationFilter;
 import com.project.dorumdorum.global.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class SecurityConfig {
     private final ExcludeWhitelistPathProperties excludeWhitelistPathProperties;
     private final RequestLogContextResolver requestLogContextResolver;
     private final StructuredLogFactory structuredLogFactory;
+    private final LoggingPolicyProperties loggingPolicyProperties;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -87,7 +89,7 @@ public class SecurityConfig {
 
     @Bean
     public RequestLoggingFilter requestLoggingFilter() {
-        return new RequestLoggingFilter(requestLogContextResolver, structuredLogFactory);
+        return new RequestLoggingFilter(requestLogContextResolver, structuredLogFactory, loggingPolicyProperties);
     }
 
     @Bean

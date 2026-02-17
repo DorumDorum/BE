@@ -13,7 +13,7 @@ class LogRedactorTest {
 
     private final LogRedactor logRedactor = new LogRedactor(
             new LoggingMaskingProperties(List.of("password", "token")),
-            new LoggingPolicyProperties(5, 7, false)
+            new LoggingPolicyProperties(5, 7, false, 1000)
     );
 
     @Test
