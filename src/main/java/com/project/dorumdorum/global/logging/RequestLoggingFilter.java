@@ -31,6 +31,11 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        if (isExcludedPath(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String previousTraceId = MDC.get(TRACE_ID_KEY);
         String traceId = resolveTraceId(request);
         long start = System.currentTimeMillis();
@@ -69,5 +74,10 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             return headerTraceId;
         }
         return UUID.randomUUID().toString();
+    }
+
+    private boolean isExcludedPath(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri != null && uri.startsWith("/actuator/health");
     }
 }
