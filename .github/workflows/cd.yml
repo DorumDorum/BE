@@ -1,0 +1,86 @@
+name: cd
+
+on:
+  workflow_run:
+    workflows: ["ci"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to GCE with Docker Hub image
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'prod')
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/dorumdorum-be:latest
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          BE_ENV_FILE_B64: ${{ secrets.BE_ENV_FILE_B64 }}
+          FIREBASE_SERVICE_ACCOUNT_B64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
+          CONTAINER_NAME: dorumdorum-be
+          DEPLOY_PATH: /opt/dorumdorum/be
+        with:
+          host: ${{ secrets.GCE_HOST }}
+          username: ${{ secrets.GCE_USER }}
+          key: ${{ secrets.GCE_SSH_KEY }}
+          port: ${{ secrets.GCE_SSH_PORT }}
+          envs: IMAGE,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,BE_ENV_FILE_B64,FIREBASE_SERVICE_ACCOUNT_B64,CONTAINER_NAME,DEPLOY_PATH
+          script_stop: true
+          script: |
+            set -e
+
+            mkdir -p "$DEPLOY_PATH"
+            mkdir -p /opt/dorumdorum
+            cd "$DEPLOY_PATH"
+
+            echo "$BE_ENV_FILE_B64" | base64 -d > .env
+            chmod 600 .env
+            echo "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > /opt/dorumdorum/firebase-service-account.json
+            chmod 600 /opt/dorumdorum/firebase-service-account.json
+
+            cat > docker-compose.yml <<EOF
+            services:
+              redis:
+                image: redis:7-alpine
+                container_name: dorumdorum-redis
+                restart: unless-stopped
+                command: ["redis-server", "--appendonly", "yes"]
+                volumes:
+                  - redis-data:/data
+                healthcheck:
+                  test: ["CMD", "redis-cli", "ping"]
+                  interval: 10s
+                  timeout: 3s
+                  retries: 5
+
+              be:
+                image: ${IMAGE}
+                container_name: ${CONTAINER_NAME}
+                restart: unless-stopped
+                depends_on:
+                  redis:
+                    condition: service_healthy
+                ports:
+                  - "8080:8080"
+                env_file:
+                  - .env
+                environment:
+                  REDIS_HOST: redis
+                  REDIS_PORT: 6379
+            volumes:
+              redis-data:
+            EOF
+
+            docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
+            docker compose pull
+            docker compose up -d --remove-orphans
+
+            docker image prune -af --filter "until=168h"
