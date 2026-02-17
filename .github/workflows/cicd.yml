@@ -82,10 +82,17 @@ jobs:
           IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/dorumdorum-be:latest
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          BE_ENV_FILE_B64: ${{ secrets.BE_ENV_FILE_B64 }}
           FIREBASE_SERVICE_ACCOUNT_B64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
+          RDB_USERNAME: ${{ secrets.RDB_USERNAME }}
+          RDB_URL: ${{ secrets.RDB_URL }}
+          RDB_PASSWORD: ${{ secrets.RDB_PASSWORD }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          JWT_KEY: ${{ secrets.JWT_KEY }}
+          JWT_ACCESS_EXPIRATION: ${{ secrets.JWT_ACCESS_EXPIRATION }}
+          JWT_REFRESH_EXPIRATION: ${{ secrets.JWT_REFRESH_EXPIRATION }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           CONTAINER_NAME: dorumdorum-be
-          DEPLOY_PATH: ~/dorumdorum
         with:
           host: ${{ secrets.GCE_HOST }}
           username: ${{ secrets.GCE_USER }}
@@ -94,15 +101,40 @@ jobs:
           timeout: 60s
           command_timeout: 30m
           debug: true
-          envs: IMAGE,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,BE_ENV_FILE_B64,FIREBASE_SERVICE_ACCOUNT_B64,CONTAINER_NAME,DEPLOY_PATH
+          envs: IMAGE,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,FIREBASE_SERVICE_ACCOUNT_B64,RDB_USERNAME,RDB_URL,RDB_PASSWORD,MONGODB_URI,JWT_KEY,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION,SMTP_USERNAME,SMTP_PASSWORD,CONTAINER_NAME
           script_stop: true
           script: |
             set -e
 
+            [ -n "$FIREBASE_SERVICE_ACCOUNT_B64" ] || { echo "Missing secret: FIREBASE_SERVICE_ACCOUNT_B64"; exit 1; }
+            [ -n "$DOCKERHUB_USERNAME" ] || { echo "Missing secret: DOCKERHUB_USERNAME"; exit 1; }
+            [ -n "$DOCKERHUB_TOKEN" ] || { echo "Missing secret: DOCKERHUB_TOKEN"; exit 1; }
+            [ -n "$RDB_USERNAME" ] || { echo "Missing secret: RDB_USERNAME"; exit 1; }
+            [ -n "$RDB_URL" ] || { echo "Missing secret: RDB_URL"; exit 1; }
+            [ -n "$RDB_PASSWORD" ] || { echo "Missing secret: RDB_PASSWORD"; exit 1; }
+            [ -n "$MONGODB_URI" ] || { echo "Missing secret: MONGODB_URI"; exit 1; }
+            [ -n "$JWT_KEY" ] || { echo "Missing secret: JWT_KEY"; exit 1; }
+            [ -n "$JWT_ACCESS_EXPIRATION" ] || { echo "Missing secret: JWT_ACCESS_EXPIRATION"; exit 1; }
+            [ -n "$JWT_REFRESH_EXPIRATION" ] || { echo "Missing secret: JWT_REFRESH_EXPIRATION"; exit 1; }
+            [ -n "$SMTP_USERNAME" ] || { echo "Missing secret: SMTP_USERNAME"; exit 1; }
+            [ -n "$SMTP_PASSWORD" ] || { echo "Missing secret: SMTP_PASSWORD"; exit 1; }
+
+            DEPLOY_PATH="${HOME}/dorumdorum"
+
             mkdir -p "$DEPLOY_PATH"
             cd "$DEPLOY_PATH"
 
-            printf '%s' "$BE_ENV_FILE_B64" | base64 -d > .env
+            printf '%s\n' \
+              "SPRING_PROFILES_ACTIVE=prod" \
+              "RDB_USERNAME=$RDB_USERNAME" \
+              "RDB_URL=$RDB_URL" \
+              "RDB_PASSWORD=$RDB_PASSWORD" \
+              "MONGODB_URI=$MONGODB_URI" \
+              "JWT_KEY=$JWT_KEY" \
+              "JWT_ACCESS_EXPIRATION=$JWT_ACCESS_EXPIRATION" \
+              "JWT_REFRESH_EXPIRATION=$JWT_REFRESH_EXPIRATION" \
+              "SMTP_USERNAME=$SMTP_USERNAME" \
+              "SMTP_PASSWORD=$SMTP_PASSWORD" > .env
             chmod 600 .env
 
             printf '%s' "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > firebase-service-account.json
