@@ -151,24 +151,8 @@ jobs:
             docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
             docker rm "$CONTAINER_NAME" >/dev/null 2>&1 || true
 
-            docker run -d \
-              --name dorumdorum-redis \
-              --restart unless-stopped \
-              --network dorumdorum-net \
-              -v redis-data:/data \
-              redis:7-alpine \
-              redis-server --appendonly yes
+            docker run -d --name dorumdorum-redis --restart unless-stopped --network dorumdorum-net -v redis-data:/data redis:7-alpine redis-server --appendonly yes
 
-            docker run -d \
-              --name "$CONTAINER_NAME" \
-              --restart unless-stopped \
-              --network dorumdorum-net \
-              -p 8080:8080 \
-              --env-file .env \
-              -e REDIS_HOST=dorumdorum-redis \
-              -e REDIS_PORT=6379 \
-              -e FIREBASE_SERVICE_ACCOUNT_PATH=/app/firebase-service-account.json \
-              -v "$DEPLOY_PATH/firebase-service-account.json:/app/firebase-service-account.json:ro" \
-              "$IMAGE"
+            docker run -d --name "$CONTAINER_NAME" --restart unless-stopped --network dorumdorum-net -p 8080:8080 --env-file .env -e REDIS_HOST=dorumdorum-redis -e REDIS_PORT=6379 -e FIREBASE_SERVICE_ACCOUNT_PATH=/app/firebase-service-account.json -v "$DEPLOY_PATH/firebase-service-account.json:/app/firebase-service-account.json:ro" "$IMAGE"
 
             docker image prune -af --filter "until=168h"
