@@ -106,6 +106,7 @@ jobs:
           script: |
             set -e
 
+            echo "[deploy] validate required secrets"
             [ -n "$FIREBASE_SERVICE_ACCOUNT_B64" ] || { echo "Missing secret: FIREBASE_SERVICE_ACCOUNT_B64"; exit 1; }
             [ -n "$DOCKERHUB_USERNAME" ] || { echo "Missing secret: DOCKERHUB_USERNAME"; exit 1; }
             [ -n "$DOCKERHUB_TOKEN" ] || { echo "Missing secret: DOCKERHUB_TOKEN"; exit 1; }
@@ -119,8 +120,20 @@ jobs:
             [ -n "$SMTP_USERNAME" ] || { echo "Missing secret: SMTP_USERNAME"; exit 1; }
             [ -n "$SMTP_PASSWORD" ] || { echo "Missing secret: SMTP_PASSWORD"; exit 1; }
 
+            # Normalize accidental CR/LF from GitHub Secrets copy-paste.
+            RDB_USERNAME="$(printf '%s' "$RDB_USERNAME" | tr -d '\r\n')"
+            RDB_URL="$(printf '%s' "$RDB_URL" | tr -d '\r\n')"
+            RDB_PASSWORD="$(printf '%s' "$RDB_PASSWORD" | tr -d '\r\n')"
+            MONGODB_URI="$(printf '%s' "$MONGODB_URI" | tr -d '\r\n')"
+            JWT_KEY="$(printf '%s' "$JWT_KEY" | tr -d '\r\n')"
+            JWT_ACCESS_EXPIRATION="$(printf '%s' "$JWT_ACCESS_EXPIRATION" | tr -d '\r\n')"
+            JWT_REFRESH_EXPIRATION="$(printf '%s' "$JWT_REFRESH_EXPIRATION" | tr -d '\r\n')"
+            SMTP_USERNAME="$(printf '%s' "$SMTP_USERNAME" | tr -d '\r\n')"
+            SMTP_PASSWORD="$(printf '%s' "$SMTP_PASSWORD" | tr -d '\r\n')"
+
             DEPLOY_PATH="${HOME}/dorumdorum"
 
+            echo "[deploy] prepare files in $DEPLOY_PATH"
             mkdir -p "$DEPLOY_PATH"
             cd "$DEPLOY_PATH"
 
@@ -140,17 +153,20 @@ jobs:
             printf '%s' "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > firebase-service-account.json
             chmod 600 firebase-service-account.json
 
+            echo "[deploy] check docker access"
             docker info >/dev/null 2>&1 || {
               echo "Docker socket permission denied for current deploy user."
               echo "This user must be in docker group before running CI/CD."
               exit 1
             }
 
+            echo "[deploy] login/pull images"
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
             docker pull redis:7-alpine
             docker pull "$IMAGE"
 
+            echo "[deploy] restart containers"
             docker network inspect dorumdorum-net >/dev/null 2>&1 || docker network create dorumdorum-net
 
             docker stop dorumdorum-redis >/dev/null 2>&1 || true
@@ -178,4 +194,5 @@ jobs:
               -v "$DEPLOY_PATH/firebase-service-account.json:/app/firebase-service-account.json:ro" \
               "$IMAGE"
 
+            echo "[deploy] prune old images"
             docker image prune -af --filter "until=168h"
