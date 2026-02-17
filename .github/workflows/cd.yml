@@ -80,7 +80,16 @@ jobs:
             EOF
 
             docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_TOKEN"
-            docker compose pull
-            docker compose up -d --remove-orphans
+            if docker compose version >/dev/null 2>&1; then
+              COMPOSE_CMD="docker compose"
+            elif command -v docker-compose >/dev/null 2>&1; then
+              COMPOSE_CMD="docker-compose"
+            else
+              echo "Neither 'docker compose' nor 'docker-compose' is available."
+              exit 1
+            fi
+
+            $COMPOSE_CMD pull
+            $COMPOSE_CMD up -d --remove-orphans
 
             docker image prune -af --filter "until=168h"
