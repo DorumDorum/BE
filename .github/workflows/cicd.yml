@@ -104,15 +104,42 @@ jobs:
             printf '%s' "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > firebase-service-account.json
             chmod 600 firebase-service-account.json
 
-            printf '%s\n' 'services:' '  redis:' '    image: redis:7-alpine' '    container_name: dorumdorum-redis' '    restart: unless-stopped' '    command: ["redis-server", "--appendonly", "yes"]' '    volumes:' '      - redis-data:/data' '    healthcheck:' '      test: ["CMD", "redis-cli", "ping"]' '      interval: 10s' '      timeout: 3s' '      retries: 5' '' '  be:' '    image: ${IMAGE}' '    container_name: ${CONTAINER_NAME}' '    restart: unless-stopped' '    depends_on:' '      redis:' '        condition: service_healthy' '    ports:' '      - "8080:8080"' '    env_file:' '      - .env' '    environment:' '      REDIS_HOST: redis' '      REDIS_PORT: 6379' '      FIREBASE_SERVICE_ACCOUNT_PATH: /app/firebase-service-account.json' '    volumes:' '      - ./firebase-service-account.json:/app/firebase-service-account.json:ro' '' 'volumes:' '  redis-data:' > docker-compose.yml
-
-            export IMAGE CONTAINER_NAME
+            docker info >/dev/null 2>&1 || {
+              echo "Docker socket permission denied for current deploy user."
+              echo "This user must be in docker group before running CI/CD."
+              exit 1
+            }
 
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
-            docker-compose --version
-            docker-compose config -q || { echo "Invalid docker-compose.yml"; nl -ba docker-compose.yml; exit 1; }
-            docker-compose pull
-            docker-compose up -d --remove-orphans
+            docker pull redis:7-alpine
+            docker pull "$IMAGE"
+
+            docker network inspect dorumdorum-net >/dev/null 2>&1 || docker network create dorumdorum-net
+
+            docker stop dorumdorum-redis >/dev/null 2>&1 || true
+            docker rm dorumdorum-redis >/dev/null 2>&1 || true
+            docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+            docker rm "$CONTAINER_NAME" >/dev/null 2>&1 || true
+
+            docker run -d \
+              --name dorumdorum-redis \
+              --restart unless-stopped \
+              --network dorumdorum-net \
+              -v redis-data:/data \
+              redis:7-alpine \
+              redis-server --appendonly yes
+
+            docker run -d \
+              --name "$CONTAINER_NAME" \
+              --restart unless-stopped \
+              --network dorumdorum-net \
+              -p 8080:8080 \
+              --env-file .env \
+              -e REDIS_HOST=dorumdorum-redis \
+              -e REDIS_PORT=6379 \
+              -e FIREBASE_SERVICE_ACCOUNT_PATH=/app/firebase-service-account.json \
+              -v "$DEPLOY_PATH/firebase-service-account.json:/app/firebase-service-account.json:ro" \
+              "$IMAGE"
 
             docker image prune -af --filter "until=168h"
