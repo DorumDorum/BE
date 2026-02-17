@@ -1,5 +1,6 @@
 package com.project.dorumdorum.global.logging;
 
+import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import org.slf4j.MDC;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
 
 import static net.logstash.logback.argument.StructuredArguments.entries;
@@ -23,11 +25,17 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
 
     private final RequestLogContextResolver requestLogContextResolver;
     private final StructuredLogFactory structuredLogFactory;
+    private final LoggingPolicyProperties loggingPolicyProperties;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        if (isExcludedPath(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String previousTraceId = MDC.get(TRACE_ID_KEY);
         String traceId = resolveTraceId(request);
         long start = System.currentTimeMillis();
@@ -43,10 +51,10 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         } finally {
             long elapsedMs = System.currentTimeMillis() - start;
             RequestLogContext endContext = requestLogContextResolver.resolve(request, response, 200);
-            var endLog = structuredLogFactory.requestFinished(endContext, elapsedMs);
+            Map<String, Object> endLog = structuredLogFactory.requestFinished(endContext, elapsedMs);
             if (endContext.status() >= 500) {
                 log.error("요청 종료 {}", entries(endLog));
-            } else if (endContext.status() >= 400) {
+            } else if (elapsedMs >= loggingPolicyProperties.slowResponseThresholdMs()) {
                 log.warn("요청 종료 {}", entries(endLog));
             } else {
                 log.info("요청 종료 {}", entries(endLog));
@@ -66,5 +74,10 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             return headerTraceId;
         }
         return UUID.randomUUID().toString();
+    }
+
+    private boolean isExcludedPath(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri != null && uri.startsWith("/actuator/health");
     }
 }

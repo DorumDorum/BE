@@ -6,7 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record LoggingPolicyProperties(
         int maxArgLength,
         int maxResultLength,
-        boolean includeStackTrace
+        boolean includeStackTrace,
+        long slowResponseThresholdMs
 ) {
     public LoggingPolicyProperties {
         if (maxArgLength <= 0) {
@@ -14,6 +15,9 @@ public record LoggingPolicyProperties(
         }
         if (maxResultLength <= 0) {
             maxResultLength = 300;
+        }
+        if (slowResponseThresholdMs <= 0) {
+            slowResponseThresholdMs = 1000;
         }
     }
 }

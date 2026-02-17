@@ -53,7 +53,6 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     /*
      * 직접 정의한 RestApiException 에러 클래스에 대한 예외 처리
      */
-    // @ExceptionHandler는 Controller계층에서 발생하는 에러를 잡아서 메서드로 처리해주는 기능
     @ExceptionHandler(value = RestApiException.class)
     public ResponseEntity<ErrorResponse> handleRestApiException(RestApiException e) {
         logError(e, e.getErrorCode().getHttpStatus().value());
@@ -118,11 +117,16 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         HttpServletResponse response = getCurrentResponse();
         RequestLogContext context = requestLogContextResolver.resolve(request, response, fallbackStatus);
         String message = logRedactor.redactText(e.getMessage() == null ? "" : e.getMessage());
-        var payload = structuredLogFactory.requestFailed(context, e, 0L, message);
-        if (loggingPolicyProperties.includeStackTrace()) {
-            log.error("요청 실패 {}", entries(payload), e);
+        Map<String, Object> payload = structuredLogFactory.requestFailed(context, e, 0L, message);
+        boolean isServerError = fallbackStatus >= 500;
+        if (isServerError) {
+            if (loggingPolicyProperties.includeStackTrace()) {
+                log.error("요청 실패 {}", entries(payload), e);
+            } else {
+                log.error("요청 실패 {}", entries(payload));
+            }
         } else {
-            log.error("요청 실패 {}", entries(payload));
+            log.info("요청 실패 {}", entries(payload));
         }
     }
 

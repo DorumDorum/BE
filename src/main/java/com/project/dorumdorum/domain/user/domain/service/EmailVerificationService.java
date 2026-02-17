@@ -27,7 +27,7 @@ public class EmailVerificationService {
     @Async
     public void sendCode(String email, String code) {
         verificationCodeRepository.save(email, code);
-        var template = EmailTemplateHelper.generate(code);
+        EmailTemplateHelper.EmailContent template = EmailTemplateHelper.generate(code);
 
         smtpEmailSender.send(email, template.subject(), template.body());
     }

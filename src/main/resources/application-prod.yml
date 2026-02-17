@@ -26,8 +26,10 @@ logging:
   policy:
     include-stack-trace: false
   level:
+    root: INFO
     com.project.dorumdorum: INFO
     org.hibernate.SQL: WARN
+    org.springframework: WARN
 
 springdoc:
   api-docs:
