@@ -104,7 +104,7 @@ jobs:
             printf '%s' "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > firebase-service-account.json
             chmod 600 firebase-service-account.json
 
-            cat > docker-compose.yml <<COMPOSE_EOF
+            cat > docker-compose.yml <<'COMPOSE_EOF'
             services:
               redis:
                 image: redis:7-alpine
@@ -141,10 +141,12 @@ jobs:
               redis-data:
             COMPOSE_EOF
 
+            export IMAGE CONTAINER_NAME
+
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
             docker-compose --version
-            docker-compose config -q
+            docker-compose config -q || { echo "Invalid docker-compose.yml"; nl -ba docker-compose.yml; exit 1; }
             docker-compose pull
             docker-compose up -d --remove-orphans
 
