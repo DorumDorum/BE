@@ -26,7 +26,7 @@ jobs:
           BE_ENV_FILE_B64: ${{ secrets.BE_ENV_FILE_B64 }}
           FIREBASE_SERVICE_ACCOUNT_B64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
           CONTAINER_NAME: dorumdorum-be
-          DEPLOY_PATH: /opt/dorumdorum/be
+          DEPLOY_PATH: ~/dorumdorum
         with:
           host: ${{ secrets.GCE_HOST }}
           username: ${{ secrets.GCE_USER }}
@@ -38,13 +38,12 @@ jobs:
             set -e
 
             mkdir -p "$DEPLOY_PATH"
-            mkdir -p /opt/dorumdorum
             cd "$DEPLOY_PATH"
 
             echo "$BE_ENV_FILE_B64" | base64 -d > .env
             chmod 600 .env
-            echo "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > /opt/dorumdorum/firebase-service-account.json
-            chmod 600 /opt/dorumdorum/firebase-service-account.json
+            echo "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > firebase-service-account.json
+            chmod 600 firebase-service-account.json
 
             cat > docker-compose.yml <<EOF
             services:
@@ -75,6 +74,9 @@ jobs:
                 environment:
                   REDIS_HOST: redis
                   REDIS_PORT: 6379
+                  FIREBASE_SERVICE_ACCOUNT_PATH: /app/firebase-service-account.json
+                volumes:
+                  - ./firebase-service-account.json:/app/firebase-service-account.json:ro
             volumes:
               redis-data:
             EOF
