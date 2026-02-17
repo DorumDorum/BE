@@ -104,42 +104,7 @@ jobs:
             printf '%s' "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > firebase-service-account.json
             chmod 600 firebase-service-account.json
 
-            cat > docker-compose.yml <<'COMPOSE_EOF'
-            services:
-              redis:
-                image: redis:7-alpine
-                container_name: dorumdorum-redis
-                restart: unless-stopped
-                command: ["redis-server", "--appendonly", "yes"]
-                volumes:
-                  - redis-data:/data
-                healthcheck:
-                  test: ["CMD", "redis-cli", "ping"]
-                  interval: 10s
-                  timeout: 3s
-                  retries: 5
-
-              be:
-                image: ${IMAGE}
-                container_name: ${CONTAINER_NAME}
-                restart: unless-stopped
-                depends_on:
-                  redis:
-                    condition: service_healthy
-                ports:
-                  - "8080:8080"
-                env_file:
-                  - .env
-                environment:
-                  REDIS_HOST: redis
-                  REDIS_PORT: 6379
-                  FIREBASE_SERVICE_ACCOUNT_PATH: /app/firebase-service-account.json
-                volumes:
-                  - ./firebase-service-account.json:/app/firebase-service-account.json:ro
-
-            volumes:
-              redis-data:
-            COMPOSE_EOF
+            printf '%s\n' 'services:' '  redis:' '    image: redis:7-alpine' '    container_name: dorumdorum-redis' '    restart: unless-stopped' '    command: ["redis-server", "--appendonly", "yes"]' '    volumes:' '      - redis-data:/data' '    healthcheck:' '      test: ["CMD", "redis-cli", "ping"]' '      interval: 10s' '      timeout: 3s' '      retries: 5' '' '  be:' '    image: ${IMAGE}' '    container_name: ${CONTAINER_NAME}' '    restart: unless-stopped' '    depends_on:' '      redis:' '        condition: service_healthy' '    ports:' '      - "8080:8080"' '    env_file:' '      - .env' '    environment:' '      REDIS_HOST: redis' '      REDIS_PORT: 6379' '      FIREBASE_SERVICE_ACCOUNT_PATH: /app/firebase-service-account.json' '    volumes:' '      - ./firebase-service-account.json:/app/firebase-service-account.json:ro' '' 'volumes:' '  redis-data:' > docker-compose.yml
 
             export IMAGE CONTAINER_NAME
 
