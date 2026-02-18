@@ -43,7 +43,7 @@ jobs:
     name: Docker Build and Push
     runs-on: ubuntu-latest
     needs: test
-    # 모든 브랜치에서 실행
+    if: github.ref == 'refs/heads/production' && github.event_name == 'push'
 
     permissions:
       contents: read
@@ -96,7 +96,7 @@ jobs:
     name: Deploy to GCE
     runs-on: ubuntu-latest
     needs: docker-build-and-push
-    # 모든 브랜치에서 실행 (임시)
+    if: github.ref == 'refs/heads/production' && github.event_name == 'push'
 
     steps:
       - name: Deploy over SSH
@@ -191,9 +191,8 @@ jobs:
             echo ">>> [Deploy] COMPOSE_PATH=$COMPOSE_PATH, Git clone 중..."
             rm -rf temp_repo
 
-            # Git에서 BE 루트의 docker-compose.yml, monitoring 가져오기 (private repo 인증)
-            # 임시: 특정 브랜치 클론 (테스트 후 제거)
-            git clone --depth 1 -b "feat/#42/모니터링-환경-구성-및-도커-컴포즈-마이그레이션" "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_FULL_NAME}.git" temp_repo
+            # Git에서 production 브랜치로 docker-compose.yml, monitoring 가져오기
+            git clone --depth 1 -b production "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_FULL_NAME}.git" temp_repo
             echo ">>> [Deploy] Clone 완료, docker-compose.yml · monitoring 복사 중..."
             
             if [ -f "temp_repo/docker-compose.yml" ]; then
