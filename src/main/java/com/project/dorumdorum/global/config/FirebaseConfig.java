@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -20,17 +21,15 @@ public class FirebaseConfig {
 
     private final FirebaseProperties firebaseProperties;
 
-    // firebase app 초기화
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
         if (!FirebaseApp.getApps().isEmpty()) {
             return FirebaseApp.getInstance();
         }
 
-        Resource resource = new ClassPathResource(firebaseProperties.getServiceAccount().getPath());
-        try (InputStream inputStream = resource.getInputStream()) {
+        try (InputStream is = new FileInputStream(firebaseProperties.getServiceAccount().getPath())) {
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(inputStream))
+                    .setCredentials(GoogleCredentials.fromStream(is))
                     .build();
             return FirebaseApp.initializeApp(options);
         }
