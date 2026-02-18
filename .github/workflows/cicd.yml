@@ -189,6 +189,7 @@ jobs:
             mkdir -p "$COMPOSE_PATH"
             cd "$COMPOSE_PATH"
             echo ">>> [Deploy] COMPOSE_PATH=$COMPOSE_PATH, Git clone 중..."
+            rm -rf temp_repo
 
             # Git에서 .github/docker-compose.yml과 monitoring 설정 파일들 가져오기 (private repo 인증)
             git clone --depth 1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_FULL_NAME}.git" temp_repo
