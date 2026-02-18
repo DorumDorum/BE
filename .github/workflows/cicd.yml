@@ -163,15 +163,29 @@ jobs:
             # docker-compose.yml 복사
             if [ -f "temp_repo/.github/docker-compose.yml" ]; then
               cp temp_repo/.github/docker-compose.yml .
+            else
+              echo "ERROR: docker-compose.yml not found in temp_repo/.github/"
+              ls -la temp_repo/.github/ || echo "temp_repo/.github/ directory not found"
+              exit 1
             fi
             
             # monitoring 설정 파일들 복사
             if [ -d "temp_repo/.github/monitoring" ]; then
               mkdir -p monitoring
               cp -r temp_repo/.github/monitoring/* monitoring/
+            else
+              echo "WARNING: monitoring directory not found, creating empty structure"
+              mkdir -p monitoring/prometheus monitoring/grafana/provisioning/dashboards/json monitoring/grafana/provisioning/datasources
             fi
             
             rm -rf temp_repo
+            
+            # docker-compose.yml 파일 존재 확인
+            if [ ! -f "docker-compose.yml" ]; then
+              echo "ERROR: docker-compose.yml not found after copy"
+              ls -la
+              exit 1
+            fi
             
             # .env 파일과 firebase-service-account.json 복사
             cp "$DEPLOY_PATH/.env" .
