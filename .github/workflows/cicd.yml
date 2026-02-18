@@ -192,7 +192,8 @@ jobs:
             rm -rf temp_repo
 
             # Git에서 BE 루트의 docker-compose.yml, monitoring 가져오기 (private repo 인증)
-            git clone --depth 1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_FULL_NAME}.git" temp_repo
+            # 임시: 특정 브랜치 클론 (테스트 후 제거)
+            git clone --depth 1 -b "feat/#42/모니터링-환경-구성-및-도커-컴포즈-마이그레이션" "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_FULL_NAME}.git" temp_repo
             echo ">>> [Deploy] Clone 완료, docker-compose.yml · monitoring 복사 중..."
             
             if [ -f "temp_repo/docker-compose.yml" ]; then
