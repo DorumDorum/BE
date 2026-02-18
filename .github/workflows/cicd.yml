@@ -117,6 +117,14 @@ jobs:
             mkdir -p "$DEPLOY_PATH"
             cd "$DEPLOY_PATH"
 
+            # 1) Firebase 서비스 계정 파일 생성 (VM에 저장)
+            printf '%s' "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > firebase-service-account.json
+            chmod 600 firebase-service-account.json
+
+            # 2) 컨테이너에서 참조할 경로를 env로 고정
+            FIREBASE_SERVICE_ACCOUNT_PATH="/app/firebase-service-account.json"
+
+            # 3) .env 생성 (여기에 FIREBASE_SERVICE_ACCOUNT_PATH 추가)
             printf '%s\n' \
               "SPRING_PROFILES_ACTIVE=prod" \
               "RDB_USERNAME=$RDB_USERNAME" \
@@ -127,11 +135,9 @@ jobs:
               "JWT_ACCESS_EXPIRATION=$JWT_ACCESS_EXPIRATION" \
               "JWT_REFRESH_EXPIRATION=$JWT_REFRESH_EXPIRATION" \
               "SMTP_USERNAME=$SMTP_USERNAME" \
-              "SMTP_PASSWORD=$SMTP_PASSWORD" > .env
+              "SMTP_PASSWORD=$SMTP_PASSWORD" \
+              "FIREBASE_SERVICE_ACCOUNT_PATH=$FIREBASE_SERVICE_ACCOUNT_PATH" > .env
             chmod 600 .env
-
-            printf '%s' "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > firebase-service-account.json
-            chmod 600 firebase-service-account.json
 
             docker info >/dev/null 2>&1 || {
               echo "Docker socket permission denied for current deploy user."
@@ -151,8 +157,21 @@ jobs:
             docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
             docker rm "$CONTAINER_NAME" >/dev/null 2>&1 || true
 
-            docker run -d --name dorumdorum-redis --restart unless-stopped --network dorumdorum-net -v redis-data:/data redis:7-alpine redis-server --appendonly yes
+            docker run -d --name dorumdorum-redis \
+              --restart unless-stopped \
+              --network dorumdorum-net \
+              -v redis-data:/data \
+              redis:7-alpine redis-server --appendonly yes
 
-            docker run -d --name "$CONTAINER_NAME" --restart unless-stopped --network dorumdorum-net -p 8080:8080 --env-file .env -e REDIS_HOST=dorumdorum-redis -e REDIS_PORT=6379 -e FIREBASE_SERVICE_ACCOUNT_PATH=/app/firebase-service-account.json -v "$DEPLOY_PATH/firebase-service-account.json:/app/firebase-service-account.json:ro" "$IMAGE"
+            # 4) 컨테이너 실행: .env로 FIREBASE_SERVICE_ACCOUNT_PATH까지 주입됨
+            docker run -d --name "$CONTAINER_NAME" \
+              --restart unless-stopped \
+              --network dorumdorum-net \
+              -p 8080:8080 \
+              --env-file .env \
+              -e REDIS_HOST=dorumdorum-redis \
+              -e REDIS_PORT=6379 \
+              -v "$DEPLOY_PATH/firebase-service-account.json:/app/firebase-service-account.json:ro" \
+              "$IMAGE"
 
             docker image prune -af --filter "until=168h"
