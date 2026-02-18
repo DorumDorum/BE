@@ -152,26 +152,41 @@ jobs:
 
             docker network inspect dorumdorum-net >/dev/null 2>&1 || docker network create dorumdorum-net
 
-            docker stop dorumdorum-redis >/dev/null 2>&1 || true
-            docker rm dorumdorum-redis >/dev/null 2>&1 || true
-            docker stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
-            docker rm "$CONTAINER_NAME" >/dev/null 2>&1 || true
+            # 통합 docker-compose 파일 및 설정 파일들 준비
+            COMPOSE_PATH="${HOME}/dorumdorum-compose"
+            mkdir -p "$COMPOSE_PATH"
+            cd "$COMPOSE_PATH"
+            
+            # Git에서 .github/docker-compose.yml과 monitoring 설정 파일들 가져오기
+            git clone --depth 1 https://github.com/${{ github.repository }}.git temp_repo
+            
+            # docker-compose.yml 복사
+            if [ -f "temp_repo/.github/docker-compose.yml" ]; then
+              cp temp_repo/.github/docker-compose.yml .
+            fi
+            
+            # monitoring 설정 파일들 복사
+            if [ -d "temp_repo/.github/monitoring" ]; then
+              mkdir -p monitoring
+              cp -r temp_repo/.github/monitoring/* monitoring/
+            fi
+            
+            rm -rf temp_repo
+            
+            # .env 파일과 firebase-service-account.json 복사
+            cp "$DEPLOY_PATH/.env" .
+            cp "$DEPLOY_PATH/firebase-service-account.json" .
 
-            docker run -d --name dorumdorum-redis \
-              --restart unless-stopped \
-              --network dorumdorum-net \
-              -v redis-data:/data \
-              redis:7-alpine redis-server --appendonly yes
-
-            # 4) 컨테이너 실행: .env로 FIREBASE_SERVICE_ACCOUNT_PATH까지 주입됨
-            docker run -d --name "$CONTAINER_NAME" \
-              --restart unless-stopped \
-              --network dorumdorum-net \
-              -p 8080:8080 \
-              --env-file .env \
-              -e REDIS_HOST=dorumdorum-redis \
-              -e REDIS_PORT=6379 \
-              -v "$DEPLOY_PATH/firebase-service-account.json:/app/firebase-service-account.json:ro" \
-              "$IMAGE"
+            # docker-compose로 모든 서비스 실행
+            export BACKEND_IMAGE="$IMAGE"
+            export CONTAINER_NAME="$CONTAINER_NAME"
+            docker-compose -f docker-compose.yml down >/dev/null 2>&1 || true
+            docker-compose -f docker-compose.yml up -d
 
             docker image prune -af --filter "until=168h"
+
+            echo "배포 완료"
+            echo "- Backend: http://localhost:8080"
+            echo "- Redis: localhost:6379"
+            echo "- Prometheus: http://localhost:9090"
+            echo "- Grafana: http://localhost:3000 (admin/admin)"
