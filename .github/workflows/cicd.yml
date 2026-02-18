@@ -191,36 +191,23 @@ jobs:
             echo ">>> [Deploy] COMPOSE_PATH=$COMPOSE_PATH, Git clone 중..."
             rm -rf temp_repo
 
-            # Git에서 .github/docker-compose.yml과 monitoring 설정 파일들 가져오기 (private repo 인증)
+            # Git에서 BE 루트의 docker-compose.yml, monitoring 가져오기 (private repo 인증)
             git clone --depth 1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_FULL_NAME}.git" temp_repo
-            echo ">>> [Deploy] Clone 완료, temp_repo 구조 확인 중..."
-            ls -la temp_repo/ || echo "temp_repo 디렉토리 없음"
+            echo ">>> [Deploy] Clone 완료, docker-compose.yml · monitoring 복사 중..."
             
-            echo ">>> [Deploy] docker-compose.yml 복사 중..."
-            # docker-compose.yml 복사 (경로: BE/.github/docker-compose.yml)
-            if [ -f "temp_repo/BE/.github/docker-compose.yml" ]; then
-              cp temp_repo/BE/.github/docker-compose.yml .
+            if [ -f "temp_repo/docker-compose.yml" ]; then
+              cp temp_repo/docker-compose.yml .
               echo ">>> [Deploy] docker-compose.yml 복사 완료"
             else
-              echo "ERROR: docker-compose.yml not found in temp_repo/BE/.github/"
-              echo "현재 디렉토리: $(pwd)"
-              echo "temp_repo 내용:"
-              ls -la temp_repo/ || echo "temp_repo 디렉토리 없음"
-              echo "temp_repo/BE/.github 내용:"
-              ls -la temp_repo/BE/.github/ 2>/dev/null || echo "temp_repo/BE/.github 디렉토리 없음"
+              echo "ERROR: docker-compose.yml not found in temp_repo/"
+              ls -la temp_repo/ || true
               exit 1
             fi
             
-            echo ">>> [Deploy] monitoring 설정 파일 복사 중..."
-            # monitoring 설정 파일들 복사 (경로: BE/.github/monitoring 또는 .github/monitoring)
-            if [ -d "temp_repo/BE/.github/monitoring" ]; then
+            if [ -d "temp_repo/monitoring" ]; then
               mkdir -p monitoring
-              cp -r temp_repo/BE/.github/monitoring/* monitoring/
+              cp -r temp_repo/monitoring/* monitoring/
               echo ">>> [Deploy] monitoring 설정 파일 복사 완료"
-            elif [ -d "temp_repo/.github/monitoring" ]; then
-              mkdir -p monitoring
-              cp -r temp_repo/.github/monitoring/* monitoring/
-              echo ">>> [Deploy] monitoring 설정 파일 복사 완료 (루트 경로)"
             else
               echo "WARNING: monitoring directory not found, creating empty structure"
               mkdir -p monitoring/prometheus monitoring/grafana/provisioning/dashboards/json monitoring/grafana/provisioning/datasources
