@@ -1,3 +1,5 @@
+# CI/CD에 필요한 GitHub Secrets (Repo Settings > Secrets and variables > Actions)
+
 name: cicd
 
 on:
@@ -16,17 +18,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Log - Checkout done
+        run: echo ">>> [CI] Checkout done"
+
       - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
+      - name: Log - JDK ready
+        run: echo ">>> [CI] JDK 17 ready"
+
       - name: Setup Gradle cache
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run tests
-        run: ./gradlew test --no-daemon
+        run: |
+          echo ">>> [CI] Running tests..."
+          ./gradlew test --no-daemon
+          echo ">>> [CI] Tests passed"
 
   docker-build-and-push:
     name: Docker Build and Push
@@ -42,14 +53,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Log - Checkout done
+        run: echo ">>> [Docker] Checkout done"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Log - Buildx ready
+        run: echo ">>> [Docker] Buildx ready"
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log - Docker Hub login done
+        run: echo ">>> [Docker] Docker Hub login done"
 
       - name: Extract Docker metadata
         id: meta
@@ -68,6 +88,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Log - Image pushed
+        run: echo ">>> [Docker] Image built and pushed"
 
   deploy:
     name: Deploy to GCE
@@ -93,15 +116,18 @@ jobs:
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           CONTAINER_NAME: dorumdorum-be
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_FULL_NAME: ${{ github.repository }}
         with:
           host: ${{ secrets.GCE_HOST }}
           username: ${{ secrets.GCE_USER }}
           key: ${{ secrets.GCE_SSH_KEY }}
           port: ${{ secrets.GCE_SSH_PORT }}
-          envs: IMAGE,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,FIREBASE_SERVICE_ACCOUNT_B64,RDB_USERNAME,RDB_URL,RDB_PASSWORD,MONGODB_URI,JWT_KEY,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION,SMTP_USERNAME,SMTP_PASSWORD,CONTAINER_NAME
+          envs: IMAGE,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,FIREBASE_SERVICE_ACCOUNT_B64,RDB_USERNAME,RDB_URL,RDB_PASSWORD,MONGODB_URI,JWT_KEY,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION,SMTP_USERNAME,SMTP_PASSWORD,CONTAINER_NAME,GITHUB_TOKEN,REPO_FULL_NAME
           script_stop: true
           script: |
             set -e
+            echo ">>> [Deploy] SSH 연결됨, 환경 변수 정규화 중..."
 
             RDB_USERNAME="$(printf '%s' "$RDB_USERNAME" | tr -d '\r\n')"
             RDB_URL="$(printf '%s' "$RDB_URL" | tr -d '\r\n')"
@@ -116,6 +142,7 @@ jobs:
             DEPLOY_PATH="${HOME}/dorumdorum"
             mkdir -p "$DEPLOY_PATH"
             cd "$DEPLOY_PATH"
+            echo ">>> [Deploy] DEPLOY_PATH=$DEPLOY_PATH"
 
             # 1) Firebase 서비스 계정 파일 생성 (VM에 저장)
             printf '%s' "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > firebase-service-account.json
@@ -138,6 +165,7 @@ jobs:
               "SMTP_PASSWORD=$SMTP_PASSWORD" \
               "FIREBASE_SERVICE_ACCOUNT_PATH=$FIREBASE_SERVICE_ACCOUNT_PATH" > .env
             chmod 600 .env
+            echo ">>> [Deploy] .env, firebase-service-account.json 생성 완료"
 
             docker info >/dev/null 2>&1 || {
               echo "Docker socket permission denied for current deploy user."
@@ -146,20 +174,26 @@ jobs:
             }
 
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            echo ">>> [Deploy] Docker Hub 로그인 완료"
 
+            echo ">>> [Deploy] Redis 이미지 pull 중..."
             docker pull redis:7-alpine
+            echo ">>> [Deploy] Backend 이미지 pull 중..."
             docker pull "$IMAGE"
 
+            echo ">>> [Deploy] 네트워크 확인/생성 중..."
             docker network inspect dorumdorum-net >/dev/null 2>&1 || docker network create dorumdorum-net
 
             # 통합 docker-compose 파일 및 설정 파일들 준비
             COMPOSE_PATH="${HOME}/dorumdorum-compose"
             mkdir -p "$COMPOSE_PATH"
             cd "$COMPOSE_PATH"
-            
-            # Git에서 .github/docker-compose.yml과 monitoring 설정 파일들 가져오기
-            git clone --depth 1 https://github.com/${{ github.repository }}.git temp_repo
-            
+            echo ">>> [Deploy] COMPOSE_PATH=$COMPOSE_PATH, Git clone 중..."
+
+            # Git에서 .github/docker-compose.yml과 monitoring 설정 파일들 가져오기 (private repo 인증)
+            git clone --depth 1 "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_FULL_NAME}.git" temp_repo
+            echo ">>> [Deploy] Clone 완료, docker-compose.yml 복사 중..."
+
             # docker-compose.yml 복사
             if [ -f "temp_repo/.github/docker-compose.yml" ]; then
               cp temp_repo/.github/docker-compose.yml .
@@ -179,7 +213,8 @@ jobs:
             fi
             
             rm -rf temp_repo
-            
+            echo ">>> [Deploy] temp_repo 삭제, compose 파일 확인 중..."
+
             # docker-compose.yml 파일 존재 확인
             if [ ! -f "docker-compose.yml" ]; then
               echo "ERROR: docker-compose.yml not found after copy"
@@ -190,16 +225,20 @@ jobs:
             # .env 파일과 firebase-service-account.json 복사
             cp "$DEPLOY_PATH/.env" .
             cp "$DEPLOY_PATH/firebase-service-account.json" .
+            echo ">>> [Deploy] .env, firebase-service-account.json 복사 완료"
 
             # docker-compose로 모든 서비스 실행
             export BACKEND_IMAGE="$IMAGE"
             export CONTAINER_NAME="$CONTAINER_NAME"
+            echo ">>> [Deploy] docker-compose down (기존 컨테이너 정리)..."
             docker-compose -f docker-compose.yml down >/dev/null 2>&1 || true
+            echo ">>> [Deploy] docker-compose up -d 실행 중..."
             docker-compose -f docker-compose.yml up -d
 
+            echo ">>> [Deploy] 오래된 이미지 정리 중..."
             docker image prune -af --filter "until=168h"
 
-            echo "배포 완료"
+            echo ">>> [Deploy] 배포 완료"
             echo "- Backend: http://localhost:8080"
             echo "- Redis: localhost:6379"
             echo "- Prometheus: http://localhost:9090"
