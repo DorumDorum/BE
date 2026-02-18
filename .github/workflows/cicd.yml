@@ -232,8 +232,9 @@ jobs:
             # docker-compose로 모든 서비스 실행
             export BACKEND_IMAGE="$IMAGE"
             export CONTAINER_NAME="$CONTAINER_NAME"
-            echo ">>> [Deploy] docker-compose down (기존 컨테이너 정리)..."
-            docker-compose -f docker-compose.yml down >/dev/null 2>&1 || true
+            echo ">>> [Deploy] 기존 컨테이너 정리 (down + 이름으로 강제 제거)..."
+            docker-compose -f docker-compose.yml down --remove-orphans >/dev/null 2>&1 || true
+            docker rm -f dorumdorum-redis dorumdorum-be dorumdorum-prometheus dorumdorum-grafana 2>/dev/null || true
             echo ">>> [Deploy] docker-compose up -d 실행 중..."
             docker-compose -f docker-compose.yml up -d
 
