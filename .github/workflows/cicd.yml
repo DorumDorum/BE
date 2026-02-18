@@ -73,7 +73,7 @@ jobs:
     name: Deploy to GCE
     runs-on: ubuntu-latest
     needs: docker-build-and-push
-    if: false  # 일시적으로 배포 비활성화
+    if: github.event_name == 'push' && github.ref == 'refs/heads/production'
 
     steps:
       - name: Deploy over SSH
