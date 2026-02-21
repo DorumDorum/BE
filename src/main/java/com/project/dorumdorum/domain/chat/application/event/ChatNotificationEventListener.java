@@ -8,6 +8,7 @@ import com.project.dorumdorum.domain.presence.domain.service.PresenceService;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -27,6 +28,7 @@ public class ChatNotificationEventListener {
     private final NotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageSent(MessageSentEvent event) {
         log.info("[NOTIFY] 메시지 전송 roomId={} senderId={}", event.roomId(), event.senderId());
@@ -85,6 +87,7 @@ public class ChatNotificationEventListener {
         }
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageRequestCreated(MessageRequestCreatedEvent event) {
         NotificationChannel channel = presenceService.decideRequestChannel(event.receiverId(), event.messageRoomId());
@@ -121,6 +124,7 @@ public class ChatNotificationEventListener {
         }
     }
 
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageRequestDecided(MessageRequestDecidedEvent event) {
         notifyDecision(event, event.senderId());
