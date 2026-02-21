@@ -40,6 +40,17 @@ public class MessageRoomRepositoryImpl implements MessageRoomRepositoryCustom {
                     messageRoom.lastMessage,
                     messageRoom.lastMessageAt,
                     new CaseBuilder()
+                        .when(
+                            messageRoom.lastMessageAt.isNotNull()
+                                .and(messageRoom.lastMessage.isNotNull())
+                                .and(
+                                    participant.lastReadSentAt.isNull()
+                                        .or(messageRoom.lastMessageAt.gt(participant.lastReadSentAt))
+                                )
+                        )
+                        .then(true)
+                        .otherwise(false),
+                    new CaseBuilder()
                         .when(messageRequest.senderNo.eq(userNo)).then(true)
                         .otherwise(false)
                 )

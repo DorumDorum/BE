@@ -22,6 +22,7 @@ public record LoadMessageRoomResponse(
     String lastMessage,
 
     LocalDateTime lastMessageAt,
+    boolean hasUnread,
     boolean isRequester
 ) {
 }
