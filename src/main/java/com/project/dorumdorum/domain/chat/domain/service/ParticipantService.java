@@ -5,8 +5,10 @@ import com.project.dorumdorum.domain.chat.domain.repository.ParticipantRepositor
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,6 +41,7 @@ public class ParticipantService {
         return participant;
     }
 
+    @Transactional(readOnly = true)
     public List<Participant> findActiveParticipantsByRoomNo(String messageRoomNo) {
         return participantRepository.findByMessageRoomNoAndDeletedAtIsNullOrderByJoinedAtAsc(messageRoomNo);
     }
