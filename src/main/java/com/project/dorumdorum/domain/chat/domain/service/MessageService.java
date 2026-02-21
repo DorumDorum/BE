@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,5 +43,16 @@ public class MessageService {
                     messageRoomNo, cursor, pageable
             );
         }
+    }
+
+    public Optional<Message> findLatestMessage(String messageRoomNo) {
+        List<Message> messages = messageRepository.findByMessageRoomNoOrderByMessageNoDesc(
+            messageRoomNo,
+            PageRequest.of(0, 1)
+        );
+        if (messages.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(messages.get(0));
     }
 }

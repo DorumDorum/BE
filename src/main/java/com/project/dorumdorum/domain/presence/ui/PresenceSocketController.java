@@ -25,7 +25,12 @@ public class PresenceSocketController {
         if (!(principal instanceof UserIdPrincipal userPrincipal)) {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
-        presenceService.onRoomsEnter(userPrincipal.getUserId(), request.roomId());
+        presenceService.onMessageRoomEnter(
+            userPrincipal.getUserId(),
+            request.messageRoomNo(),
+            request.lastReadMessageId(),
+            request.lastReadSentAt()
+        );
     }
 
     @MessageMapping("/presence/leave")
@@ -33,7 +38,12 @@ public class PresenceSocketController {
         if (!(principal instanceof UserIdPrincipal userPrincipal)) {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
-        presenceService.onRoomsLeave(userPrincipal.getUserId());
+        presenceService.onMessageRoomLeave(
+            userPrincipal.getUserId(),
+            request.messageRoomNo(),
+            request.lastReadMessageId(),
+            request.lastReadSentAt()
+        );
     }
 
     @MessageMapping("/presence/ping")

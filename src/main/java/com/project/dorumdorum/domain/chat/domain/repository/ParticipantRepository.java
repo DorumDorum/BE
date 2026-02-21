@@ -8,6 +8,7 @@ import java.util.List;
 public interface ParticipantRepository extends JpaRepository<Participant, String> {
 
     Participant findByUserAndMessageRoomNo(User user, String messageRoomNo);
+    Participant findByUser_UserNoAndMessageRoomNo(String userNo, String messageRoomNo);
     List<Participant> findByMessageRoomNoAndDeletedAtIsNull(String messageRoomNo);
     List<Participant> findByMessageRoomNoAndDeletedAtIsNullOrderByJoinedAtAsc(String messageRoomNo);
 }

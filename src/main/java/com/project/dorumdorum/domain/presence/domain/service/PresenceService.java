@@ -1,5 +1,8 @@
 package com.project.dorumdorum.domain.presence.domain.service;
 
+import com.project.dorumdorum.domain.chat.application.event.MessageRoomReadStateChangedEvent;
+import com.project.dorumdorum.domain.chat.domain.service.MessageService;
+import com.project.dorumdorum.domain.chat.domain.service.ParticipantService;
 import com.project.dorumdorum.domain.notification.domain.NotificationChannel;
 import com.project.dorumdorum.domain.presence.domain.repository.PresenceRepository;
 import com.project.dorumdorum.domain.presence.domain.entity.PresenceSnapshot;
@@ -7,9 +10,11 @@ import com.project.dorumdorum.domain.presence.domain.state.AppActiveState;
 import com.project.dorumdorum.domain.presence.domain.state.AppInactiveState;
 import com.project.dorumdorum.domain.presence.domain.state.InRoomState;
 import com.project.dorumdorum.domain.presence.domain.state.PresenceState;
+import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,24 +25,32 @@ import java.time.LocalDateTime;
 public class PresenceService {
 
     private final PresenceRepository presenceRepository;
+    private final MessageService messageService;
+    private final ParticipantService participantService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Value("${presence.ttl-seconds:300}")
     private long ttlSeconds;
 
-    public void onRoomsEnter(String userId, String roomId) {
-        log.info("[Presence] ENTER userId={} roomId={}", userId, roomId);
+    public void onMessageRoomEnter(String userId, String messageRoomNo, String lastReadMessageId, LocalDateTime lastReadSentAt) {
+        log.info("[Presence] ENTER userId={} messageRoomNo={}", userId, messageRoomNo);
+        participantService.updateLastRead(userId, messageRoomNo, lastReadMessageId, lastReadSentAt);
+
         PresenceSnapshot current = getPresence(userId);
         PresenceSnapshot updated = PresenceSnapshot.withRoom(
             userId,
-            roomId,
+            messageRoomNo,
             true,
             current.sseConnected()
         );
         presenceRepository.save(updated, ttlSeconds);
+        publishMessageRoomReadStateChanged(messageRoomNo, "ENTER", userId);
     }
 
-    public void onRoomsLeave(String userId) {
-        log.info("[Presence] LEAVE userId={}", userId);
+    public void onMessageRoomLeave(String userId, String messageRoomNo, String lastReadMessageId, LocalDateTime lastReadSentAt) {
+        log.info("[Presence] LEAVE userId={} messageRoomNo={}", userId, messageRoomNo);
+        participantService.updateLastRead(userId, messageRoomNo, lastReadMessageId, lastReadSentAt);
+
         PresenceSnapshot current = getPresence(userId);
         PresenceSnapshot updated = PresenceSnapshot.withFlags(
             userId,
@@ -47,6 +60,7 @@ public class PresenceService {
             LocalDateTime.now()
         );
         presenceRepository.save(updated, ttlSeconds);
+        publishMessageRoomReadStateChanged(messageRoomNo, "LEAVE", userId);
     }
 
     public void onWsConnect(String userId) {
@@ -65,6 +79,8 @@ public class PresenceService {
     public void onWsDisconnect(String userId) {
         log.info("[Presence] WS_DISCONNECTED userId={}", userId);
         PresenceSnapshot current = getPresence(userId);
+        String currentMessageRoomNo = current.roomId();
+        flushLastReadOnDisconnect(userId, currentMessageRoomNo);
         PresenceSnapshot updated = PresenceSnapshot.withFlags(
             userId,
             false,
@@ -73,6 +89,7 @@ public class PresenceService {
             LocalDateTime.now()
         );
         presenceRepository.save(updated, ttlSeconds);
+        publishMessageRoomReadStateChanged(currentMessageRoomNo, "WS_DISCONNECT", userId);
     }
 
     public void onSseConnect(String userId) {
@@ -91,6 +108,8 @@ public class PresenceService {
     public void onSseDisconnect(String userId) {
         log.info("[Presence] SSE_DISCONNECTED userId={}", userId);
         PresenceSnapshot current = getPresence(userId);
+        String currentMessageRoomNo = current.roomId();
+        flushLastReadOnDisconnect(userId, currentMessageRoomNo);
         PresenceSnapshot updated = PresenceSnapshot.withFlags(
             userId,
             current.wsConnected(),
@@ -99,6 +118,7 @@ public class PresenceService {
             LocalDateTime.now()
         );
         presenceRepository.save(updated, ttlSeconds);
+        publishMessageRoomReadStateChanged(currentMessageRoomNo, "SSE_DISCONNECT", userId);
     }
 
     public void onSseHeartbeat(String userId) {
@@ -161,5 +181,31 @@ public class PresenceService {
             return new AppActiveState();
         }
         return new AppInactiveState();
+    }
+
+    private void publishMessageRoomReadStateChanged(String messageRoomNo, String trigger, String actorUserId) {
+        if (messageRoomNo == null || messageRoomNo.isBlank()) {
+            return;
+        }
+        applicationEventPublisher.publishEvent(
+            MessageRoomReadStateChangedEvent.of(messageRoomNo, trigger, actorUserId)
+        );
+    }
+
+    private void flushLastReadOnDisconnect(String userId, String messageRoomNo) {
+        if (messageRoomNo == null || messageRoomNo.isBlank()) {
+            return;
+        }
+        try {
+            messageService.findLatestMessage(messageRoomNo)
+                .ifPresent(message -> participantService.updateLastRead(
+                    userId,
+                    messageRoomNo,
+                    message.getMessageNo(),
+                    message.getSentAt()
+                ));
+        } catch (RestApiException e) {
+            log.warn("[Presence] disconnect read flush skipped userId={} messageRoomNo={}", userId, messageRoomNo);
+        }
     }
 }

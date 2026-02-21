@@ -50,4 +50,23 @@ public class ParticipantService {
         Participant participant = participantRepository.findByUserAndMessageRoomNo(user, messageRoomNo);
         return participant != null && participant.getDeletedAt() == null;
     }
+
+    @Transactional
+    public boolean updateLastRead(String userId, String messageRoomNo, String lastReadMessageId, LocalDateTime lastReadSentAt) {
+        // 입력값 검증
+        if (lastReadMessageId == null || lastReadSentAt == null) {
+            return false;
+        }
+        // 참여자 검증
+        Participant participant = participantRepository.findByUser_UserNoAndMessageRoomNo(userId, messageRoomNo);
+        if (participant == null) {
+            throw new RestApiException(GlobalErrorStatus.PARTICIPANT_NOT_FOUND);
+        }
+        // 참여자 삭제 검증
+        if (participant.getDeletedAt() != null || participant.getLeftAt() != null) {
+            return false;
+        }
+
+        return participant.updateLastRead(lastReadMessageId, lastReadSentAt);
+    }
 }

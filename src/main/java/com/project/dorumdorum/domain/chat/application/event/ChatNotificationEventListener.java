@@ -1,19 +1,23 @@
 package com.project.dorumdorum.domain.chat.application.event;
 
+import com.project.dorumdorum.domain.chat.application.dto.response.MessageRoomReadStatePayload;
 import com.project.dorumdorum.domain.chat.domain.entity.Participant;
 import com.project.dorumdorum.domain.chat.domain.service.ParticipantService;
 import com.project.dorumdorum.domain.chat.notification.SseNotificationSender;
 import com.project.dorumdorum.domain.notification.domain.NotificationChannel;
 import com.project.dorumdorum.domain.presence.domain.service.PresenceService;
+import com.project.dorumdorum.domain.presence.domain.entity.PresenceSnapshot;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.transaction.event.TransactionPhase;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +31,52 @@ public class ChatNotificationEventListener {
     private final SseNotificationSender sseNotificationSender;
     private final NotificationService notificationService;
     private final SimpMessagingTemplate messagingTemplate;
+
+    @Async
+    @EventListener
+    public void handleMessageRoomReadStateChanged(MessageRoomReadStateChangedEvent event) {
+        List<Participant> participants = participantService.findActiveParticipantsByRoomNo(event.messageRoomNo());
+        int inMessageRoomCount = 0;
+        List<MessageRoomReadStatePayload.ParticipantReadState> readStates = new ArrayList<>();
+
+        for (Participant participant : participants) {
+            String userId = participant.getUser().getUserNo();
+            PresenceSnapshot presence = presenceService.getPresence(userId);
+            boolean inMessageRoom = presence.wsConnected() && event.messageRoomNo().equals(presence.roomId());
+            if (inMessageRoom) {
+                inMessageRoomCount++;
+            }
+
+            boolean hasReadState = participant.getLastReadMessageId() != null || participant.getLastReadSentAt() != null;
+            if (!inMessageRoom && !hasReadState) {
+                continue;
+            }
+
+            // 유저별 읽음 상태 추가
+            readStates.add(new MessageRoomReadStatePayload.ParticipantReadState(
+                userId,
+                inMessageRoom ? null : participant.getLastReadMessageId(),
+                inMessageRoom ? null : participant.getLastReadSentAt()
+            ));
+        }
+
+        MessageRoomReadStatePayload payload = new MessageRoomReadStatePayload(
+            event.messageRoomNo(),
+            inMessageRoomCount,
+            readStates
+        );
+        String destination = "/sub/rooms/" + event.messageRoomNo() + "/read-state";
+        log.info(
+            "[STOMP][READ_STATE] trigger={} actorUserId={} destination={} messageRoomNo={} inMessageRoomCount={} participantReadStates={}",
+            event.trigger(),
+            event.actorUserId(),
+            destination,
+            event.messageRoomNo(),
+            inMessageRoomCount,
+            readStates.size()
+        );
+        messagingTemplate.convertAndSend(destination, payload);
+    }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

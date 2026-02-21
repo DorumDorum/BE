@@ -88,7 +88,6 @@ public class LoadMessagesUseCase {
                         .content(message.getContent())
                         .messageType(message.getMessageType())
                         .sentAt(message.getSentAt())
-                        .readCount(0) // 나중에 구현
                         .build())
                 .collect(Collectors.toList());
 
