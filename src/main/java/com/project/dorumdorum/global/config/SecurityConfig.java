@@ -50,8 +50,6 @@ public class SecurityConfig {
                     );
             request.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
             request.requestMatchers("/ws/**", "/ws", "/ws-native/**", "/ws-native").permitAll();
-            // SSE는 쿼리 토큰으로 인증하므로 별도 허용 (컨트롤러에서 검증)
-            request.requestMatchers(HttpMethod.GET, "/api/notifications/stream").permitAll();
         });
 
         http.authorizeHttpRequests(request -> request
