@@ -34,15 +34,14 @@ class TokenReissueControllerTest {
     @Test
     @DisplayName("Should return new access token in body and set refresh token cookie")
     void reissue_ReturnsAccessTokenAndSetsRefreshCookie() {
-        String userNo = "0000000000000001";
         String refreshToken = "refresh";
         TokenReissueResponse useCaseResponse = new TokenReissueResponse("new-access", "new-refresh");
-        when(tokenReissueUseCase.execute(userNo, refreshToken)).thenReturn(useCaseResponse);
+        when(tokenReissueUseCase.execute(refreshToken)).thenReturn(useCaseResponse);
         when(jwtProperties.getRefreshTokenExpiration()).thenReturn(3600L);
 
-        ResponseEntity<AuthTokenResponse> response = controller.reissue(userNo, refreshToken);
+        ResponseEntity<AuthTokenResponse> response = controller.reissue(refreshToken);
 
-        verify(tokenReissueUseCase).execute(userNo, refreshToken);
+        verify(tokenReissueUseCase).execute(refreshToken);
         assertThat(response.getBody()).isEqualTo(new AuthTokenResponse("new-access"));
 
         String setCookieHeader = response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);

@@ -4,7 +4,6 @@ import com.project.dorumdorum.domain.user.application.dto.response.AuthTokenResp
 import com.project.dorumdorum.domain.user.application.dto.response.TokenReissueResponse;
 import com.project.dorumdorum.domain.user.application.usecase.TokenReissueUseCase;
 import com.project.dorumdorum.domain.user.ui.spec.TokenReissueApiSpec;
-import com.project.dorumdorum.global.annotation.CurrentUser;
 import com.project.dorumdorum.global.annotation.RefreshToken;
 import com.project.dorumdorum.global.properties.JwtProperties;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +25,9 @@ public class TokenReissueController implements TokenReissueApiSpec {
 
     @Override
     public ResponseEntity<AuthTokenResponse> reissue(
-            @CurrentUser String userNo,
             @RefreshToken String refreshToken
     ) {
-        TokenReissueResponse tokens = tokenReissueUseCase.execute(userNo, refreshToken);
+        TokenReissueResponse tokens = tokenReissueUseCase.execute(refreshToken);
 
         ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken())
                 .httpOnly(true)

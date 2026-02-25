@@ -3,7 +3,6 @@ package com.project.dorumdorum.domain.user.ui.spec;
 import com.project.dorumdorum.domain.user.application.dto.response.AuthTokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -15,8 +14,5 @@ public interface TokenReissueApiSpec {
             description = "만료된 액세스 토큰을 갱신하기 위해 리프레시 토큰을 이용하여 새로운 액세스 토큰을 발급하고, 리프레시 토큰은 HttpOnly 쿠키로 재설정합니다."
     )
     @PostMapping("/api/token/reissue")
-    ResponseEntity<AuthTokenResponse> reissue(
-            @Parameter(hidden = true) String userNo,
-            @Parameter(hidden = true) String refreshToken
-    );
+    ResponseEntity<AuthTokenResponse> reissue(String refreshToken);
 }

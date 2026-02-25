@@ -62,7 +62,7 @@ public class SecurityConfig {
         });
 
         http.authorizeHttpRequests(request -> request
-                .requestMatchers(HttpMethod.POST, "/users/token").hasRole("USER") // 토큰 재발급
+                .requestMatchers(HttpMethod.POST, "/api/token/reissue").permitAll()
                 // Authenticated
                 .anyRequest().authenticated()
         );
