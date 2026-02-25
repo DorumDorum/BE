@@ -1,5 +1,8 @@
 package com.project.dorumdorum.global.logging;
 
+import com.project.dorumdorum.global.alert.AlertSeverity;
+import com.project.dorumdorum.global.alert.AlertType;
+import com.project.dorumdorum.global.alert.SystemAlertPublisher;
 import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,6 +29,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     private final RequestLogContextResolver requestLogContextResolver;
     private final StructuredLogFactory structuredLogFactory;
     private final LoggingPolicyProperties loggingPolicyProperties;
+    private final SystemAlertPublisher systemAlertPublisher;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -54,10 +58,28 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             Map<String, Object> endLog = structuredLogFactory.requestFinished(endContext, elapsedMs);
             if (endContext.status() >= 500) {
                 log.error("요청 종료 {}", entries(endLog));
-            } else if (elapsedMs >= loggingPolicyProperties.slowResponseThresholdMs()) {
-                log.warn("요청 종료 {}", entries(endLog));
             } else {
-                log.info("요청 종료 {}", entries(endLog));
+                boolean isSlow = elapsedMs >= loggingPolicyProperties.slowResponseThresholdMs();
+
+                if (isSlow) {
+                    log.warn("요청 종료 {}", entries(endLog));
+
+                    String method = request.getMethod();
+                    String uri = request.getRequestURI();
+                    systemAlertPublisher.publish(
+                            AlertSeverity.WARN,
+                            AlertType.SYSTEM_HEALTH,
+                            "[WARN] 슬로우 요청 감지",
+                            method + " " + uri + " - " + elapsedMs + "ms",
+                            Map.of(
+                                    "method", method,
+                                    "uri", uri,
+                                    "elapsedMs", elapsedMs
+                            )
+                    );
+                } else {
+                    log.info("요청 종료 {}", entries(endLog));
+                }
             }
 
             if (previousTraceId == null || previousTraceId.isBlank()) {
