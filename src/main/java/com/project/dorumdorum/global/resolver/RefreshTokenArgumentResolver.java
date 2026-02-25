@@ -3,6 +3,7 @@ package com.project.dorumdorum.global.resolver;
 import com.project.dorumdorum.global.annotation.RefreshToken;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.security.TokenProvider;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -11,11 +12,16 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.INVALID_REFRESH_TOKEN;
 import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._UNAUTHORIZED;
 
 @RequiredArgsConstructor
 public class RefreshTokenArgumentResolver implements HandlerMethodArgumentResolver {
+
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
 
     private final TokenProvider tokenProvider;
 
@@ -36,12 +42,25 @@ public class RefreshTokenArgumentResolver implements HandlerMethodArgumentResolv
             throw new RestApiException(_UNAUTHORIZED);
         }
 
-        String token = tokenProvider.getToken(request)
+        String token = getRefreshTokenFromCookie(request)
+                .or(() -> tokenProvider.getToken(request))
                 .orElseThrow(() -> new RestApiException(_UNAUTHORIZED));
 
         if (tokenProvider.isAccessToken(token))
             throw new RestApiException(INVALID_REFRESH_TOKEN);
 
         return token;
+    }
+
+    private Optional<String> getRefreshTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return Optional.empty();
+        }
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> REFRESH_TOKEN_COOKIE_NAME.equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst();
     }
 }

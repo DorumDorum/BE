@@ -7,8 +7,11 @@ import com.google.firebase.messaging.MessagingErrorCode;
 import com.google.firebase.messaging.Notification;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
-import com.project.dorumdorum.global.logging.DomainEventLogger;
+import com.project.dorumdorum.global.alert.AlertSeverity;
+import com.project.dorumdorum.global.alert.AlertType;
+import com.project.dorumdorum.global.alert.SystemAlertPublisher;
 import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.logging.DomainEventLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +20,9 @@ import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
+import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
 import static com.project.dorumdorum.global.exception.code.status.NotificationErrorStatus.FIREBASE_TOKEN_NOT_FOUND;
 import static com.project.dorumdorum.global.exception.code.status.NotificationErrorStatus.NOTIFICATION_FAILED;
-import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,7 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final FirebaseMessaging firebaseMessaging;
     private final DomainEventLogger domainEventLogger;
+    private final SystemAlertPublisher systemAlertPublisher;
 
     @Transactional
     public void saveToken(String userNo, String firebaseToken) {
@@ -90,6 +94,19 @@ public class NotificationService {
                     "errorCode", String.valueOf(errorCode),
                     "message", String.valueOf(e.getMessage())
             ), e);
+
+            systemAlertPublisher.publish(
+                    AlertSeverity.ERROR,
+                    AlertType.EXTERNAL_API,
+                    "[ERROR] FCM 전송 실패",
+                    "userNo=" + receiverUserNo + ", errorCode=" + errorCode + ", message=" + e.getMessage(),
+                    Map.of(
+                            "userNo", receiverUserNo,
+                            "token", receiver.getFirebaseToken(),
+                            "errorCode", String.valueOf(errorCode)
+                    )
+            );
+
             throw new RestApiException(NOTIFICATION_FAILED);
         }
     }

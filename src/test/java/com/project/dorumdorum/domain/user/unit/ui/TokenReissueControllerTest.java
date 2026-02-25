@@ -1,8 +1,11 @@
 package com.project.dorumdorum.domain.user.unit.ui;
 
+import com.project.dorumdorum.domain.user.application.dto.response.AuthTokenResponse;
 import com.project.dorumdorum.domain.user.application.dto.response.TokenReissueResponse;
 import com.project.dorumdorum.domain.user.application.usecase.TokenReissueUseCase;
 import com.project.dorumdorum.domain.user.ui.TokenReissueController;
+import com.project.dorumdorum.global.properties.JwtProperties;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,20 +25,28 @@ class TokenReissueControllerTest {
     @Mock
     private TokenReissueUseCase tokenReissueUseCase;
 
+    @Mock
+    private JwtProperties jwtProperties;
+
     @InjectMocks
     private TokenReissueController controller;
 
     @Test
-    @DisplayName("Should return token reissue result from service")
-    void reissue_ReturnsServiceResult() {
-        String userNo = "0000000000000001";
+    @DisplayName("Should return new access token in body and set refresh token cookie")
+    void reissue_ReturnsAccessTokenAndSetsRefreshCookie() {
         String refreshToken = "refresh";
-        TokenReissueResponse expected = new TokenReissueResponse("new-access", "new-refresh");
-        when(tokenReissueUseCase.execute(userNo, refreshToken)).thenReturn(expected);
+        TokenReissueResponse useCaseResponse = new TokenReissueResponse("new-access", "new-refresh");
+        when(tokenReissueUseCase.execute(refreshToken)).thenReturn(useCaseResponse);
+        when(jwtProperties.getRefreshTokenExpiration()).thenReturn(3600L);
 
-        ResponseEntity<TokenReissueResponse> response = controller.reissue(userNo, refreshToken);
+        ResponseEntity<AuthTokenResponse> response = controller.reissue(refreshToken);
 
-        verify(tokenReissueUseCase).execute(userNo, refreshToken);
-        assertThat(response.getBody()).isEqualTo(expected);
+        verify(tokenReissueUseCase).execute(refreshToken);
+        assertThat(response.getBody()).isEqualTo(new AuthTokenResponse("new-access"));
+
+        String setCookieHeader = response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
+        assertThat(setCookieHeader).isNotNull();
+        assertThat(setCookieHeader).contains("new-refresh");
+        assertThat(setCookieHeader).contains("HttpOnly");
     }
 }
