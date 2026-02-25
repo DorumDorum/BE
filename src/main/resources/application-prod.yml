@@ -40,3 +40,7 @@ springdoc:
 firebase:
   service-account:
     path: ${FIREBASE_SERVICE_ACCOUNT_PATH}
+
+alert:
+  discord:
+    webhook-url: ${DISCORD_WEBHOOK}

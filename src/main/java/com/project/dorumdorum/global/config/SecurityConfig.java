@@ -1,12 +1,14 @@
 package com.project.dorumdorum.global.config;
 
 import com.project.dorumdorum.domain.user.domain.service.TokenWhitelistService;
+import com.project.dorumdorum.global.alert.SystemAlertPublisher;
 import com.project.dorumdorum.global.logging.RequestLoggingFilter;
 import com.project.dorumdorum.global.logging.RequestLogContextResolver;
 import com.project.dorumdorum.global.logging.StructuredLogFactory;
 import com.project.dorumdorum.global.properties.ExcludeAuthPathProperties;
 import com.project.dorumdorum.global.properties.ExcludeWhitelistPathProperties;
 import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
+import com.project.dorumdorum.global.warmer.RequestActivityTrackingFilter;
 import com.project.dorumdorum.global.security.JwtAuthenticationFilter;
 import com.project.dorumdorum.global.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,7 @@ public class SecurityConfig {
     private final RequestLogContextResolver requestLogContextResolver;
     private final StructuredLogFactory structuredLogFactory;
     private final LoggingPolicyProperties loggingPolicyProperties;
+    private final SystemAlertPublisher systemAlertPublisher;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -57,24 +60,26 @@ public class SecurityConfig {
                     );
             request.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
             request.requestMatchers("/ws/**", "/ws", "/ws-native/**", "/ws-native").permitAll();
-            // SSE는 쿼리 토큰으로 인증하므로 별도 허용 (컨트롤러에서 검증)
             request.requestMatchers(HttpMethod.GET, "/api/notifications/stream").permitAll();
         });
 
         http.authorizeHttpRequests(request -> request
-                .requestMatchers(HttpMethod.POST, "/users/token").hasRole("USER") // 토큰 재발급
-                // Authenticated
+                .requestMatchers(HttpMethod.POST, "/api/token/reissue").permitAll()
                 .anyRequest().authenticated()
         );
 
-        // Session 해제
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // Jwt 커스텀 필터 등록
-        http.addFilterBefore(requestLoggingFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(
+                requestActivityTrackingFilter(),
+                UsernamePasswordAuthenticationFilter.class
+        );
+        http.addFilterBefore(
+                new RequestLoggingFilter(requestLogContextResolver, structuredLogFactory, loggingPolicyProperties, systemAlertPublisher),
+                UsernamePasswordAuthenticationFilter.class
+        );
         http.addFilterAfter(jwtAuthenticationFilter(), RequestLoggingFilter.class);
 
-        // Token Exception Handling
         http.exceptionHandling(except -> except
                 .authenticationEntryPoint((request, response, authException) -> response.sendError(response.getStatus(), "토큰 오류"))
         );
@@ -88,8 +93,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public RequestLoggingFilter requestLoggingFilter() {
-        return new RequestLoggingFilter(requestLogContextResolver, structuredLogFactory, loggingPolicyProperties);
+    public RequestActivityTrackingFilter requestActivityTrackingFilter() {
+        return new RequestActivityTrackingFilter();
     }
 
     @Bean

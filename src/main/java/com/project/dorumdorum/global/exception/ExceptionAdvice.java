@@ -1,5 +1,8 @@
 package com.project.dorumdorum.global.exception;
 
+import com.project.dorumdorum.global.alert.AlertSeverity;
+import com.project.dorumdorum.global.alert.AlertType;
+import com.project.dorumdorum.global.alert.SystemAlertPublisher;
 import com.project.dorumdorum.global.exception.code.BaseCode;
 import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
 import com.project.dorumdorum.global.logging.LogRedactor;
@@ -43,10 +46,23 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     private final StructuredLogFactory structuredLogFactory;
     private final LogRedactor logRedactor;
     private final LoggingPolicyProperties loggingPolicyProperties;
+    private final SystemAlertPublisher systemAlertPublisher;
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handle500Exception(Exception e) {
         logError(e, 500);
+
+        HttpServletRequest request = getCurrentRequest();
+        String path = request != null ? request.getRequestURI() : "unknown";
+        String method = request != null ? request.getMethod() : "unknown";
+
+        systemAlertPublisher.publish(
+                AlertSeverity.CRITICAL,
+                AlertType.SYSTEM_HEALTH,
+                "[CRITICAL] 예상치 못한 500 에러 발생",
+                method + " " + path + " - " + e.getClass().getSimpleName() + ": " + e.getMessage()
+        );
+
         return handleExceptionInternal(CommonErrorStatus._INTERNAL_SERVER_ERROR.getCode());
     }
 
@@ -55,8 +71,24 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(value = RestApiException.class)
     public ResponseEntity<ErrorResponse> handleRestApiException(RestApiException e) {
-        logError(e, e.getErrorCode().getHttpStatus().value());
         BaseCode errorCode = e.getErrorCode();
+        int status = errorCode.getHttpStatus().value();
+
+        logError(e, status);
+
+        if (errorCode.getHttpStatus().is5xxServerError()) {
+            HttpServletRequest request = getCurrentRequest();
+            String path = request != null ? request.getRequestURI() : "unknown";
+            String method = request != null ? request.getMethod() : "unknown";
+
+            systemAlertPublisher.publish(
+                    AlertSeverity.ERROR,
+                    AlertType.SYSTEM_HEALTH,
+                    "[ERROR] 서버 에러 코드 발생 - " + errorCode.getCode(),
+                    method + " " + path + " - " + errorCode.getMessage()
+            );
+        }
+
         return handleExceptionInternal(errorCode);
     }
 

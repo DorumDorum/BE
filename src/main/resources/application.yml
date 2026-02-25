@@ -159,14 +159,18 @@ management:
   metrics:
     tags:
       application: ${spring.application.name:dorumdorum}
-    export:
-      prometheus:
+
+  prometheus:
+    metrics:
+      export:
         enabled: true
+
   endpoints:
     web:
       exposure:
         include: health,prometheus,metrics
       base-path: /actuator
+
   endpoint:
     health:
       show-details: when-authorized

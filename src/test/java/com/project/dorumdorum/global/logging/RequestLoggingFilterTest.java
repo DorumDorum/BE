@@ -1,5 +1,6 @@
 package com.project.dorumdorum.global.logging;
 
+import com.project.dorumdorum.global.alert.SystemAlertPublisher;
 import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,11 +14,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class RequestLoggingFilterTest {
 
+    private final SystemAlertPublisher systemAlertPublisher = new SystemAlertPublisher(event -> {});
+
     private final RequestLoggingFilter requestLoggingFilter =
             new RequestLoggingFilter(
                     new RequestLogContextResolver(),
                     new StructuredLogFactory(),
-                    new LoggingPolicyProperties(200, 300, false, 1000)
+                    new LoggingPolicyProperties(200, 300, false, 1000),
+                    systemAlertPublisher
             );
 
     @AfterEach

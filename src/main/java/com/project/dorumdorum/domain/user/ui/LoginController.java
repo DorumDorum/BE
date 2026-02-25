@@ -1,25 +1,46 @@
 package com.project.dorumdorum.domain.user.ui;
 
 import com.project.dorumdorum.domain.user.application.dto.request.LoginRequest;
+import com.project.dorumdorum.domain.user.application.dto.response.AuthTokenResponse;
 import com.project.dorumdorum.domain.user.application.dto.response.LoginResponse;
 import com.project.dorumdorum.domain.user.application.usecase.LoginUseCase;
 import com.project.dorumdorum.domain.user.ui.spec.LoginApiSpec;
+import com.project.dorumdorum.global.properties.JwtProperties;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.Duration;
 
 @RestController
 @RequiredArgsConstructor
 public class LoginController implements LoginApiSpec {
 
+    private static final String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
+
     private final LoginUseCase loginUseCase;
+    private final JwtProperties jwtProperties;
 
     @Override
-    public ResponseEntity<LoginResponse> login(
+    public ResponseEntity<AuthTokenResponse> login(
             @RequestBody @Valid LoginRequest request
     ) {
-        return ResponseEntity.ok(loginUseCase.execute(request));
+        LoginResponse tokens = loginUseCase.execute(request);
+
+        ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(Duration.ofSeconds(jwtProperties.getRefreshTokenExpiration()))
+                .sameSite("Lax")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .body(new AuthTokenResponse(tokens.accessToken()));
     }
 }
