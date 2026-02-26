@@ -74,11 +74,11 @@ public class SecurityConfig {
                 requestActivityTrackingFilter(),
                 UsernamePasswordAuthenticationFilter.class
         );
-        http.addFilterBefore(
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(
                 new RequestLoggingFilter(requestLogContextResolver, structuredLogFactory, loggingPolicyProperties, systemAlertPublisher),
-                UsernamePasswordAuthenticationFilter.class
+                JwtAuthenticationFilter.class
         );
-        http.addFilterAfter(jwtAuthenticationFilter(), RequestLoggingFilter.class);
 
         http.exceptionHandling(except -> except
                 .authenticationEntryPoint((request, response, authException) -> response.sendError(response.getStatus(), "토큰 오류"))
