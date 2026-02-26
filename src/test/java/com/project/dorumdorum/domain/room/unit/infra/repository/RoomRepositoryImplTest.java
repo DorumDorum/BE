@@ -33,17 +33,24 @@ class RoomRepositoryImplTest {
 
     @Mock private JPAQueryFactory queryFactory;
 
+    @SuppressWarnings("unchecked")
     @Test
     @DisplayName("Should return empty list when relation is not recruiting")
     void searchByCursor_WhenRelationNotRecruiting_ReturnsEmpty() {
         RoomRepositoryImpl repository = new RoomRepositoryImpl(queryFactory);
+        JPAQuery<FindRoomsResponse> jpaQuery = mock(JPAQuery.class, RETURNS_SELF);
+
+        when(queryFactory.select(any(Expression.class))).thenReturn(jpaQuery);
+        when(jpaQuery.fetch()).thenReturn(List.of());
 
         List<FindRoomsResponse> result = repository.searchByCursor(
                 RoomRelation.APPLIED, null, null, null, RoomSort.CREATED_AT, null, 10
         );
 
         assertThat(result).isEmpty();
-        verifyNoInteractions(queryFactory);
+        verify(queryFactory).select(any(Expression.class));
+        verify(jpaQuery).limit(10L);
+        verify(jpaQuery).fetch();
     }
 
     @SuppressWarnings("unchecked")
