@@ -7,6 +7,7 @@ import com.project.dorumdorum.global.annotation.CurrentUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -18,7 +19,7 @@ public class UpdateUserChecklistController implements UpdateUserChecklistApiSpec
     @Override
     public ResponseEntity<Void> update(
             @CurrentUser String userNo,
-            @org.springframework.web.bind.annotation.RequestBody @Valid UpdateUserChecklistRequest request
+            @RequestBody @Valid UpdateUserChecklistRequest request
     ) {
         updateUserChecklistUseCase.execute(userNo, request);
         return ResponseEntity.ok().build();

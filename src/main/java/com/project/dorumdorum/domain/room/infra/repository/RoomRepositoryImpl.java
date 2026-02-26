@@ -39,11 +39,6 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                                 RoomSort sort,
                                                 DecodedCursor cursor,
                                                 int limitPlusOne) {
-        // 공개 API: RECRUITING만 지원 (userNo 없음)
-        if (relation != RoomRelation.RECRUITING) {
-            return Collections.emptyList();
-        }
-
         JPAQuery<FindRoomsResponse> q = query
                 .select(
                         constructor(FindRoomsResponse.class,

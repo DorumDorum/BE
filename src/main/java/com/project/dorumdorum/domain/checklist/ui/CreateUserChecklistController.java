@@ -4,10 +4,10 @@ import com.project.dorumdorum.domain.checklist.application.dto.request.CreateUse
 import com.project.dorumdorum.domain.checklist.application.usecase.CreateUserChecklistUseCase;
 import com.project.dorumdorum.domain.checklist.ui.spec.CreateUserChecklistApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import java.net.URI;
 
