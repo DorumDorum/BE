@@ -51,6 +51,10 @@ public class ParticipantService {
         return participant != null && participant.getDeletedAt() == null;
     }
 
+    public boolean existsByUserNoAndMessageRoomNo(User sender, String roomId) {
+        return participantRepository.existsByUserAndMessageRoomNo(sender, roomId);
+    }
+
     @Transactional
     public boolean updateLastRead(String userId, String messageRoomNo, String lastReadMessageId, LocalDateTime lastReadSentAt) {
         // 입력값 검증
