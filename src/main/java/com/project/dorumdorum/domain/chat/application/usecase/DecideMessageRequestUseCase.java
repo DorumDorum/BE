@@ -30,7 +30,7 @@ public class DecideMessageRequestUseCase {
     private final ParticipantService participantService;
 
     @Transactional
-    @NotificationPublish(subject = NotificationSubject.MESSAGE_REQUEST_DECIDED)
+    @NotificationPublish(subject = NotificationSubject.MESSAGE_REQUEST_DECIDED, event = "#result")
     public MessageRequestDecidedEvent execute(String userId, String messageRequestNo, DecideMessageRequest request) {
 
         if(request == null || request.messageRequestDecision() == null) {

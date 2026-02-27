@@ -5,19 +5,40 @@ import com.project.dorumdorum.domain.chat.application.event.MessageRequestCreate
 import com.project.dorumdorum.domain.chat.application.event.MessageRequestDecidedEvent;
 import com.project.dorumdorum.domain.chat.application.event.MessageSentEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.context.expression.MethodBasedEvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Method;
 
 @Aspect
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ChatNotificationPublishAspect {
 
     private final ChatEventPublisher chatEventPublisher;
+    private final ExpressionParser spelParser = new SpelExpressionParser();
+    private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-    @AfterReturning(pointcut = "@annotation(notificationPublish)", returning = "event")
-    public void publish(NotificationPublish notificationPublish, Object event) {
+    @AfterReturning(pointcut = "@annotation(notificationPublish)", returning = "result")
+    public void publish(JoinPoint joinPoint, NotificationPublish notificationPublish, Object result) {
+            /*log.info("[FLOW][3_ASPECT_AFTER_RETURNING] thread={} transactionActive={} subject={} eventType={}",
+            Thread.currentThread().getName(),
+            TransactionSynchronizationManager.isActualTransactionActive(),
+            notificationPublish.subject(),
+            event == null ? "null" : event.getClass().getSimpleName());*/
+        Object event = evaluateEvent(joinPoint, result, notificationPublish.event());
+
         if (event == null) {
             throw new IllegalStateException("Notification event is null for subject " + notificationPublish.subject());
         }
@@ -42,5 +63,17 @@ public class ChatNotificationPublishAspect {
                 chatEventPublisher.publishMessageRequestDecided(decidedEvent);
             }
         }
+    }
+
+    private Object evaluateEvent(JoinPoint joinPoint, Object result, String expression) {
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        StandardEvaluationContext context = new MethodBasedEvaluationContext(
+            joinPoint.getTarget(),
+            method,
+            joinPoint.getArgs(),
+            parameterNameDiscoverer
+        );
+        context.setVariable("result", result);
+        return spelParser.parseExpression(expression).getValue(context);
     }
 }

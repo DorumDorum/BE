@@ -16,12 +16,24 @@ public record MessageSentEvent(
         MessageType messageType,
         LocalDateTime sentAt
 ) {
+    public static MessageSentEvent create(Message message) {
+        return MessageSentEvent.builder()
+            .messageId(message.getMessageNo())
+            .roomId(message.getMessageRoomNo())
+            .senderId(message.getSenderNo())
+            .senderName(null)
+            .content(message.getContent())
+            .messageType(message.getMessageType())
+            .sentAt(message.getSentAt())
+            .build();
+    }
+
     public static MessageSentEvent create(Message message, String senderName) {
         return MessageSentEvent.builder()
             .messageId(message.getMessageNo())
             .roomId(message.getMessageRoomNo())
             .senderId(message.getSenderNo())
-            .senderName(senderName)  // 추가
+            .senderName(senderName)
             .content(message.getContent())
             .messageType(message.getMessageType())
             .sentAt(message.getSentAt())

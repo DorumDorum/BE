@@ -33,7 +33,7 @@ public class SendMessageRequestUseCase {
     private final UserService userService;
 
     @Transactional
-    @NotificationPublish(subject = NotificationSubject.MESSAGE_REQUEST_CREATED)
+    @NotificationPublish(subject = NotificationSubject.MESSAGE_REQUEST_CREATED, event = "#result")
     public MessageRequestCreatedEvent execute(String userNo, String receiverNo, SendMessageRequest request) {
         // 유저 존재 확인
         User sender = userService.findById(userNo);

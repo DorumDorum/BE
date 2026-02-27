@@ -16,6 +16,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.transaction.event.TransactionPhase;
+// import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +82,10 @@ public class ChatNotificationEventListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleMessageSent(MessageSentEvent event) {
+        /*log.info("[FLOW][5_LISTENER_ENTER] thread={} transactionActive={} eventType={}",
+            Thread.currentThread().getName(),
+            TransactionSynchronizationManager.isActualTransactionActive(),
+            event.getClass().getSimpleName());*/
         log.info("[NOTIFY] 메시지 전송 roomId={} senderId={}", event.roomId(), event.senderId());
         List<Participant> participants = participantService.findActiveParticipantsByRoomNo(event.roomId());
         boolean shouldSendStomp = false;
