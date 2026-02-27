@@ -4,11 +4,11 @@ import com.project.dorumdorum.domain.chat.application.dto.request.PresenceSignal
 import com.project.dorumdorum.domain.presence.domain.service.PresenceService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import com.project.dorumdorum.global.exception.code.status.GlobalErrorStatus;
-import com.project.dorumdorum.global.security.UserIdPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
@@ -21,12 +21,15 @@ public class PresenceSocketController {
     private final PresenceService presenceService;
 
     @MessageMapping("/presence/enter")
-    public void enter(@Valid PresenceSignalRequest request, Principal principal) {
-        if (!(principal instanceof UserIdPrincipal userPrincipal)) {
+    public void enter(
+        @Valid PresenceSignalRequest request,
+        Principal principal
+    ) {
+        if (!(principal instanceof Authentication authentication)) {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
         presenceService.onMessageRoomEnter(
-            userPrincipal.getUserId(),
+            authentication.getName(),
             request.messageRoomNo(),
             request.lastReadMessageId(),
             request.lastReadSentAt()
@@ -34,12 +37,15 @@ public class PresenceSocketController {
     }
 
     @MessageMapping("/presence/leave")
-    public void leave(@Valid PresenceSignalRequest request, Principal principal) {
-        if (!(principal instanceof UserIdPrincipal userPrincipal)) {
+    public void leave(
+        @Valid PresenceSignalRequest request,
+        Principal principal
+    ) {
+        if (!(principal instanceof Authentication authentication)) {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
         presenceService.onMessageRoomLeave(
-            userPrincipal.getUserId(),
+            authentication.getName(),
             request.messageRoomNo(),
             request.lastReadMessageId(),
             request.lastReadSentAt()
@@ -48,9 +54,9 @@ public class PresenceSocketController {
 
     @MessageMapping("/presence/ping")
     public void ping(Principal principal) {
-        if (!(principal instanceof UserIdPrincipal userPrincipal)) {
+        if (!(principal instanceof Authentication authentication)) {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
-        presenceService.onWsActivity(userPrincipal.getUserId());
+        presenceService.onWsActivity(authentication.getName());
     }
 }

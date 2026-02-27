@@ -1,9 +1,9 @@
 package com.project.dorumdorum.domain.presence.application.listener;
 
 import com.project.dorumdorum.domain.presence.domain.service.PresenceService;
-import com.project.dorumdorum.global.security.UserIdPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 
@@ -18,8 +18,8 @@ public class PresenceStompConnectListener {
     @EventListener
     public void handleConnect(SessionConnectEvent event) {
         Principal principal = event.getUser();
-        if (principal instanceof UserIdPrincipal userPrincipal) {
-            presenceService.onWsConnect(userPrincipal.getUserId());
+        if (principal instanceof Authentication authentication) {
+            presenceService.onWsConnect(authentication.getName());
         }
     }
 }

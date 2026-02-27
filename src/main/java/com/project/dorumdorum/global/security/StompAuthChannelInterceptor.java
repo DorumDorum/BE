@@ -17,6 +17,7 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.regex.Matcher;
@@ -66,9 +67,8 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
 
-        String userId = tokenProvider.getId(token)
-                .orElseThrow(() -> new RestApiException(GlobalErrorStatus._UNAUTHORIZED));
-        accessor.setUser(new UserIdPrincipal(userId));
+        Authentication authentication = tokenProvider.getAuthentication(token);
+        accessor.setUser(authentication);
     }
 
     private void handleSubscribe(StompHeaderAccessor accessor) {
@@ -85,13 +85,13 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
 
         // 정규식에서 첫 번째 괄호로 캡처된 값 추출 (그게 roomId)
         String roomId = matcher.group(1);
-        UserIdPrincipal principal = (UserIdPrincipal) accessor.getUser();
-        
-        if (principal == null) {
+        Authentication authentication = (Authentication) accessor.getUser();
+
+        if (authentication == null) {
             throw new RestApiException(GlobalErrorStatus._UNAUTHORIZED);
         }
 
-        String userId = principal.getUserId();
+        String userId = authentication.getName();
 
         // 채팅방 상태 검증 (APPROVED 여부)
         MessageRoom messageRoom = messageRoomRepository.findById(roomId)
@@ -113,8 +113,8 @@ public class StompAuthChannelInterceptor implements ChannelInterceptor {
     }
 
     private void touchWsActivity(StompHeaderAccessor accessor) {
-        if (accessor.getUser() instanceof UserIdPrincipal principal) {
-            presenceService.onWsActivity(principal.getUserId());
+        if (accessor.getUser() instanceof Authentication authentication) {
+            presenceService.onWsActivity(authentication.getName());
         }
     }
 }
