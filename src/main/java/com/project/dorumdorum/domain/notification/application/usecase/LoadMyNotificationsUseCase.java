@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.notification.application.usecase;
 
 import com.project.dorumdorum.domain.notification.application.dto.response.LoadNotificationResponse;
-import com.project.dorumdorum.domain.notification.application.mapper.NotificationMapper;
+import com.project.dorumdorum.domain.notification.mapper.NotificationMapper;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
 import com.project.dorumdorum.global.pagination.CursorCodec;
 import com.project.dorumdorum.global.pagination.CursorPage;
