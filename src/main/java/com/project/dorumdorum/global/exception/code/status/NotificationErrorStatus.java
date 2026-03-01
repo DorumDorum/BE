@@ -12,6 +12,7 @@ public enum NotificationErrorStatus implements BaseCodeInterface {
     FIREBASE_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "NOTIFICATION001", "수신자의 FCM 토큰이 등록되어 있지 않습니다."),
     NOTIFICATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "NOTIFICATION002", "알림 전송 중 서버 에러"),
     NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTIFICATION003", "알림을 찾을 수 없거나 권한이 없습니다."),
+    UNSUPPORTED_DELIVERY_CHANNEL(HttpStatus.INTERNAL_SERVER_ERROR, "NOTIFICATION004", "지원하지 않는 알림 전달 채널입니다."),
     ;
 
     private final HttpStatus httpStatus;

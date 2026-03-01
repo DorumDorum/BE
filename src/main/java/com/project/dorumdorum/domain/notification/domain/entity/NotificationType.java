@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum NotificationType {
-
+    
     ROOM_APPLICATION_APPROVED("/rooms/me"),
     ROOM_APPLICATION_REJECTED("/rooms/search"),
     ROOM_APPLICATION_RECEIVED("/rooms/me"),
@@ -16,4 +16,9 @@ public enum NotificationType {
     NEW_MESSAGE_RECEIVED("/chat/{messageRoomNo}");
 
     private final String pathTemplate;
+
+    public boolean isChatNotification() {
+        return this == CHAT_MESSAGE_REQUEST || this == CHAT_REQUEST_APPROVED
+                || this == CHAT_REQUEST_REJECTED || this == NEW_MESSAGE_RECEIVED;
+    }
 }
