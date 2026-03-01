@@ -8,7 +8,7 @@ import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.global.pagination.CursorCodec;
 import com.project.dorumdorum.global.pagination.CursorPage;
-import com.project.dorumdorum.global.pagination.DecodedCursor;
+import com.project.dorumdorum.global.pagination.CursorQueryParams;
 import com.project.dorumdorum.global.pagination.PaginationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.List;
 public class FindRoomsUseCase {
 
     private final RoomService roomService;
-    private final Integer limit = 50;
+    private static final int LIMIT = 50;
 
     public CursorPage<FindRoomsResponse> execute(
             RoomRelation relation,
@@ -30,43 +30,19 @@ public class FindRoomsUseCase {
             RoomSort sort,
             String cursor
     ) {
-        int limitPlusOne = PaginationHelper.limitPlusOne(limit);
-        DecodedCursor decodedCursor = cursor == null
-                ? null
-                : CursorCodec.decode(cursor);
+        CursorQueryParams params = PaginationHelper.prepareCursorQuery(cursor, LIMIT);
 
         List<FindRoomsResponse> responses = roomService.searchByCursor(
-                relation, types, capacities, residencePeriods, sort, decodedCursor, limitPlusOne
+                relation, types, capacities, residencePeriods, sort,
+                params.cursorCreatedAt(),
+                params.cursorId(),
+                params.limitPlusOne()
         );
 
-        return buildCursorPageFromResponses(sort, responses);
-    }
-
-    private CursorPage<FindRoomsResponse> buildCursorPageFromResponses(RoomSort sort, List<FindRoomsResponse> responses) {
-        boolean hasNext = responses.size() > limit;
-        List<FindRoomsResponse> slice = hasNext ? responses.subList(0, limit) : responses;
-
-        String nextCursor = null;
-        if (!slice.isEmpty()) {
-            FindRoomsResponse last = slice.get(slice.size() - 1);
-            if (sort == RoomSort.REMAINING) {
-                nextCursor = CursorCodec.encodeWithRemaining(
-                    last.capacity() - last.currentMateCount(),
-                    last.createdAt(),
-                    last.roomNo()
-                );
-            } else {
-                nextCursor = CursorCodec.encode(
-                    last.createdAt(),
-                    last.roomNo()
-                );
-            }
-        }
-
-        return PaginationHelper.toCursorPage(
-                slice,
-                limit,
-                nextCursor
+        return PaginationHelper.buildCursorPage(
+                responses,
+                LIMIT,
+                last -> CursorCodec.encode(last.createdAt(), last.roomNo())
         );
     }
 }
