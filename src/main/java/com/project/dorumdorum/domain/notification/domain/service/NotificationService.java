@@ -33,7 +33,7 @@ public class NotificationService {
         return notificationRepository.searchByCursor(recipientNo, cursorCreatedAt, cursorId, limitPlusOne);
     }
 
-    public void read(String notificationNo, String userNo) {
+    public void markAsRead(String notificationNo, String userNo) {
         Notification notification = notificationRepository.findByNotificationNoAndRecipientNo(notificationNo, userNo)
                 .orElseThrow(() -> new RestApiException(NOTIFICATION_NOT_FOUND));
 

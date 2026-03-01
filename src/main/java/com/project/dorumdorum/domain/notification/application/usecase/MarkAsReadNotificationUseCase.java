@@ -13,6 +13,6 @@ public class MarkAsReadNotificationUseCase {
 
     @Transactional
     public void execute(String userNo, String notificationNo) {
-        notificationService.read(notificationNo, userNo);
+        notificationService.markAsRead(notificationNo, userNo);
     }
 }
