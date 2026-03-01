@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ReadNotificationUseCase {
+public class MarkAsReadNotificationUseCase {
 
     private final NotificationService notificationService;
 
