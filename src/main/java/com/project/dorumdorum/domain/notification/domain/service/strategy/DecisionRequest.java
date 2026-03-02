@@ -6,5 +6,6 @@ import com.project.dorumdorum.domain.notification.domain.entity.UserPresence;
 public record DecisionRequest(
         NotificationType type,
         String relatedId,
-        UserPresence presence
+        UserPresence presence,
+        boolean hasSseConnection
 ) {}

@@ -16,6 +16,6 @@ public class InChatroomDeliveryStrategy implements NotificationDeliveryStrategy 
                 && Objects.equals(currentMessageRoomNo, request.relatedId()))
             return NotificationDeliveryChannel.SKIP;
 
-        return NotificationDeliveryChannel.SSE;
+        return request.hasSseConnection() ? NotificationDeliveryChannel.SSE : NotificationDeliveryChannel.FCM;
     }
 }

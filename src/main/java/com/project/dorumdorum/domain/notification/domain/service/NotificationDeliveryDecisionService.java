@@ -13,14 +13,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class NotificationDeliveryDecisionService {
 
-    private final UserPresenceService userPresenceService;
+    private final UserPresenceRepository userPresenceRepository;
     private final NotificationDeliveryStrategyFactory strategyFactory;
+    private final SseConnectionChecker sseConnectionChecker;
 
-    public NotificationDeliveryChannel decide(String recipientNo, NotificationType type, String relatedId) {
-        UserPresence presence = userPresenceService.getPresence(recipientNo);
+    public NotificationDeliveryChannel decide(String recipientNo, String deviceId, NotificationType type, String relatedId) {
+        UserPresence presence = userPresenceRepository.getPresence(recipientNo);
         NotificationDeliveryStrategy strategy = strategyFactory.getStrategy(presence);
 
-        DecisionRequest request = new DecisionRequest(type, relatedId, presence);
+        boolean hasSseConnection = sseConnectionChecker.hasConnection(recipientNo, deviceId);
+        DecisionRequest request = new DecisionRequest(type, relatedId, presence, hasSseConnection);
         return strategy.getChannel(request);
     }
 }

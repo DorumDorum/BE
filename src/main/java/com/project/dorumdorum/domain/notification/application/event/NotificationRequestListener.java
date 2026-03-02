@@ -1,8 +1,10 @@
 package com.project.dorumdorum.domain.notification.application.event;
 
-import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryOrchestrator;
 import com.project.dorumdorum.domain.notification.domain.entity.Notification;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
+import com.project.dorumdorum.domain.notification.domain.vo.Device;
+import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryOrchestrator;
+import com.project.dorumdorum.domain.notification.domain.repository.UserDeviceTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class NotificationRequestListener {
 
     private final NotificationService notificationService;
+    private final UserDeviceTokenRepository userDeviceTokenRepository;
     private final NotificationDeliveryOrchestrator deliveryOrchestrator;
 
     @Async
@@ -29,6 +32,8 @@ public class NotificationRequestListener {
                 event.relatedId()
         );
 
-        deliveryOrchestrator.deliver(saved);
+        for (Device device : userDeviceTokenRepository.getDevices(saved.getRecipientNo())) {
+            deliveryOrchestrator.deliver(saved, device);
+        }
     }
 }

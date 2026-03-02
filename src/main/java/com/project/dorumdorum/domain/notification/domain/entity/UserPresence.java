@@ -1,8 +1,5 @@
 package com.project.dorumdorum.domain.notification.domain.entity;
 
-/**
- * 유저 접속 상태 (값 타입). Redis 직렬화/역직렬화 포함.
- */
 public record UserPresence(
         PresenceKind kind,
         String messageRoomNo

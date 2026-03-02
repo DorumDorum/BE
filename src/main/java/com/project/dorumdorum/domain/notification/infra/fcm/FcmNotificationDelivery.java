@@ -7,6 +7,7 @@ import com.google.firebase.messaging.Notification;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDelivery;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationDeliveryChannel;
+import com.project.dorumdorum.domain.notification.domain.vo.Device;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,18 +26,26 @@ public class FcmNotificationDelivery implements NotificationDelivery {
     public void send(NotificationDeliveryChannel channel, NotificationDeliveryPayload payload) {
         if (channel != NotificationDeliveryChannel.FCM)
             return;
-        sendFcm(payload);
+        User user = userRepository.findById(payload.recipientNo()).orElse(null);
+        sendFcm(payload, user != null ? user.getFirebaseToken() : null);
     }
 
-    private void sendFcm(NotificationDeliveryPayload payload) {
-        User user = userRepository.findById(payload.recipientNo()).orElse(null);
-        if (user == null || user.getFirebaseToken() == null || user.getFirebaseToken().isBlank()) {
+    @Override
+    public void send(NotificationDeliveryChannel channel, NotificationDeliveryPayload payload,
+                     Device device) {
+        if (channel != NotificationDeliveryChannel.FCM)
+            return;
+        sendFcm(payload, device.fcmToken());
+    }
+
+    private void sendFcm(NotificationDeliveryPayload payload, String fcmToken) {
+        if (fcmToken == null || fcmToken.isBlank()) {
             log.debug("[FCM] skip: no token for userNo={}", payload.recipientNo());
             return;
         }
 
         Message message = Message.builder()
-                .setToken(user.getFirebaseToken())
+                .setToken(fcmToken)
                 .setNotification(Notification.builder()
                         .setTitle(payload.title())
                         .setBody(payload.body())

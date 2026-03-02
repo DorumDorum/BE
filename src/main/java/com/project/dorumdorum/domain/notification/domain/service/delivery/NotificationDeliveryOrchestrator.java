@@ -3,6 +3,7 @@ package com.project.dorumdorum.domain.notification.domain.service.delivery;
 import com.project.dorumdorum.domain.notification.mapper.NotificationMapper;
 import com.project.dorumdorum.domain.notification.domain.entity.Notification;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationDeliveryChannel;
+import com.project.dorumdorum.domain.notification.domain.vo.Device;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationDeliveryDecisionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,9 +16,10 @@ public class NotificationDeliveryOrchestrator {
     private final NotificationDeliveryFactory deliveryFactory;
     private final NotificationMapper notificationMapper;
 
-    public void deliver(Notification notification) {
+    public void deliver(Notification notification, Device device) {
         NotificationDeliveryChannel channel = decisionService.decide(
                 notification.getRecipientNo(),
+                device.deviceId(),
                 notification.getType(),
                 notification.getRelatedId()
         );
@@ -27,6 +29,6 @@ public class NotificationDeliveryOrchestrator {
 
         NotificationDeliveryPayload payload = notificationMapper.toDeliveryPayload(notification);
         NotificationDelivery delivery = deliveryFactory.getDelivery(channel);
-        delivery.send(channel, payload);
+        delivery.send(channel, payload, device);
     }
 }

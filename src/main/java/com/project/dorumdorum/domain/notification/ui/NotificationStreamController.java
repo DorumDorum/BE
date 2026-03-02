@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.EMPTY_JWT;
 import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.INVALID_ACCESS_TOKEN;
+import static com.project.dorumdorum.global.exception.code.status.NotificationErrorStatus.DEVICE_ID_REQUIRED;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -22,9 +23,6 @@ public class NotificationStreamController {
     private final SseEmitterRegistry sseEmitterRegistry;
     private final TokenProvider tokenProvider;
 
-    /**
-     * SSE 구독. 쿼리 파라미터 accessToken 필요 (EventSource는 헤더 전달 어려움).
-     */
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter stream(HttpServletRequest request) {
         String token = request.getParameter("accessToken");
@@ -35,7 +33,10 @@ public class NotificationStreamController {
 
         String userNo = tokenProvider.getId(token)
                 .orElseThrow(() -> new RestApiException(INVALID_ACCESS_TOKEN));
+        String deviceId = request.getParameter("deviceId");
+        if (deviceId == null || deviceId.isBlank())
+            throw new RestApiException(DEVICE_ID_REQUIRED);
 
-        return sseEmitterRegistry.register(userNo);
+        return sseEmitterRegistry.register(userNo, deviceId);
     }
 }
