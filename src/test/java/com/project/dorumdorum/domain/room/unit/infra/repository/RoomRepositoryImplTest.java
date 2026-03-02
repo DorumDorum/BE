@@ -7,7 +7,6 @@ import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.infra.repository.RoomRepositoryImpl;
-import com.project.dorumdorum.global.pagination.DecodedCursor;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,7 +23,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_SELF;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +42,8 @@ class RoomRepositoryImplTest {
         when(jpaQuery.fetch()).thenReturn(List.of());
 
         List<FindRoomsResponse> result = repository.searchByCursor(
-                RoomRelation.APPLIED, null, null, null, RoomSort.CREATED_AT, null, 10
+                RoomRelation.APPLIED, null, null, null,
+                RoomSort.CREATED_AT, null, null, 10
         );
 
         assertThat(result).isEmpty();
@@ -67,9 +66,11 @@ class RoomRepositoryImplTest {
         when(queryFactory.select(org.mockito.ArgumentMatchers.<Expression<FindRoomsResponse>>any())).thenReturn(jpaQuery);
         when(jpaQuery.fetch()).thenReturn(expected);
 
+        LocalDateTime cursorCreatedAt = LocalDateTime.now();
+
         List<FindRoomsResponse> result = repository.searchByCursor(
                 RoomRelation.RECRUITING, List.of(RoomType.TYPE_1), List.of(2), List.of(ResidencePeriod.SEMESTER),
-                RoomSort.REMAINING, new DecodedCursor(1, LocalDateTime.now(), "r1"), 51
+                RoomSort.REMAINING, cursorCreatedAt, "r1", 51
         );
 
         assertThat(result).isEqualTo(expected);
@@ -87,9 +88,11 @@ class RoomRepositoryImplTest {
         when(queryFactory.select(org.mockito.ArgumentMatchers.<Expression<FindRoomsResponse>>any())).thenReturn(jpaQuery);
         when(jpaQuery.fetch()).thenReturn(List.of());
 
+        LocalDateTime cursorCreatedAt = LocalDateTime.now();
+
         List<FindRoomsResponse> result = repository.searchByCursor(
                 RoomRelation.RECRUITING, null, null, null,
-                RoomSort.CREATED_AT, new DecodedCursor(null, LocalDateTime.now(), "r9"), 11
+                RoomSort.CREATED_AT, cursorCreatedAt, "r9", 11
         );
 
         assertThat(result).isEmpty();
@@ -108,7 +111,7 @@ class RoomRepositoryImplTest {
 
         List<FindRoomsResponse> result = repository.searchByCursor(
                 RoomRelation.RECRUITING, List.of(), List.of(), List.of(),
-                RoomSort.CREATED_AT, null, 7
+                RoomSort.CREATED_AT, null, null, 7
         );
 
         assertThat(result).isEmpty();
@@ -126,9 +129,11 @@ class RoomRepositoryImplTest {
         when(queryFactory.select(org.mockito.ArgumentMatchers.<Expression<FindRoomsResponse>>any())).thenReturn(jpaQuery);
         when(jpaQuery.fetch()).thenReturn(List.of());
 
+        LocalDateTime cursorCreatedAt = LocalDateTime.now();
+
         List<FindRoomsResponse> result = repository.searchByCursor(
                 RoomRelation.RECRUITING, null, null, null,
-                null, new DecodedCursor(null, LocalDateTime.now(), "r3"), 5
+                null, cursorCreatedAt, "r3", 5
         );
 
         assertThat(result).isEmpty();

@@ -1,114 +1,43 @@
 package com.project.dorumdorum.domain.notification.domain.service;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.MessagingErrorCode;
-import com.google.firebase.messaging.Notification;
-import com.project.dorumdorum.domain.user.domain.entity.User;
-import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
-import com.project.dorumdorum.global.alert.AlertSeverity;
-import com.project.dorumdorum.global.alert.AlertType;
-import com.project.dorumdorum.global.alert.SystemAlertPublisher;
+import com.project.dorumdorum.domain.notification.domain.entity.Notification;
+import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
+import com.project.dorumdorum.domain.notification.domain.repository.NotificationRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.logging.DomainEventLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
-import java.util.Map;
+import java.util.List;
 
-import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
-import static com.project.dorumdorum.global.exception.code.status.NotificationErrorStatus.FIREBASE_TOKEN_NOT_FOUND;
-import static com.project.dorumdorum.global.exception.code.status.NotificationErrorStatus.NOTIFICATION_FAILED;
+import static com.project.dorumdorum.global.exception.code.status.NotificationErrorStatus.NOTIFICATION_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
 
-    private final UserRepository userRepository;
-    private final FirebaseMessaging firebaseMessaging;
-    private final DomainEventLogger domainEventLogger;
-    private final SystemAlertPublisher systemAlertPublisher;
+    private final NotificationRepository notificationRepository;
 
-    @Transactional
-    public void saveToken(String userNo, String firebaseToken) {
-        User user = userRepository.findById(userNo)
-                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+    public Notification save(String recipientNo, String title, String body, NotificationType type, String relatedId) {
+        Notification notification = Notification.builder()
+                .recipientNo(recipientNo)
+                .title(title)
+                .body(body)
+                .type(type)
+                .relatedId(relatedId)
+                .build();
 
-        user.updateFirebaseToken(firebaseToken);
+        return notificationRepository.save(notification);
     }
 
-    @Transactional
-    public String sendNotification(String receiverUserNo, String title, String body, Map<String, String> data, String imageUrl) {
-        User receiver = userRepository.findById(receiverUserNo)
-                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+    public List<Notification> searchByCursor(String recipientNo, java.time.LocalDateTime cursorCreatedAt, String cursorId, int limitPlusOne) {
+        return notificationRepository.searchByCursor(recipientNo, cursorCreatedAt, cursorId, limitPlusOne);
+    }
 
-        if (!StringUtils.hasText(receiver.getFirebaseToken())) {
-            throw new RestApiException(FIREBASE_TOKEN_NOT_FOUND);
-        }
+    public void markAsRead(String notificationNo, String userNo) {
+        Notification notification = notificationRepository.findByNotificationNoAndRecipientNo(notificationNo, userNo)
+                .orElseThrow(() -> new RestApiException(NOTIFICATION_NOT_FOUND));
 
-        Message.Builder messageBuilder = Message.builder()
-                .setToken(receiver.getFirebaseToken())
-                .setNotification(
-                        Notification.builder()
-                                .setTitle(title)
-                                .setBody(body)
-                                .setImage(imageUrl)
-                                .build()
-                );
-
-        if (!CollectionUtils.isEmpty(data)) {
-            messageBuilder.putAllData(data);
-        }
-
-        try {
-            // 알림 보내기
-            String messageId = firebaseMessaging.send(messageBuilder.build());
-            domainEventLogger.info("notification", "FCM_SENT", Map.of(
-                    "messageId", messageId,
-                    "userNo", receiverUserNo,
-                    "tokenExists", true
-            ));
-            return messageId;
-        } catch (FirebaseMessagingException e) {
-            MessagingErrorCode errorCode = e.getMessagingErrorCode();
-
-            // 만료/등록 해제된 토큰이면 토큰을 비우고 클라이언트가 재등록하도록 유도
-            if (errorCode == MessagingErrorCode.UNREGISTERED || errorCode == MessagingErrorCode.INVALID_ARGUMENT) {
-                domainEventLogger.warn("notification", "FCM_INVALID_OR_EXPIRED_TOKEN", Map.of(
-                        "userNo", receiverUserNo,
-                        "token", receiver.getFirebaseToken(),
-                        "errorCode", String.valueOf(errorCode),
-                        "message", String.valueOf(e.getMessage())
-                ), e);
-                receiver.updateFirebaseToken(null);
-                throw new RestApiException(FIREBASE_TOKEN_NOT_FOUND);
-            }
-
-            domainEventLogger.error("notification", "FCM_SEND_FAILED", Map.of(
-                    "userNo", receiverUserNo,
-                    "token", receiver.getFirebaseToken(),
-                    "errorCode", String.valueOf(errorCode),
-                    "message", String.valueOf(e.getMessage())
-            ), e);
-
-            systemAlertPublisher.publish(
-                    AlertSeverity.ERROR,
-                    AlertType.EXTERNAL_API,
-                    "[ERROR] FCM 전송 실패",
-                    "userNo=" + receiverUserNo + ", errorCode=" + errorCode + ", message=" + e.getMessage(),
-                    Map.of(
-                            "userNo", receiverUserNo,
-                            "token", receiver.getFirebaseToken(),
-                            "errorCode", String.valueOf(errorCode)
-                    )
-            );
-
-            throw new RestApiException(NOTIFICATION_FAILED);
-        }
+        notification.markAsRead();
+        notificationRepository.save(notification);
     }
 }
-

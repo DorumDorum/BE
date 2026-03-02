@@ -8,7 +8,6 @@ import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepositoryCustom;
-import com.project.dorumdorum.global.pagination.DecodedCursor;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -39,7 +38,8 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                                                 List<Integer> capacities,
                                                 List<ResidencePeriod> residencePeriods,
                                                 RoomSort sort,
-                                                DecodedCursor cursor,
+                                                LocalDateTime cursorCreatedAt,
+                                                String cursorId,
                                                 int limitPlusOne) {
         JPAQuery<FindRoomsResponse> q = query
                 .select(
@@ -62,7 +62,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                         types == null || types.isEmpty() ? null : room.roomType.in(types),
                         capacities == null || capacities.isEmpty() ? null : room.capacity.in(capacities),
                         residencePeriods == null || residencePeriods.isEmpty() ? null : room.residencePeriod.in(residencePeriods),
-                        cursorPredicate(cursor, sort)
+                        cursorPredicate(cursorCreatedAt, cursorId)
                 );
 
         if (sort == RoomSort.REMAINING) {
@@ -159,19 +159,10 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .fetch();
     }
 
-    private BooleanExpression cursorPredicate(DecodedCursor c, RoomSort sort) {
-        if (c == null) return null;
-        LocalDateTime t = c.createdAt();
-        String pk = c.pk();
-
-        if (sort == RoomSort.REMAINING) {
-            Integer r = c.remaining();
-            return room.remaining.gt(r)
-                    .or(room.remaining.eq(r).and(room.createdAt.lt(t)))
-                    .or(room.remaining.eq(r).and(room.createdAt.eq(t)).and(room.roomNo.lt(pk)));
-        } else {
-            return room.createdAt.lt(t)
-                    .or(room.createdAt.eq(t).and(room.roomNo.lt(pk)));
-        }
+    /** 커서는 항상 (createdAt, pk). 정렬은 sort 파라미터로 ORDER BY에서만 적용 */
+    private BooleanExpression cursorPredicate(LocalDateTime cursorCreatedAt, String cursorId) {
+        if (cursorCreatedAt == null || cursorId == null) return null;
+        return room.createdAt.lt(cursorCreatedAt)
+                .or(room.createdAt.eq(cursorCreatedAt).and(room.roomNo.lt(cursorId)));
     }
 }

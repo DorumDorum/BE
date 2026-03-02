@@ -1,11 +1,9 @@
 package com.project.dorumdorum.global.warmer;
 
-import com.project.dorumdorum.domain.chat.domain.repository.MessageRepository;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import com.project.dorumdorum.domain.user.domain.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
@@ -18,7 +16,6 @@ public class WarmupService {
 
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
-    private final MessageRepository messageRepository;
     private final JavaMailSender mailSender;
 
     @Transactional(readOnly = true)
@@ -57,7 +54,7 @@ public class WarmupService {
 
     private void warmMongo() {
         try {
-            messageRepository.findAll(PageRequest.of(0, 1));
+//            messageRepository.findAll(PageRequest.of(0, 1));
             log.info("[Warmup] Mongo/MessageRepository.findAll(PageRequest) executed");
         } catch (Exception e) {
             log.warn("[Warmup] Mongo warmup failed", e);

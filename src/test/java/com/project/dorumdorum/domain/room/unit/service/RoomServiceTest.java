@@ -11,7 +11,6 @@ import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepository;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.pagination.DecodedCursor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +25,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,10 +63,12 @@ class RoomServiceTest {
                 new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, LocalDateTime.now(),
                         "title", "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name())
         );
-        when(roomRepository.searchByCursor(any(), any(), any(), any(), any(), any(), any(Integer.class))).thenReturn(expected);
+        when(roomRepository.searchByCursor(any(), any(), any(), any(), any(), any(), any(), anyInt()))
+                .thenReturn(expected);
 
         List<FindRoomsResponse> result = service.searchByCursor(
-                RoomRelation.RECRUITING, null, null, null, RoomSort.CREATED_AT, (DecodedCursor) null, 10
+                RoomRelation.RECRUITING, null, null, null,
+                RoomSort.CREATED_AT, null, null, 10
         );
 
         assertThat(result).isEqualTo(expected);

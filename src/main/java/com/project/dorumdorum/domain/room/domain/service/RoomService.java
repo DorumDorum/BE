@@ -9,10 +9,10 @@ import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
-import com.project.dorumdorum.global.pagination.DecodedCursor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.ROOM_NOT_FOUND;
@@ -41,8 +41,8 @@ public class RoomService {
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
-    public List<FindRoomsResponse> searchByCursor(RoomRelation relation, List<RoomType> types, List<Integer> capacities, List<ResidencePeriod> residencePeriods, RoomSort sort, DecodedCursor decodedCursor, int limitPlusOne) {
-        return roomRepository.searchByCursor(relation, types, capacities, residencePeriods, sort, decodedCursor, limitPlusOne);
+    public List<FindRoomsResponse> searchByCursor(RoomRelation relation, List<RoomType> types, List<Integer> capacities, List<ResidencePeriod> residencePeriods, RoomSort sort, LocalDateTime cursorCreatedAt, String cursorId, int limitPlusOne) {
+        return roomRepository.searchByCursor(relation, types, capacities, residencePeriods, sort, cursorCreatedAt, cursorId, limitPlusOne);
     }
 
     public FindRoomsResponse findMyRoom(String userNo) {
