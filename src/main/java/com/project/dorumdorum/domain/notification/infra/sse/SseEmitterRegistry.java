@@ -71,10 +71,7 @@ public class SseEmitterRegistry {
         return emitters != null && !emitters.isEmpty();
     }
 
-    /**
-     * SSE 연결 중인 userNo 목록 (하트비트용). 스냅샷 반환.
-     */
-    public Set<String> getConnectedUserNos() {
+    public Set<String> getConnectedUsers() {
         Set<String> result = new java.util.HashSet<>();
         userEmitters.forEach((userNo, map) -> {
             if (map != null && !map.isEmpty())
@@ -83,9 +80,6 @@ public class SseEmitterRegistry {
         return Collections.unmodifiableSet(result);
     }
 
-    /**
-     * 해당 유저의 모든 SSE 연결에 하트비트 이벤트 전송. TTL 갱신은 호출측에서 처리.
-     */
     public void sendHeartbeatToUser(String userNo) {
         Map<String, SseEmitter> emitters = userEmitters.get(userNo);
         if (emitters == null || emitters.isEmpty())
@@ -102,7 +96,6 @@ public class SseEmitterRegistry {
         });
     }
 
-    /** 해당 유저의 모든 디바이스(연결)에 전송. */
     public void sendToUser(String userNo, NotificationDeliveryPayload payload) {
         Map<String, SseEmitter> emitters = userEmitters.get(userNo);
         if (emitters == null || emitters.isEmpty())
@@ -123,7 +116,6 @@ public class SseEmitterRegistry {
         });
     }
 
-    /** 해당 디바이스에만 전송. */
     public void sendToDevice(String userNo, String deviceId, NotificationDeliveryPayload payload) {
         if (deviceId == null || deviceId.isBlank())
             return;

@@ -19,7 +19,15 @@ public class RedisUserPresenceRepository implements UserPresenceRepository {
 
     @Override
     public void setOnline(String userNo) {
-        redisTemplate.opsForValue().set(KEY_PREFIX + userNo, UserPresence.online().toRedisValue(), TTL);
+        String key = KEY_PREFIX + userNo;
+        String current = redisTemplate.opsForValue().get(key);
+        UserPresence presence = UserPresence.fromRedisValue(current);
+
+        UserPresence newPresence = presence.kind() == UserPresence.PresenceKind.IN_CHATROOM
+                ? presence
+                : UserPresence.online();
+
+        redisTemplate.opsForValue().set(key, newPresence.toRedisValue(), TTL);
     }
 
     @Override

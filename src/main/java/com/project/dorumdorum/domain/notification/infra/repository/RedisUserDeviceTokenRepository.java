@@ -11,10 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-/**
- * 유저별 디바이스 FCM 토큰. Redis, 디바이스별 TTL.
- * FCM 토큰 만료와 맞추기 위해 TTL 설정·갱신 시 같은 기간 사용 권장.
- */
 @Component
 @RequiredArgsConstructor
 public class RedisUserDeviceTokenRepository implements UserDeviceTokenRepository {
