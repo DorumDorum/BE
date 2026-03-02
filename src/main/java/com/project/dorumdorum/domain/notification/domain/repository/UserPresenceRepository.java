@@ -1,4 +1,4 @@
-package com.project.dorumdorum.domain.notification.domain.service;
+package com.project.dorumdorum.domain.notification.domain.repository;
 
 import com.project.dorumdorum.domain.notification.domain.entity.UserPresence;
 

@@ -1,4 +1,4 @@
-package com.project.dorumdorum.domain.notification.domain.service;
+package com.project.dorumdorum.domain.notification.infra.sse;
 
 public interface SseConnectionChecker {
 

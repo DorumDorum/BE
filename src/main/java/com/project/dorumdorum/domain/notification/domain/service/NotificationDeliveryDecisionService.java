@@ -3,9 +3,11 @@ package com.project.dorumdorum.domain.notification.domain.service;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationDeliveryChannel;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
 import com.project.dorumdorum.domain.notification.domain.entity.UserPresence;
+import com.project.dorumdorum.domain.notification.domain.repository.UserPresenceRepository;
 import com.project.dorumdorum.domain.notification.domain.service.strategy.DecisionRequest;
 import com.project.dorumdorum.domain.notification.domain.service.strategy.NotificationDeliveryStrategy;
 import com.project.dorumdorum.domain.notification.domain.service.strategy.NotificationDeliveryStrategyFactory;
+import com.project.dorumdorum.domain.notification.infra.sse.SseConnectionChecker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

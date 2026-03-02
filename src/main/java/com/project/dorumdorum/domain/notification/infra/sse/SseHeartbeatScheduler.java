@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.notification.infra.sse;
 
-import com.project.dorumdorum.domain.notification.domain.service.UserPresenceRepository;
+import com.project.dorumdorum.domain.notification.domain.repository.UserPresenceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

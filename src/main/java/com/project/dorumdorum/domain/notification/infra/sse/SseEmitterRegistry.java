@@ -2,7 +2,7 @@ package com.project.dorumdorum.domain.notification.infra.sse;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.dorumdorum.domain.notification.domain.service.UserPresenceRepository;
+import com.project.dorumdorum.domain.notification.domain.repository.UserPresenceRepository;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

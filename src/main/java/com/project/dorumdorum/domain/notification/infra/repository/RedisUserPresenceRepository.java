@@ -1,7 +1,7 @@
-package com.project.dorumdorum.domain.notification.infra.presence;
+package com.project.dorumdorum.domain.notification.infra.repository;
 
 import com.project.dorumdorum.domain.notification.domain.entity.UserPresence;
-import com.project.dorumdorum.domain.notification.domain.service.UserPresenceRepository;
+import com.project.dorumdorum.domain.notification.domain.repository.UserPresenceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.notification.infra.sse;
 
-import com.project.dorumdorum.domain.notification.domain.service.SseConnectionChecker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
