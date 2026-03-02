@@ -14,7 +14,7 @@ import static com.project.dorumdorum.domain.notification.domain.entity.QNotifica
 
 @Repository
 @RequiredArgsConstructor
-public class NotificationRepositoryImpl implements NotificationRepositoryCustom {
+public class NotificationJpaRepositoryImpl implements NotificationRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
