@@ -21,6 +21,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,33 +44,36 @@ class FindRoomsUseCaseTest {
         List<FindRoomsResponse> responses = java.util.stream.IntStream.rangeClosed(1, 51)
                 .mapToObj(i -> room("r" + i, 2, 1, now.minusMinutes(i)))
                 .toList();
-        when(roomService.searchByCursor(any(), any(), any(), any(), any(), any(), any(Integer.class))).thenReturn(responses);
+        when(roomService.searchByCursor(any(), any(), any(), any(), any(), any(), any(), anyInt()))
+                .thenReturn(responses);
 
         CursorPage<FindRoomsResponse> result = useCase.execute(RoomRelation.RECRUITING, null, null, null, RoomSort.CREATED_AT, null);
 
         assertThat(result.items()).hasSize(50);
-        assertThat(result.hasNext()).isFalse();
+        assertThat(result.hasNext()).isTrue();
         assertThat(result.nextCursor()).isNotBlank();
-        verify(roomService).searchByCursor(any(), any(), any(), any(), any(), any(), any(Integer.class));
+        verify(roomService).searchByCursor(any(), any(), any(), any(), any(), any(), any(), anyInt());
     }
 
     @Test
     @DisplayName("Should return hasNext false when responses within limit")
     void execute_WhenResponsesWithinLimit_ReturnsHasNextFalse() {
         List<FindRoomsResponse> responses = List.of(room("r1", 2, 1, LocalDateTime.now()));
-        when(roomService.searchByCursor(any(), any(), any(), any(), any(), any(), any(Integer.class))).thenReturn(responses);
+        when(roomService.searchByCursor(any(), any(), any(), any(), any(), any(), any(), anyInt()))
+                .thenReturn(responses);
 
         CursorPage<FindRoomsResponse> result = useCase.execute(RoomRelation.RECRUITING, null, null, null, RoomSort.REMAINING, null);
 
         assertThat(result.items()).hasSize(1);
         assertThat(result.hasNext()).isFalse();
-        assertThat(result.nextCursor()).isNotBlank();
+        assertThat(result.nextCursor()).isNull();
     }
 
     @Test
     @DisplayName("Should return null nextCursor when no response")
     void execute_WhenNoResponse_ReturnsNullCursor() {
-        when(roomService.searchByCursor(any(), any(), any(), any(), any(), any(), any(Integer.class))).thenReturn(List.of());
+        when(roomService.searchByCursor(any(), any(), any(), any(), any(), any(), any(), anyInt()))
+                .thenReturn(List.of());
 
         CursorPage<FindRoomsResponse> result = useCase.execute(
                 RoomRelation.RECRUITING, null, null, null, RoomSort.CREATED_AT, null
@@ -84,7 +88,8 @@ class FindRoomsUseCaseTest {
     @DisplayName("Should decode cursor when cursor is provided")
     void execute_WithCursor_UsesDecodedCursorPath() {
         List<FindRoomsResponse> responses = List.of(room("r1", 2, 1, LocalDateTime.now()));
-        when(roomService.searchByCursor(any(), any(), any(), any(), any(), any(), any(Integer.class))).thenReturn(responses);
+        when(roomService.searchByCursor(any(), any(), any(), any(), any(), any(), any(), anyInt()))
+                .thenReturn(responses);
 
         String cursor = com.project.dorumdorum.global.pagination.CursorCodec.encode(LocalDateTime.now(), "r1");
         CursorPage<FindRoomsResponse> result = useCase.execute(
@@ -92,6 +97,6 @@ class FindRoomsUseCaseTest {
         );
 
         assertThat(result.items()).hasSize(1);
-        verify(roomService).searchByCursor(any(), any(), any(), any(), any(), any(), any(Integer.class));
+        verify(roomService).searchByCursor(any(), any(), any(), any(), any(), any(), any(), anyInt());
     }
 }
