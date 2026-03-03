@@ -42,7 +42,7 @@ public class RoomService {
     }
 
     public List<FindRoomsResponse> searchByCursor(RoomRelation relation, List<RoomType> types, List<Integer> capacities, List<ResidencePeriod> residencePeriods, RoomSort sort, LocalDateTime cursorCreatedAt, String cursorId, int limitPlusOne) {
-        return roomRepository.searchByCursor(relation, types, capacities, residencePeriods, sort, cursorCreatedAt, cursorId, limitPlusOne);
+        return roomRepository.findByCursor(relation, types, capacities, residencePeriods, sort, cursorCreatedAt, cursorId, limitPlusOne);
     }
 
     public FindRoomsResponse findMyRoom(String userNo) {
