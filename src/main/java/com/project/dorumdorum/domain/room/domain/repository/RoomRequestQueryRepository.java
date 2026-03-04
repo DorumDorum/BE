@@ -5,7 +5,7 @@ import com.project.dorumdorum.domain.room.domain.entity.Room;
 
 import java.util.List;
 
-public interface RoomRequestRepositoryCustom {
+public interface RoomRequestQueryRepository {
 
     List<RoomRequestApplicationResponse> findApplicationsByRoom(Room room);
 }

@@ -2,7 +2,7 @@ package com.project.dorumdorum.domain.room.infra.repository;
 
 import com.project.dorumdorum.domain.room.application.dto.response.RoomRequestApplicationResponse;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
-import com.project.dorumdorum.domain.room.domain.repository.RoomRequestRepositoryCustom;
+import com.project.dorumdorum.domain.room.domain.repository.RoomRequestQueryRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -15,7 +15,7 @@ import static com.querydsl.core.types.Projections.constructor;
 
 @Repository
 @RequiredArgsConstructor
-public class RoomRequestRepositoryImpl implements RoomRequestRepositoryCustom {
+public class RoomRequestRepositoryImpl implements RoomRequestQueryRepository {
 
     private final JPAQueryFactory query;
 

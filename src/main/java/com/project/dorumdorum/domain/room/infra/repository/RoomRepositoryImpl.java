@@ -7,7 +7,7 @@ import com.project.dorumdorum.domain.room.domain.entity.Direction;
 import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
-import com.project.dorumdorum.domain.room.domain.repository.RoomRepositoryCustom;
+import com.project.dorumdorum.domain.room.domain.repository.RoomQueryRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -28,7 +28,7 @@ import static com.querydsl.core.types.Projections.constructor;
 
 @Repository
 @RequiredArgsConstructor
-public class RoomRepositoryImpl implements RoomRepositoryCustom {
+public class RoomRepositoryImpl implements RoomQueryRepository {
 
     private final JPAQueryFactory query;
 
