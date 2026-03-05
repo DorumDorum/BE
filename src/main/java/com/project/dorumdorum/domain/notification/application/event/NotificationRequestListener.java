@@ -26,14 +26,8 @@ public class NotificationRequestListener {
     private final UserDeviceTokenRepository userDeviceTokenRepository;
     private final NotificationDeliveryOrchestrator deliveryOrchestrator;
 
-    @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Retryable(
-            value = Exception.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000L, multiplier = 2.0)
-    )
     public void handle(NotificationRequestEvent event) {
         Notification saved = notificationService.save(
                 event.recipientNo(),
@@ -46,12 +40,5 @@ public class NotificationRequestListener {
         for (Device device : userDeviceTokenRepository.getDevices(saved.getRecipientNo())) {
             deliveryOrchestrator.deliver(saved, device);
         }
-    }
-
-    @Recover
-    public void recover(Exception e, NotificationRequestEvent event) {
-        log.warn("[NOTIFICATION] async delivery failed after retries. recipientNo={} type={} relatedId={}",
-                event.recipientNo(), event.type(), event.relatedId(), e);
-        // 향후: 실패 이벤트를 별도 큐/테이블에 적재하는 로직을 추가할 수 있음
     }
 }
