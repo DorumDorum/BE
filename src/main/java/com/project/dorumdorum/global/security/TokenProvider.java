@@ -135,14 +135,6 @@ public class TokenProvider {
             }
         }
 
-        // SSE는 EventSource에서 헤더 전달이 어려워 쿼리 파라미터로 토큰 허용
-        // 단, SSE 엔드포인트에서만 허용해 보안 범위를 최소화
-        String requestPath = request.getRequestURI();
-        if ("/api/notifications/stream".equals(requestPath) && "GET".equalsIgnoreCase(request.getMethod())) {
-            return Optional.ofNullable(request.getParameter("accessToken"))
-                    .filter(token -> !token.isBlank());
-        }
-
         return Optional.empty();
     }
 
