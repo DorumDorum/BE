@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Tag(name = "User")
 public interface LogoutApiSpec {
@@ -15,6 +16,7 @@ public interface LogoutApiSpec {
     )
     @DeleteMapping("/api/users/logout")
     ResponseEntity<Void> logout(
+            HttpServletResponse response,
             @Parameter(hidden = true) String accessToken
     );
 }

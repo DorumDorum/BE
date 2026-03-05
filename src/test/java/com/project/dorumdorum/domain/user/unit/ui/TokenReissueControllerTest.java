@@ -1,11 +1,10 @@
 package com.project.dorumdorum.domain.user.unit.ui;
 
-import com.project.dorumdorum.domain.user.application.dto.response.AuthTokenResponse;
 import com.project.dorumdorum.domain.user.application.dto.response.TokenReissueResponse;
 import com.project.dorumdorum.domain.user.application.usecase.TokenReissueUseCase;
 import com.project.dorumdorum.domain.user.ui.TokenReissueController;
-import com.project.dorumdorum.global.properties.JwtProperties;
-import org.springframework.http.HttpHeaders;
+import com.project.dorumdorum.global.security.cookie.AuthCookieWriter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,27 +25,27 @@ class TokenReissueControllerTest {
     private TokenReissueUseCase tokenReissueUseCase;
 
     @Mock
-    private JwtProperties jwtProperties;
+    private AuthCookieWriter authCookieWriter;
 
     @InjectMocks
     private TokenReissueController controller;
 
+    @Mock
+    private HttpServletResponse response;
+
     @Test
-    @DisplayName("Should return new access token in body and set refresh token cookie")
-    void reissue_ReturnsAccessTokenAndSetsRefreshCookie() {
+    @DisplayName("Should delegate to use case and write cookies via AuthCookieWriter")
+    void reissue_DelegatesToUseCaseAndWritesCookies() {
         String refreshToken = "refresh";
         TokenReissueResponse useCaseResponse = new TokenReissueResponse("new-access", "new-refresh");
         when(tokenReissueUseCase.execute(refreshToken)).thenReturn(useCaseResponse);
-        when(jwtProperties.getRefreshTokenExpiration()).thenReturn(3600L);
 
-        ResponseEntity<AuthTokenResponse> response = controller.reissue(refreshToken);
+        ResponseEntity<Void> result = controller.reissue(response, refreshToken);
 
         verify(tokenReissueUseCase).execute(refreshToken);
-        assertThat(response.getBody()).isEqualTo(new AuthTokenResponse("new-access"));
-
-        String setCookieHeader = response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
-        assertThat(setCookieHeader).isNotNull();
-        assertThat(setCookieHeader).contains("new-refresh");
-        assertThat(setCookieHeader).contains("HttpOnly");
+        verify(authCookieWriter).writeAccessCookie(response, "new-access");
+        verify(authCookieWriter).writeRefreshCookie(response, "new-refresh");
+        assertThat(result.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(result.getBody()).isNull();
     }
 }

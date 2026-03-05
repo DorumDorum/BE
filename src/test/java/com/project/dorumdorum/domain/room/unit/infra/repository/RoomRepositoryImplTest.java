@@ -34,14 +34,14 @@ class RoomRepositoryImplTest {
     @SuppressWarnings("unchecked")
     @Test
     @DisplayName("Should return empty list when relation is not recruiting")
-    void searchByCursor_WhenRelationNotRecruiting_ReturnsEmpty() {
+    void findByCursor_WhenRelationNotRecruiting_ReturnsEmpty() {
         RoomRepositoryImpl repository = new RoomRepositoryImpl(queryFactory);
         JPAQuery<FindRoomsResponse> jpaQuery = mock(JPAQuery.class, RETURNS_SELF);
 
         when(queryFactory.select(any(Expression.class))).thenReturn(jpaQuery);
         when(jpaQuery.fetch()).thenReturn(List.of());
 
-        List<FindRoomsResponse> result = repository.searchByCursor(
+        List<FindRoomsResponse> result = repository.findByCursor(
                 RoomRelation.APPLIED, null, null, null,
                 RoomSort.CREATED_AT, null, null, 10
         );
@@ -55,7 +55,7 @@ class RoomRepositoryImplTest {
     @SuppressWarnings("unchecked")
     @Test
     @DisplayName("Should fetch room list for recruiting relation")
-    void searchByCursor_WhenRecruiting_FetchesWithLimit() {
+    void findByCursor_WhenRecruiting_FetchesWithLimit() {
         RoomRepositoryImpl repository = new RoomRepositoryImpl(queryFactory);
         JPAQuery<FindRoomsResponse> jpaQuery = mock(JPAQuery.class, RETURNS_SELF);
         List<FindRoomsResponse> expected = List.of(
@@ -68,7 +68,7 @@ class RoomRepositoryImplTest {
 
         LocalDateTime cursorCreatedAt = LocalDateTime.now();
 
-        List<FindRoomsResponse> result = repository.searchByCursor(
+        List<FindRoomsResponse> result = repository.findByCursor(
                 RoomRelation.RECRUITING, List.of(RoomType.TYPE_1), List.of(2), List.of(ResidencePeriod.SEMESTER),
                 RoomSort.REMAINING, cursorCreatedAt, "r1", 51
         );
@@ -81,7 +81,7 @@ class RoomRepositoryImplTest {
     @SuppressWarnings("unchecked")
     @Test
     @DisplayName("Should fetch room list with created-at sort cursor")
-    void searchByCursor_WithCreatedAtSortCursor_Fetches() {
+    void findByCursor_WithCreatedAtSortCursor_Fetches() {
         RoomRepositoryImpl repository = new RoomRepositoryImpl(queryFactory);
         JPAQuery<FindRoomsResponse> jpaQuery = mock(JPAQuery.class, RETURNS_SELF);
 
@@ -90,7 +90,7 @@ class RoomRepositoryImplTest {
 
         LocalDateTime cursorCreatedAt = LocalDateTime.now();
 
-        List<FindRoomsResponse> result = repository.searchByCursor(
+        List<FindRoomsResponse> result = repository.findByCursor(
                 RoomRelation.RECRUITING, null, null, null,
                 RoomSort.CREATED_AT, cursorCreatedAt, "r9", 11
         );
@@ -102,14 +102,14 @@ class RoomRepositoryImplTest {
     @SuppressWarnings("unchecked")
     @Test
     @DisplayName("Should fetch room list with null cursor and empty filters")
-    void searchByCursor_WithNullCursorAndEmptyFilters_Fetches() {
+    void findByCursor_WithNullCursorAndEmptyFilters_Fetches() {
         RoomRepositoryImpl repository = new RoomRepositoryImpl(queryFactory);
         JPAQuery<FindRoomsResponse> jpaQuery = mock(JPAQuery.class, RETURNS_SELF);
 
         when(queryFactory.select(org.mockito.ArgumentMatchers.<Expression<FindRoomsResponse>>any())).thenReturn(jpaQuery);
         when(jpaQuery.fetch()).thenReturn(List.of());
 
-        List<FindRoomsResponse> result = repository.searchByCursor(
+        List<FindRoomsResponse> result = repository.findByCursor(
                 RoomRelation.RECRUITING, List.of(), List.of(), List.of(),
                 RoomSort.CREATED_AT, null, null, 7
         );
@@ -122,7 +122,7 @@ class RoomRepositoryImplTest {
     @SuppressWarnings("unchecked")
     @Test
     @DisplayName("Should fetch room list with null sort using default branch")
-    void searchByCursor_WithNullSort_UsesDefaultOrderBranch() {
+    void findByCursor_WithNullSort_UsesDefaultOrderBranch() {
         RoomRepositoryImpl repository = new RoomRepositoryImpl(queryFactory);
         JPAQuery<FindRoomsResponse> jpaQuery = mock(JPAQuery.class, RETURNS_SELF);
 
@@ -131,7 +131,7 @@ class RoomRepositoryImplTest {
 
         LocalDateTime cursorCreatedAt = LocalDateTime.now();
 
-        List<FindRoomsResponse> result = repository.searchByCursor(
+        List<FindRoomsResponse> result = repository.findByCursor(
                 RoomRelation.RECRUITING, null, null, null,
                 null, cursorCreatedAt, "r3", 5
         );

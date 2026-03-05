@@ -8,6 +8,7 @@ import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -124,12 +125,14 @@ public class TokenProvider {
             return headerToken;
         }
 
-        // SSE는 EventSource에서 헤더 전달이 어려워 쿼리 파라미터로 토큰 허용
-        // 단, SSE 엔드포인트에서만 허용해 보안 범위를 최소화
-        String requestPath = request.getRequestURI();
-        if ("/api/notifications/stream".equals(requestPath) && "GET".equalsIgnoreCase(request.getMethod())) {
-            return Optional.ofNullable(request.getParameter("accessToken"))
-                    .filter(token -> !token.isBlank());
+        // 쿠키에 담긴 accessToken 허용
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName()) && cookie.getValue() != null && !cookie.getValue().isBlank()) {
+                    return Optional.of(cookie.getValue());
+                }
+            }
         }
 
         return Optional.empty();

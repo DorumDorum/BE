@@ -1,13 +1,11 @@
 package com.project.dorumdorum.domain.user.unit.ui;
 
 import com.project.dorumdorum.domain.user.application.dto.request.LoginRequest;
-import com.project.dorumdorum.domain.user.application.dto.response.AuthTokenResponse;
 import com.project.dorumdorum.domain.user.application.dto.response.LoginResponse;
 import com.project.dorumdorum.domain.user.application.usecase.LoginUseCase;
 import com.project.dorumdorum.domain.user.ui.LoginController;
-import com.project.dorumdorum.global.properties.JwtProperties;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
+import com.project.dorumdorum.global.security.cookie.AuthCookieWriter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,27 +26,27 @@ class LoginControllerTest {
     private LoginUseCase loginUseCase;
 
     @Mock
-    private JwtProperties jwtProperties;
+    private AuthCookieWriter authCookieWriter;
 
     @InjectMocks
     private LoginController controller;
 
+    @Mock
+    private HttpServletResponse response;
+
     @Test
-    @DisplayName("Should return access token in body and set refresh token cookie")
-    void login_ReturnsAccessTokenAndSetsRefreshCookie() {
+    @DisplayName("Should delegate to use case and write cookies via AuthCookieWriter")
+    void login_DelegatesToUseCaseAndWritesCookies() {
         LoginRequest request = new LoginRequest("test@university.ac.kr", "password123!");
         LoginResponse useCaseResponse = new LoginResponse("access", "refresh");
         when(loginUseCase.execute(request)).thenReturn(useCaseResponse);
-        when(jwtProperties.getRefreshTokenExpiration()).thenReturn(3600L);
 
-        ResponseEntity<AuthTokenResponse> response = controller.login(request);
+        ResponseEntity<Void> result = controller.login(response, request);
 
         verify(loginUseCase).execute(request);
-        assertThat(response.getBody()).isEqualTo(new AuthTokenResponse("access"));
-
-        String setCookieHeader = response.getHeaders().getFirst(HttpHeaders.SET_COOKIE);
-        assertThat(setCookieHeader).isNotNull();
-        assertThat(setCookieHeader).contains("refresh");
-        assertThat(setCookieHeader).contains("HttpOnly");
+        verify(authCookieWriter).writeAccessCookie(response, "access");
+        verify(authCookieWriter).writeRefreshCookie(response, "refresh");
+        assertThat(result.getStatusCode().is2xxSuccessful()).isTrue();
+        assertThat(result.getBody()).isNull();
     }
 }

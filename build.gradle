@@ -77,6 +77,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-admin:9.2.0'
     implementation 'net.logstash.logback:logstash-logback-encoder:8.0'
 
+    // Retry
+    implementation 'org.springframework.retry:spring-retry'
+
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
