@@ -62,7 +62,7 @@ class NotificationServiceTest {
         // given
         LocalDateTime cursorCreatedAt = LocalDateTime.now();
         List<Notification> notifications = List.of(Notification.builder().build());
-        when(notificationRepository.searchByCursor("user-1", cursorCreatedAt, "n1", 21))
+        when(notificationRepository.findByCursor("user-1", cursorCreatedAt, "n1", 21))
                 .thenReturn(notifications);
 
         // when
@@ -70,7 +70,7 @@ class NotificationServiceTest {
 
         // then
         assertThat(result).isEqualTo(notifications);
-        verify(notificationRepository).searchByCursor("user-1", cursorCreatedAt, "n1", 21);
+        verify(notificationRepository).findByCursor("user-1", cursorCreatedAt, "n1", 21);
     }
 
     @Test

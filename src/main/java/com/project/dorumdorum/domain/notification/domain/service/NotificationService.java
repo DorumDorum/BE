@@ -30,7 +30,7 @@ public class NotificationService {
     }
 
     public List<Notification> searchByCursor(String recipientNo, java.time.LocalDateTime cursorCreatedAt, String cursorId, int limitPlusOne) {
-        return notificationRepository.searchByCursor(recipientNo, cursorCreatedAt, cursorId, limitPlusOne);
+        return notificationRepository.findByCursor(recipientNo, cursorCreatedAt, cursorId, limitPlusOne);
     }
 
     public void markAsRead(String notificationNo, String userNo) {

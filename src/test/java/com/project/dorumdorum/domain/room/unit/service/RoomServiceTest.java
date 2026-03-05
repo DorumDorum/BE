@@ -63,7 +63,7 @@ class RoomServiceTest {
                 new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, LocalDateTime.now(),
                         "title", "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name())
         );
-        when(roomRepository.searchByCursor(any(), any(), any(), any(), any(), any(), any(), anyInt()))
+        when(roomRepository.findByCursor(any(), any(), any(), any(), any(), any(), any(), anyInt()))
                 .thenReturn(expected);
 
         List<FindRoomsResponse> result = service.searchByCursor(

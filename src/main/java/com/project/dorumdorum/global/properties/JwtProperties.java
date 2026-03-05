@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 @Getter
 @Component
 public class JwtProperties {
+
     @Value("${jwt.key}")
     private String key;
 
@@ -17,4 +18,13 @@ public class JwtProperties {
 
     @Value("${jwt.refresh.expiration}")
     private Long refreshTokenExpiration;
+
+    @Value("${jwt.cookie.secure:true}")
+    private boolean cookieSecure;
+
+    @Value("${jwt.cookie.same-site:Lax}")
+    private String cookieSameSite;
+
+    @Value("${jwt.cookie.path:/}")
+    private String cookiePath;
 }

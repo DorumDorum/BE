@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.roommate.infra.repository;
 
 import com.project.dorumdorum.domain.roommate.application.dto.response.MyRoommateResponse;
-import com.project.dorumdorum.domain.roommate.domain.repository.RoommateRepositoryCustom;
+import com.project.dorumdorum.domain.roommate.domain.repository.RoommateQueryRepository;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import static com.querydsl.core.types.Projections.constructor;
 
 @Repository
 @RequiredArgsConstructor
-public class RoommateRepositoryImpl implements RoommateRepositoryCustom {
+public class RoommateRepositoryImpl implements RoommateQueryRepository {
 
     private final JPAQueryFactory query;
 

@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.roommate.application.dto.response.MyRoommat
 
 import java.util.List;
 
-public interface RoommateRepositoryCustom {
+public interface RoommateQueryRepository {
 
     List<MyRoommateResponse> findMyRoommates(String userNo);
 }
