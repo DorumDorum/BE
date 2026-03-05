@@ -41,5 +41,26 @@ public class AuthCookieWriter {
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
+
+    public void expireAuthCookies(HttpServletResponse response) {
+        ResponseCookie access = ResponseCookie.from(ACCESS_COOKIE_NAME, "")
+                .path(jwtProperties.getCookiePath())
+                .httpOnly(true)
+                .secure(jwtProperties.isCookieSecure())
+                .sameSite(jwtProperties.getCookieSameSite())
+                .maxAge(0)
+                .build();
+
+        ResponseCookie refresh = ResponseCookie.from(REFRESH_COOKIE_NAME, "")
+                .path(jwtProperties.getCookiePath())
+                .httpOnly(true)
+                .secure(jwtProperties.isCookieSecure())
+                .sameSite(jwtProperties.getCookieSameSite())
+                .maxAge(0)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, access.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refresh.toString());
+    }
 }
 
