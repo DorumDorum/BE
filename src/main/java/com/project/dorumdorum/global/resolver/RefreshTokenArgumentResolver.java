@@ -43,7 +43,6 @@ public class RefreshTokenArgumentResolver implements HandlerMethodArgumentResolv
         }
 
         String token = getRefreshTokenFromCookie(request)
-                .or(() -> tokenProvider.getToken(request))
                 .orElseThrow(() -> new RestApiException(_UNAUTHORIZED));
 
         if (tokenProvider.isAccessToken(token))
