@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.user.ui;
 
+import com.project.dorumdorum.domain.user.application.dto.response.TokenReissueResponse;
 import com.project.dorumdorum.domain.user.application.usecase.TokenReissueUseCase;
 import com.project.dorumdorum.domain.user.ui.spec.TokenReissueApiSpec;
 import com.project.dorumdorum.global.annotation.RefreshToken;
@@ -8,8 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.Duration;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,7 +22,7 @@ public class TokenReissueController implements TokenReissueApiSpec {
             HttpServletResponse response,
             @RefreshToken String refreshToken
     ) {
-        var tokens = tokenReissueUseCase.execute(refreshToken);
+        TokenReissueResponse tokens = tokenReissueUseCase.execute(refreshToken);
         authCookieWriter.writeAccessCookie(response, tokens.accessToken());
         authCookieWriter.writeRefreshCookie(response, tokens.refreshToken());
 
