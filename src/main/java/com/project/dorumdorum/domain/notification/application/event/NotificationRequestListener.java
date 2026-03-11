@@ -1,16 +1,11 @@
 package com.project.dorumdorum.domain.notification.application.event;
 
 import com.project.dorumdorum.domain.notification.domain.entity.Notification;
-import com.project.dorumdorum.domain.notification.domain.repository.UserDeviceTokenRepository;
+import com.project.dorumdorum.domain.notification.domain.repository.NotificationDeviceRepository;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryOrchestrator;
-import com.project.dorumdorum.domain.notification.domain.vo.Device;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +18,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class NotificationRequestListener {
 
     private final NotificationService notificationService;
-    private final UserDeviceTokenRepository userDeviceTokenRepository;
+    private final NotificationDeviceRepository notificationDeviceRepository;
     private final NotificationDeliveryOrchestrator deliveryOrchestrator;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -37,7 +32,7 @@ public class NotificationRequestListener {
                 event.relatedId()
         );
 
-        for (Device device : userDeviceTokenRepository.getDevices(saved.getRecipientNo())) {
+        for (var device : notificationDeviceRepository.findByUserNo(saved.getRecipientNo())) {
             deliveryOrchestrator.deliver(saved, device);
         }
     }

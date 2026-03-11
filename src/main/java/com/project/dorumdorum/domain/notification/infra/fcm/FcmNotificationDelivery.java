@@ -4,12 +4,10 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import com.project.dorumdorum.domain.notification.domain.entity.Device;
+import com.project.dorumdorum.domain.notification.domain.entity.NotificationDeliveryChannel;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDelivery;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
-import com.project.dorumdorum.domain.notification.domain.entity.NotificationDeliveryChannel;
-import com.project.dorumdorum.domain.notification.domain.vo.Device;
-import com.project.dorumdorum.domain.user.domain.entity.User;
-import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,22 +18,13 @@ import org.springframework.stereotype.Component;
 public class FcmNotificationDelivery implements NotificationDelivery {
 
     private final FirebaseMessaging firebaseMessaging;
-    private final UserRepository userRepository;
-
-    @Override
-    public void send(NotificationDeliveryChannel channel, NotificationDeliveryPayload payload) {
-        if (channel != NotificationDeliveryChannel.FCM)
-            return;
-        User user = userRepository.findById(payload.recipientNo()).orElse(null);
-        sendFcm(payload, user != null ? user.getFirebaseToken() : null);
-    }
 
     @Override
     public void send(NotificationDeliveryChannel channel, NotificationDeliveryPayload payload,
                      Device device) {
         if (channel != NotificationDeliveryChannel.FCM)
             return;
-        sendFcm(payload, device.fcmToken());
+        sendFcm(payload, device.getFcmToken());
     }
 
     private void sendFcm(NotificationDeliveryPayload payload, String fcmToken) {
