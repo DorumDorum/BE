@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.notification.domain.entity.Notification;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationDeliveryChannel;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationDeliveryDecisionService;
-import com.project.dorumdorum.domain.notification.domain.vo.Device;
+import com.project.dorumdorum.domain.notification.domain.entity.Device;
 import com.project.dorumdorum.domain.notification.mapper.NotificationMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ class NotificationDeliveryOrchestratorTest {
                 .type(NotificationType.NEW_MESSAGE_RECEIVED)
                 .relatedId("room-1")
                 .build();
-        Device device = new Device("device-1", "token-1");
+        Device device = Device.builder().id("id1").userNo("user-1").deviceId("device-1").fcmToken("token-1").build();
 
         when(decisionService.decide("user-1", "device-1", NotificationType.NEW_MESSAGE_RECEIVED, "room-1"))
                 .thenReturn(NotificationDeliveryChannel.SKIP);
@@ -67,7 +67,7 @@ class NotificationDeliveryOrchestratorTest {
                 .type(NotificationType.NEW_MESSAGE_RECEIVED)
                 .relatedId("room-1")
                 .build();
-        Device device = new Device("device-1", "token-1");
+        Device device = Device.builder().id("id1").userNo("user-1").deviceId("device-1").fcmToken("token-1").build();
 
         NotificationDeliveryPayload payload = new NotificationDeliveryPayload(
                 "n1", "user-1", "title", "body",

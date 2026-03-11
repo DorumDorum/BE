@@ -2,7 +2,7 @@ package com.project.dorumdorum.domain.notification.infra.sse;
 
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationDeliveryChannel;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
-import com.project.dorumdorum.domain.notification.domain.vo.Device;
+import com.project.dorumdorum.domain.notification.domain.entity.Device;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,22 +37,20 @@ class SseNotificationDeliveryTest {
     @Test
     @DisplayName("채널이 SSE가 아니면 아무 것도 보내지 않는다")
     void send_WhenNotSse_DoesNothing() {
-        delivery.send(NotificationDeliveryChannel.FCM, payload);
-        delivery.send(NotificationDeliveryChannel.FCM, payload, new Device("d1", "t1"));
+        Device device = Device.builder().id("id1").userNo("u1").deviceId("d1").fcmToken("t1").build();
 
-        verify(sseEmitterRegistry, never()).sendToUser(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        delivery.send(NotificationDeliveryChannel.FCM, payload, device);
+
         verify(sseEmitterRegistry, never()).sendToDevice(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
     }
 
     @Test
-    @DisplayName("채널이 SSE이면 유저 혹은 디바이스로 전송한다")
+    @DisplayName("채널이 SSE이면 디바이스로 전송한다")
     void send_WhenSse_SendsViaRegistry() {
-        Device device = new Device("d1", "t1");
+        Device device = Device.builder().id("id1").userNo("u1").deviceId("d1").fcmToken("t1").build();
 
-        delivery.send(NotificationDeliveryChannel.SSE, payload);
         delivery.send(NotificationDeliveryChannel.SSE, payload, device);
 
-        verify(sseEmitterRegistry).sendToUser("user-1", payload);
         verify(sseEmitterRegistry).sendToDevice("user-1", "d1", payload);
     }
 }

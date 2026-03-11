@@ -1,11 +1,11 @@
 package com.project.dorumdorum.domain.notification.application.event;
 
+import com.project.dorumdorum.domain.notification.domain.entity.Device;
 import com.project.dorumdorum.domain.notification.domain.entity.Notification;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
-import com.project.dorumdorum.domain.notification.domain.repository.UserDeviceTokenRepository;
+import com.project.dorumdorum.domain.notification.domain.repository.NotificationDeviceRepository;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryOrchestrator;
-import com.project.dorumdorum.domain.notification.domain.vo.Device;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +26,7 @@ class NotificationRequestListenerTest {
     private NotificationService notificationService;
 
     @Mock
-    private UserDeviceTokenRepository userDeviceTokenRepository;
+    private NotificationDeviceRepository notificationDeviceRepository;
 
     @Mock
     private NotificationDeliveryOrchestrator deliveryOrchestrator;
@@ -50,20 +50,20 @@ class NotificationRequestListenerTest {
                 .build();
 
         List<Device> devices = List.of(
-                new Device("d1", "t1"),
-                new Device("d2", "t2")
+                Device.builder().id("id1").userNo("user-1").deviceId("d1").fcmToken("t1").build(),
+                Device.builder().id("id2").userNo("user-1").deviceId("d2").fcmToken("t2").build()
         );
 
         when(notificationService.save(event.recipientNo(), event.title(), event.body(), event.type(), event.relatedId()))
                 .thenReturn(saved);
-        when(userDeviceTokenRepository.getDevices("user-1")).thenReturn(devices);
+        when(notificationDeviceRepository.findByUserNo("user-1")).thenReturn(devices);
 
         // when
         listener.handle(event);
 
         // then
         verify(notificationService).save(event.recipientNo(), event.title(), event.body(), event.type(), event.relatedId());
-        verify(userDeviceTokenRepository).getDevices("user-1");
+        verify(notificationDeviceRepository).findByUserNo("user-1");
         verify(deliveryOrchestrator).deliver(saved, devices.get(0));
         verify(deliveryOrchestrator).deliver(saved, devices.get(1));
     }
