@@ -89,6 +89,14 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Build and push pinpoint image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.pinpoint
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dorumdorum-be:pinpoint
+
       - name: Log - Image pushed
         run: echo ">>> [Docker] Image built and pushed"
 
@@ -102,7 +110,7 @@ jobs:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
         env:
-          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/dorumdorum-be:latest
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/dorumdorum-be:pinpoint
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           FIREBASE_SERVICE_ACCOUNT_B64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
@@ -197,7 +205,10 @@ jobs:
             git clone --depth 1 -b production "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_FULL_NAME}.git" temp_repo
             echo ">>> [Deploy] Clone 완료, docker-compose.yml · monitoring 복사 중..."
             
-            if [ -f "temp_repo/docker-compose.yml" ]; then
+            if [ -f "temp_repo/BE/docker-compose.yml" ]; then
+              cp temp_repo/BE/docker-compose.yml .
+              echo ">>> [Deploy] BE/docker-compose.yml 복사 완료"
+            elif [ -f "temp_repo/docker-compose.yml" ]; then
               cp temp_repo/docker-compose.yml .
               echo ">>> [Deploy] docker-compose.yml 복사 완료"
             else
@@ -206,22 +217,21 @@ jobs:
               exit 1
             fi
             
-            if [ -d "temp_repo/monitoring" ]; then
+            if [ -d "temp_repo/BE/monitoring" ]; then
+              mkdir -p monitoring
+              cp -r temp_repo/BE/monitoring/* monitoring/
+              echo ">>> [Deploy] monitoring 설정 파일 복사 완료 (BE)"
+            elif [ -d "temp_repo/monitoring" ]; then
               mkdir -p monitoring
               cp -r temp_repo/monitoring/* monitoring/
               echo ">>> [Deploy] monitoring 설정 파일 복사 완료"
+            elif [ -d "temp_repo/INFRA/monitoring" ]; then
+              mkdir -p monitoring
+              cp -r temp_repo/INFRA/monitoring/* monitoring/
+              echo ">>> [Deploy] monitoring 설정 파일 복사 완료 (INFRA)"
             else
               echo "WARNING: monitoring directory not found, creating empty structure"
               mkdir -p monitoring/prometheus monitoring/grafana/provisioning/dashboards/json monitoring/grafana/provisioning/datasources
-            fi
-
-            # Pinpoint Agent 설정 파일만 복사 (agent 바이너리는 서버에 수동 설치됨)
-            if [ -d "temp_repo/pinpoint-agent" ]; then
-              mkdir -p pinpoint-agent
-              if [ -f "temp_repo/pinpoint-agent/pinpoint-root.config" ]; then
-                cp temp_repo/pinpoint-agent/pinpoint-root.config pinpoint-agent/
-                echo ">>> [Deploy] pinpoint-root.config 복사 완료"
-              fi
             fi
 
             rm -rf temp_repo

@@ -12,7 +12,7 @@ services:
       - dorumdorum-net
 
   backend:
-    image: ${BACKEND_IMAGE:-koungq/dorumdorum-be:latest}
+    image: ${BACKEND_IMAGE:-koungq/dorumdorum-be:pinpoint}
     container_name: ${CONTAINER_NAME:-dorumdorum-be}
     ports:
       - "8080:8080"
@@ -21,10 +21,11 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - JAVA_OPTS=-javaagent:/app/pinpoint-agent/pinpoint-bootstrap-2.5.4.jar -Dpinpoint.agentId=dorumdorum-backend -Dpinpoint.applicationName=dorumdorum -Dpinpoint.profiler.profiles.active=release -Dpinpoint.config=/app/pinpoint-agent/pinpoint-root.config
+      - PINPOINT_COLLECTOR_IP=pinpoint-collector
+      - PINPOINT_APPLICATION_NAME=dorumdorum
+      - PINPOINT_AGENT_ID=dorumdorum-backend
     volumes:
       - ./firebase-service-account.json:/app/firebase-service-account.json:ro
-      - ./pinpoint-agent:/app/pinpoint-agent:ro
     depends_on:
       - redis
       - pinpoint-collector
@@ -33,7 +34,7 @@ services:
       - dorumdorum-net
 
   zoo1:
-    image: zookeeper:3.8
+    image: zookeeper:3.4.13
     container_name: zoo1
     ports:
       - "2181:2181"
@@ -43,7 +44,10 @@ services:
       - zookeeper_data:/data
     restart: unless-stopped
     networks:
-      - dorumdorum-net
+      dorumdorum-net:
+        aliases:
+          - zoo2
+          - zoo3
 
   pinpoint-hbase:
     image: pinpointdocker/pinpoint-hbase:2.5.4
@@ -58,7 +62,7 @@ services:
       - "16020:16020"
       - "16030:16030"
     volumes:
-      - hbase_data:/hbase-data
+      - hbase_data:/home/pinpoint/hbase
     restart: unless-stopped
 
   pinpoint-collector:
@@ -70,10 +74,13 @@ services:
       - dorumdorum-net
     environment:
       - SPRING_PROFILES_ACTIVE=release
-      - CLUSTER_ZOOKEEPER_ADDRESS=zoo1
+      - PINPOINT_ZOOKEEPER_ADDRESS=zoo1:2181
       - HBASE_HOST=zoo1
       - HBASE_PORT=2181
     ports:
+      - "9991:9991"
+      - "9992:9992"
+      - "9993:9993"
       - "9994:9994"
       - "9995:9995/udp"
       - "9996:9996/udp"
@@ -88,7 +95,7 @@ services:
       - dorumdorum-net
     environment:
       - SPRING_PROFILES_ACTIVE=release
-      - CLUSTER_ZOOKEEPER_ADDRESS=zoo1
+      - PINPOINT_ZOOKEEPER_ADDRESS=zoo1:2181
       - HBASE_HOST=zoo1
       - HBASE_PORT=2181
     ports:
