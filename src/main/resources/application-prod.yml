@@ -1,5 +1,8 @@
 spring:
   datasource:
+    hikari:
+      maximum-pool-size: 50
+      connection-timeout: 10000
     username: ${RDB_USERNAME}
     url: ${RDB_URL}
     password: ${RDB_PASSWORD}
@@ -21,6 +24,8 @@ jwt:
     expiration: ${JWT_ACCESS_EXPIRATION}
   refresh:
     expiration: ${JWT_REFRESH_EXPIRATION}
+  cookie:
+    same-site: None
 
 logging:
   policy:
