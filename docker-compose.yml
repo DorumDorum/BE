@@ -69,8 +69,10 @@ services:
     networks:
       - dorumdorum-net
     environment:
-      - CLUSTER_ZOOKEEPER_ADDRESS=zoo1
       - SPRING_PROFILES_ACTIVE=release
+      - CLUSTER_ZOOKEEPER_ADDRESS=zoo1
+      - HBASE_HOST=zoo1
+      - HBASE_PORT=2181
     ports:
       - "9994:9994"
       - "9995:9995/udp"
@@ -85,8 +87,10 @@ services:
     networks:
       - dorumdorum-net
     environment:
-      - CLUSTER_ZOOKEEPER_ADDRESS=zoo1
       - SPRING_PROFILES_ACTIVE=release
+      - CLUSTER_ZOOKEEPER_ADDRESS=zoo1
+      - HBASE_HOST=zoo1
+      - HBASE_PORT=2181
     ports:
       - "8079:8080"
     restart: unless-stopped
