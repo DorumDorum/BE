@@ -21,13 +21,61 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - JAVA_OPTS=-javaagent:/app/pinpoint-agent/pinpoint-bootstrap-2.5.4.jar -Dpinpoint.agentId=dorumdorum-backend -Dpinpoint.applicationName=dorumdorum -Dpinpoint.profiler.profiles.active=release -Dpinpoint.config=/app/pinpoint-agent/pinpoint-root.config
     volumes:
       - ./firebase-service-account.json:/app/firebase-service-account.json:ro
+      - ./pinpoint-agent:/app/pinpoint-agent:ro
     depends_on:
       - redis
+      - pinpoint-collector
     restart: unless-stopped
     networks:
       - dorumdorum-net
+
+  pinpoint-hbase:
+    image: pinpointdocker/pinpoint-hbase:2.5.4
+    container_name: pinpoint-hbase
+    networks:
+      - dorumdorum-net
+    ports:
+      - "2181:2181"
+      - "16000:16000"
+      - "16010:16010"
+      - "16020:16020"
+      - "16030:16030"
+    volumes:
+      - hbase_data:/hbase-data
+    restart: unless-stopped
+
+  pinpoint-collector:
+    image: pinpointdocker/pinpoint-collector:2.5.4
+    container_name: pinpoint-collector
+    depends_on:
+      - pinpoint-hbase
+    networks:
+      - dorumdorum-net
+    environment:
+      - CLUSTER_ZOOKEEPER_ADDRESS=pinpoint-hbase
+      - SPRING_PROFILES_ACTIVE=release
+    ports:
+      - "9994:9994"
+      - "9995:9995/udp"
+      - "9996:9996/udp"
+    restart: unless-stopped
+
+  pinpoint-web:
+    image: pinpointdocker/pinpoint-web:2.5.4
+    container_name: pinpoint-web
+    depends_on:
+      - pinpoint-hbase
+    networks:
+      - dorumdorum-net
+    environment:
+      - CLUSTER_ZOOKEEPER_ADDRESS=pinpoint-hbase
+      - SPRING_PROFILES_ACTIVE=release
+    ports:
+      - "8079:8080"
+    restart: unless-stopped
 
   prometheus:
     image: prom/prometheus:v2.52.0
@@ -71,6 +119,7 @@ volumes:
   redis_data:
   prometheus_data:
   grafana_data:
+  hbase_data:
 
 networks:
   dorumdorum-net:

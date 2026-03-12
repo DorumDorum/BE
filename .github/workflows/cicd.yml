@@ -214,7 +214,16 @@ jobs:
               echo "WARNING: monitoring directory not found, creating empty structure"
               mkdir -p monitoring/prometheus monitoring/grafana/provisioning/dashboards/json monitoring/grafana/provisioning/datasources
             fi
-            
+
+            # Pinpoint Agent 설정 파일만 복사 (agent 바이너리는 서버에 수동 설치됨)
+            if [ -d "temp_repo/pinpoint-agent" ]; then
+              mkdir -p pinpoint-agent
+              if [ -f "temp_repo/pinpoint-agent/pinpoint-root.config" ]; then
+                cp temp_repo/pinpoint-agent/pinpoint-root.config pinpoint-agent/
+                echo ">>> [Deploy] pinpoint-root.config 복사 완료"
+              fi
+            fi
+
             rm -rf temp_repo
             echo ">>> [Deploy] temp_repo 삭제, compose 파일 확인 중..."
 
@@ -235,8 +244,14 @@ jobs:
             export CONTAINER_NAME="$CONTAINER_NAME"
             echo ">>> [Deploy] 기존 컨테이너 정리 (down + 이름으로 강제 제거)..."
             docker-compose -f docker-compose.yml down --remove-orphans >/dev/null 2>&1 || true
-            docker rm -f dorumdorum-redis dorumdorum-be dorumdorum-prometheus dorumdorum-grafana 2>/dev/null || true
-            echo ">>> [Deploy] docker-compose up -d 실행 중..."
+            docker rm -f dorumdorum-redis dorumdorum-be dorumdorum-prometheus dorumdorum-grafana pinpoint-hbase pinpoint-collector pinpoint-web 2>/dev/null || true
+
+            echo ">>> [Deploy] HBase 먼저 기동 중..."
+            docker-compose -f docker-compose.yml up -d pinpoint-hbase
+            echo ">>> [Deploy] HBase 초기화 대기 중 (60s)..."
+            sleep 60
+
+            echo ">>> [Deploy] 나머지 서비스 기동 중..."
             docker-compose -f docker-compose.yml up -d
 
             echo ">>> [Deploy] 오래된 이미지 정리 중..."
@@ -247,3 +262,4 @@ jobs:
             echo "- Redis: localhost:6379"
             echo "- Prometheus: http://localhost:9090"
             echo "- Grafana: http://localhost:3000 (admin/admin)"
+            echo "- Pinpoint Web: http://localhost:8079"
