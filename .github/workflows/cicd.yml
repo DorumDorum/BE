@@ -244,9 +244,11 @@ jobs:
             export CONTAINER_NAME="$CONTAINER_NAME"
             echo ">>> [Deploy] 기존 컨테이너 정리 (down + 이름으로 강제 제거)..."
             docker-compose -f docker-compose.yml down --remove-orphans >/dev/null 2>&1 || true
-            docker rm -f dorumdorum-redis dorumdorum-be dorumdorum-prometheus dorumdorum-grafana pinpoint-hbase pinpoint-collector pinpoint-web 2>/dev/null || true
+            docker rm -f dorumdorum-redis dorumdorum-be dorumdorum-prometheus dorumdorum-grafana zoo1 pinpoint-hbase pinpoint-collector pinpoint-web 2>/dev/null || true
 
-            echo ">>> [Deploy] HBase 먼저 기동 중..."
+            echo ">>> [Deploy] ZooKeeper + HBase 먼저 기동 중..."
+            docker-compose -f docker-compose.yml up -d zoo1
+            sleep 10
             docker-compose -f docker-compose.yml up -d pinpoint-hbase
             echo ">>> [Deploy] HBase 초기화 대기 중 (60s)..."
             sleep 60
