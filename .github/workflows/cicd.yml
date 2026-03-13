@@ -256,15 +256,73 @@ jobs:
             docker-compose -f docker-compose.yml down --remove-orphans >/dev/null 2>&1 || true
             docker rm -f dorumdorum-redis dorumdorum-be dorumdorum-prometheus dorumdorum-grafana zoo1 pinpoint-hbase pinpoint-collector pinpoint-web 2>/dev/null || true
 
-            echo ">>> [Deploy] ZooKeeper + HBase 먼저 기동 중..."
+            echo ">>> [Deploy] [1/6] ZooKeeper 기동..."
             docker-compose -f docker-compose.yml up -d zoo1
-            sleep 10
-            docker-compose -f docker-compose.yml up -d pinpoint-hbase
-            echo ">>> [Deploy] HBase 초기화 대기 중 (60s)..."
-            sleep 60
+            for i in $(seq 1 30); do
+              if docker ps --format '{{.Names}}' | grep -q '^zoo1$'; then
+                echo ">>> [Deploy] ZooKeeper up"
+                break
+              fi
+              sleep 2
+            done
 
-            echo ">>> [Deploy] 나머지 서비스 기동 중..."
-            docker-compose -f docker-compose.yml up -d
+            echo ">>> [Deploy] [2/6] HBase 기동..."
+            docker-compose -f docker-compose.yml up -d pinpoint-hbase
+            echo ">>> [Deploy] HBase 초기화 대기..."
+            HBASE_READY=0
+            for i in $(seq 1 90); do
+              if docker logs pinpoint-hbase 2>&1 | grep -q "Master has completed initialization"; then
+                echo ">>> [Deploy] HBase initialized"
+                HBASE_READY=1
+                break
+              fi
+              sleep 2
+            done
+            if [ "$HBASE_READY" -ne 1 ]; then
+              echo "ERROR: HBase initialization timeout"
+              docker logs --tail 200 pinpoint-hbase || true
+              exit 1
+            fi
+
+            echo ">>> [Deploy] [3/6] Pinpoint Collector 기동..."
+            docker-compose -f docker-compose.yml up -d pinpoint-collector
+            COLLECTOR_READY=0
+            for i in $(seq 1 60); do
+              if docker logs pinpoint-collector 2>&1 | grep -Eq "Started .*CollectorApp|Started CollectorApp"; then
+                echo ">>> [Deploy] Pinpoint Collector started"
+                COLLECTOR_READY=1
+                break
+              fi
+              sleep 2
+            done
+            if [ "$COLLECTOR_READY" -ne 1 ]; then
+              echo "ERROR: Pinpoint Collector startup timeout"
+              docker logs --tail 200 pinpoint-collector || true
+              exit 1
+            fi
+
+            echo ">>> [Deploy] [4/6] Pinpoint Web 기동..."
+            docker-compose -f docker-compose.yml up -d pinpoint-web
+            WEB_READY=0
+            for i in $(seq 1 60); do
+              if docker logs pinpoint-web 2>&1 | grep -Eq "Started .*WebApp|Started WebApp|Started .*PinpointWebApplication"; then
+                echo ">>> [Deploy] Pinpoint Web started"
+                WEB_READY=1
+                break
+              fi
+              sleep 2
+            done
+            if [ "$WEB_READY" -ne 1 ]; then
+              echo "ERROR: Pinpoint Web startup timeout"
+              docker logs --tail 200 pinpoint-web || true
+              exit 1
+            fi
+
+            echo ">>> [Deploy] [5/6] Backend 기동..."
+            docker-compose -f docker-compose.yml up -d backend
+
+            echo ">>> [Deploy] [6/6] Redis/Monitoring 기동..."
+            docker-compose -f docker-compose.yml up -d redis prometheus grafana
 
             echo ">>> [Deploy] 오래된 이미지 정리 중..."
             docker image prune -af --filter "until=168h"
