@@ -270,11 +270,17 @@ jobs:
             docker-compose -f docker-compose.yml up -d pinpoint-hbase
             echo ">>> [Deploy] HBase 초기화 대기..."
             HBASE_READY=0
-            for i in $(seq 1 90); do
-              if docker logs pinpoint-hbase 2>&1 | grep -q "Master has completed initialization"; then
+            for i in $(seq 1 180); do
+              if docker logs pinpoint-hbase 2>&1 | grep -Eq "Master has completed initialization|Tables already exist"; then
                 echo ">>> [Deploy] HBase initialized"
                 HBASE_READY=1
                 break
+              fi
+              if ! docker ps --format '{{.Names}}' | grep -q '^pinpoint-hbase$'; then
+                echo "ERROR: pinpoint-hbase container is not running"
+                docker ps -a | grep pinpoint-hbase || true
+                docker logs --tail 200 pinpoint-hbase || true
+                exit 1
               fi
               sleep 2
             done
