@@ -1,10 +1,8 @@
 package com.project.dorumdorum.domain.notification.application.event;
 
-import com.project.dorumdorum.domain.notification.domain.entity.Device;
 import com.project.dorumdorum.domain.notification.domain.entity.Notification;
-import com.project.dorumdorum.domain.notification.domain.repository.NotificationDeviceRepository;
+import com.project.dorumdorum.domain.notification.domain.service.NotificationOutboxService;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
-import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryOrchestrator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -20,23 +18,26 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class NotificationRequestListener {
 
     private final NotificationService notificationService;
-    private final NotificationDeviceRepository notificationDeviceRepository;
-    private final NotificationDeliveryOrchestrator deliveryOrchestrator;
+    private final NotificationOutboxService notificationOutboxService;
 
     @Async("notificationExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(NotificationRequestEvent event) {
-        Notification saved = notificationService.save(
-                event.recipientNo(),
-                event.title(),
-                event.body(),
-                event.type(),
-                event.relatedId()
-        );
+        try {
+            Notification saved = notificationService.save(
+                    event.recipientNo(),
+                    event.title(),
+                    event.body(),
+                    event.type(),
+                    event.relatedId()
+            );
 
-        for (Device device : notificationDeviceRepository.findByUserNo(saved.getRecipientNo())) {
-            deliveryOrchestrator.deliver(saved, device);
+            notificationOutboxService.success(event.outboxNo(), saved.getNotificationNo());
+        } catch (Exception e) {
+            notificationOutboxService.fail(event.outboxNo());
+            log.error("Failed to process notification request event", e);
+            throw e;
         }
     }
 }
