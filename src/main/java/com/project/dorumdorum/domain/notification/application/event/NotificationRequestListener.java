@@ -1,11 +1,13 @@
 package com.project.dorumdorum.domain.notification.application.event;
 
+import com.project.dorumdorum.domain.notification.domain.entity.Device;
 import com.project.dorumdorum.domain.notification.domain.entity.Notification;
 import com.project.dorumdorum.domain.notification.domain.repository.NotificationDeviceRepository;
 import com.project.dorumdorum.domain.notification.domain.service.NotificationService;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryOrchestrator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ public class NotificationRequestListener {
     private final NotificationDeviceRepository notificationDeviceRepository;
     private final NotificationDeliveryOrchestrator deliveryOrchestrator;
 
+    @Async("notificationExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(NotificationRequestEvent event) {
@@ -32,7 +35,7 @@ public class NotificationRequestListener {
                 event.relatedId()
         );
 
-        for (var device : notificationDeviceRepository.findByUserNo(saved.getRecipientNo())) {
+        for (Device device : notificationDeviceRepository.findByUserNo(saved.getRecipientNo())) {
             deliveryOrchestrator.deliver(saved, device);
         }
     }
