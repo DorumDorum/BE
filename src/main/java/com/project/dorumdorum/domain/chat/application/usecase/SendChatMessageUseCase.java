@@ -2,7 +2,7 @@ package com.project.dorumdorum.domain.chat.application.usecase;
 
 import com.project.dorumdorum.domain.chat.application.dto.request.SendChatMessageRequest;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatMessage;
-import com.project.dorumdorum.domain.chat.domain.repository.ChatMessageRepository;
+import com.project.dorumdorum.domain.chat.domain.service.ChatMessageService;
 import com.project.dorumdorum.domain.notification.application.event.NotificationRequestPublisher;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
 import lombok.RequiredArgsConstructor;
@@ -13,18 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SendChatMessageUseCase {
 
-    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageService chatMessageService;
     private final NotificationRequestPublisher notificationRequestPublisher;
 
     @Transactional
     public String execute(SendChatMessageRequest request) {
-        ChatMessage message = ChatMessage.builder()
-                .senderNo(request.senderNo())
-                .recipientNo(request.recipientNo())
-                .content(request.content())
-                .build();
-
-        ChatMessage saved = chatMessageRepository.save(message);
+        ChatMessage saved = chatMessageService.save(
+                request.senderNo(),
+                request.recipientNo(),
+                request.content()
+        );
 
         String title = "새 메시지";
         String body = truncate(request.content(), 50);
