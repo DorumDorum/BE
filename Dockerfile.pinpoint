@@ -1,0 +1,49 @@
+# Pinpoint APM 적용용 Dockerfile
+# 빌드: docker build -f Dockerfile.pinpoint -t dorumdorum-be:pinpoint .
+# 실행 시 환경변수: PINPOINT_COLLECTOR_IP, PINPOINT_APPLICATION_NAME, PINPOINT_AGENT_ID
+
+FROM gradle:8.10.2-jdk17 AS builder
+
+WORKDIR /app
+
+COPY gradlew gradlew
+COPY gradle gradle
+COPY build.gradle settings.gradle* ./
+COPY src src
+
+RUN chmod +x ./gradlew && ./gradlew bootJar --no-daemon
+
+# Pinpoint Agent 다운로드
+ARG PINPOINT_VERSION=2.5.4
+RUN wget -q -O /tmp/pinpoint-agent.tar.gz \
+    "https://github.com/pinpoint-apm/pinpoint/releases/download/v${PINPOINT_VERSION}/pinpoint-agent-${PINPOINT_VERSION}.tar.gz" \
+    && mkdir -p /app/pinpoint-agent \
+    && tar -xzf /tmp/pinpoint-agent.tar.gz -C /app/pinpoint-agent --strip-components=1 \
+    && rm /tmp/pinpoint-agent.tar.gz
+
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+
+COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=builder /app/pinpoint-agent /app/pinpoint-agent
+
+# Pinpoint Agent JVM 옵션 (환경변수로 Collector IP 등 오버라이드 가능)
+ENV PINPOINT_VERSION=2.5.4
+ENV PINPOINT_COLLECTOR_IP=pinpoint-collector
+ENV PINPOINT_APPLICATION_NAME=dorumdorum
+ENV PINPOINT_AGENT_ID=dorumdorum-agent-01
+
+EXPOSE 8080
+
+# pinpoint-root.config에서 Collector IP 오버라이드 (profiler.transport.grpc.collector.ip)
+# -D 옵션으로 전달
+ENTRYPOINT ["sh", "-c", "java \
+  -javaagent:/app/pinpoint-agent/pinpoint-bootstrap-${PINPOINT_VERSION}.jar \
+  -Dpinpoint.agentId=${PINPOINT_AGENT_ID} \
+  -Dpinpoint.applicationName=${PINPOINT_APPLICATION_NAME} \
+  -Dprofiler.transport.grpc.collector.ip=${PINPOINT_COLLECTOR_IP} \
+  -Dpinpoint.container=true \
+  ${JAVA_OPTS} \
+  -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod} \
+  -jar /app/app.jar"]

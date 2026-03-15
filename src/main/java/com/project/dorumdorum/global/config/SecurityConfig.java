@@ -9,6 +9,7 @@ import com.project.dorumdorum.global.properties.ExcludeAuthPathProperties;
 import com.project.dorumdorum.global.properties.ExcludeWhitelistPathProperties;
 import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
 import com.project.dorumdorum.global.warmer.RequestActivityTrackingFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.dorumdorum.global.security.JwtAuthenticationFilter;
 import com.project.dorumdorum.global.security.TokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
