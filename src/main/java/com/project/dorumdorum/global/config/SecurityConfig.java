@@ -11,6 +11,7 @@ import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
 import com.project.dorumdorum.global.warmer.RequestActivityTrackingFilter;
 import com.project.dorumdorum.global.security.JwtAuthenticationFilter;
 import com.project.dorumdorum.global.security.TokenProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -43,6 +44,7 @@ public class SecurityConfig {
     private final StructuredLogFactory structuredLogFactory;
     private final LoggingPolicyProperties loggingPolicyProperties;
     private final SystemAlertPublisher systemAlertPublisher;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -89,7 +91,13 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(tokenProvider, excludeAuthPathProperties, tokenWhitelistService, excludeWhitelistPathProperties);
+        return new JwtAuthenticationFilter(
+                tokenProvider,
+                excludeAuthPathProperties,
+                tokenWhitelistService,
+                excludeWhitelistPathProperties,
+                objectMapper
+        );
     }
 
     @Bean
