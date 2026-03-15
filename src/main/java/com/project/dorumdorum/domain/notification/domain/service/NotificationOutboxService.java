@@ -46,14 +46,12 @@ public class NotificationOutboxService {
         );
     }
 
-    @Transactional
     public NotificationOutbox success(String outboxNo, String notificationNo) {
         NotificationOutbox outbox = findById(outboxNo);
         outbox.success(notificationNo);
         return outbox;
     }
 
-    @Transactional
     public NotificationOutbox fail(String outboxNo) {
         NotificationOutbox outbox = findById(outboxNo);
         outbox.failWithBackoff(MAX_RETRY_COUNT, BASE_BACKOFF_SECONDS);
