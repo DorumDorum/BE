@@ -23,7 +23,8 @@ services:
       - REDIS_PORT=6379
       - PINPOINT_COLLECTOR_IP=pinpoint-collector
       - PINPOINT_APPLICATION_NAME=dorumdorum
-      - PINPOINT_AGENT_ID=dorumdorum-backend
+      - PINPOINT_AGENT_ID=${PINPOINT_AGENT_ID:-dorumdorum-backend-${HOSTNAME}}
+      - PINPOINT_AGENT_NAME=${PINPOINT_AGENT_NAME:-dorumdorum-be}
     volumes:
       - ./firebase-service-account.json:/app/firebase-service-account.json:ro
     depends_on:
@@ -52,6 +53,7 @@ services:
   pinpoint-hbase:
     image: pinpointdocker/pinpoint-hbase:2.5.4
     container_name: pinpoint-hbase
+    hostname: pinpoint-hbase
     depends_on:
       - zoo1
     networks:
