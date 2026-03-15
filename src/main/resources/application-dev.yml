@@ -21,6 +21,8 @@ jwt:
     expiration: ${JWT_ACCESS_EXPIRATION:900}
   refresh:
     expiration: ${JWT_REFRESH_EXPIRATION:1209600}
+  cookie:
+    secure: false
 
 logging:
   policy:

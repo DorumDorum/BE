@@ -3,7 +3,7 @@ package com.project.dorumdorum.domain.notice.application.usecase;
 import com.project.dorumdorum.domain.notice.application.dto.response.NoticeResponse;
 import com.project.dorumdorum.domain.notice.application.mapper.NoticeMapper;
 import com.project.dorumdorum.domain.notice.domain.entity.Notice;
-import com.project.dorumdorum.domain.notice.domain.repository.NoticeRepository;
+import com.project.dorumdorum.domain.notice.domain.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,11 +15,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LoadNoticesUseCase {
 
-    private final NoticeRepository noticeRepository;
+    private final NoticeService noticeService;
     private final NoticeMapper noticeMapper;
 
     public List<NoticeResponse> execute() {
-        List<Notice> notices = noticeRepository.findAllByOrderByWrittenDateDesc();
+        List<Notice> notices = noticeService.loadAllByWrittenDateDesc();
         return noticeMapper.toResponseList(notices);
     }
 }

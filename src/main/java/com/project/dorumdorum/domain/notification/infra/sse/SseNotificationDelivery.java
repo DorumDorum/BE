@@ -1,22 +1,17 @@
 package com.project.dorumdorum.domain.notification.infra.sse;
 
 import com.project.dorumdorum.domain.notification.domain.entity.Device;
-import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDelivery;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
-import com.project.dorumdorum.domain.notification.domain.entity.NotificationDeliveryChannel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class SseNotificationDelivery implements NotificationDelivery {
+public class SseNotificationDelivery {
 
     private final SseEmitterRegistry sseEmitterRegistry;
 
-    @Override
-    public void send(NotificationDeliveryChannel channel, NotificationDeliveryPayload payload, Device device) {
-        if (channel != NotificationDeliveryChannel.SSE)
-            return;
+    public void send(NotificationDeliveryPayload payload, Device device) {
         sseEmitterRegistry.sendToDevice(payload.recipientNo(), device.getDeviceId(), payload);
     }
 }
