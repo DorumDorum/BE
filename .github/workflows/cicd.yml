@@ -160,12 +160,16 @@ jobs:
             # 2) 컨테이너에서 참조할 경로를 env로 고정
             FIREBASE_SERVICE_ACCOUNT_PATH="/app/firebase-service-account.json"
 
-            # 3) .env 생성 (여기에 FIREBASE_SERVICE_ACCOUNT_PATH 추가)
+            # 3) .env 생성
+            # Pinpoint Web reads Spring datasource keys directly.
             printf '%s\n' \
               "SPRING_PROFILES_ACTIVE=prod" \
               "RDB_USERNAME=$RDB_USERNAME" \
               "RDB_URL=$RDB_URL" \
               "RDB_PASSWORD=$RDB_PASSWORD" \
+              "SPRING_DATASOURCE_URL=$RDB_URL" \
+              "SPRING_DATASOURCE_USERNAME=$RDB_USERNAME" \
+              "SPRING_DATASOURCE_PASSWORD=$RDB_PASSWORD" \
               "MONGODB_URI=$MONGODB_URI" \
               "JWT_KEY=$JWT_KEY" \
               "JWT_ACCESS_EXPIRATION=$JWT_ACCESS_EXPIRATION" \
