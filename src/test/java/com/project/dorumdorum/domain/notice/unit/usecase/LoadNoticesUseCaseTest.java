@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.notice.application.dto.response.NoticeRespo
 import com.project.dorumdorum.domain.notice.application.mapper.NoticeMapper;
 import com.project.dorumdorum.domain.notice.application.usecase.LoadNoticesUseCase;
 import com.project.dorumdorum.domain.notice.domain.entity.Notice;
-import com.project.dorumdorum.domain.notice.domain.repository.NoticeRepository;
+import com.project.dorumdorum.domain.notice.domain.service.NoticeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 class LoadNoticesUseCaseTest {
 
     @Mock
-    private NoticeRepository noticeRepository;
+    private NoticeService noticeService;
     @Mock
     private NoticeMapper noticeMapper;
 
@@ -46,13 +46,13 @@ class LoadNoticesUseCaseTest {
         List<NoticeResponse> mapped = List.of(
                 new NoticeResponse("n1", "title", "content", LocalDate.of(2026, 2, 12), "https://example.com")
         );
-        when(noticeRepository.findAllByOrderByWrittenDateDesc()).thenReturn(notices);
+        when(noticeService.loadAllByWrittenDateDesc()).thenReturn(notices);
         when(noticeMapper.toResponseList(notices)).thenReturn(mapped);
 
         List<NoticeResponse> result = useCase.execute();
 
         assertThat(result).isEqualTo(mapped);
-        verify(noticeRepository).findAllByOrderByWrittenDateDesc();
+        verify(noticeService).loadAllByWrittenDateDesc();
         verify(noticeMapper).toResponseList(notices);
     }
 }
