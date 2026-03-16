@@ -80,6 +80,8 @@ exclude-auth-path-patterns:
       method: GET
     - path-pattern: /api/notices
       method: GET
+    - path-pattern: /api/chat/messages
+      method: POST
 
 exclude-blacklist-path-patterns:
   paths:

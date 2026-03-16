@@ -89,6 +89,14 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Build and push pinpoint image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.pinpoint
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dorumdorum-be:pinpoint
+
       - name: Log - Image pushed
         run: echo ">>> [Docker] Image built and pushed"
 
@@ -102,7 +110,7 @@ jobs:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
         env:
-          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/dorumdorum-be:latest
+          IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/dorumdorum-be:pinpoint
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           FIREBASE_SERVICE_ACCOUNT_B64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
@@ -152,12 +160,16 @@ jobs:
             # 2) 컨테이너에서 참조할 경로를 env로 고정
             FIREBASE_SERVICE_ACCOUNT_PATH="/app/firebase-service-account.json"
 
-            # 3) .env 생성 (여기에 FIREBASE_SERVICE_ACCOUNT_PATH 추가)
+            # 3) .env 생성
+            # Pinpoint Web reads Spring datasource keys directly.
             printf '%s\n' \
               "SPRING_PROFILES_ACTIVE=prod" \
               "RDB_USERNAME=$RDB_USERNAME" \
               "RDB_URL=$RDB_URL" \
               "RDB_PASSWORD=$RDB_PASSWORD" \
+              "SPRING_DATASOURCE_URL=$RDB_URL" \
+              "SPRING_DATASOURCE_USERNAME=$RDB_USERNAME" \
+              "SPRING_DATASOURCE_PASSWORD=$RDB_PASSWORD" \
               "MONGODB_URI=$MONGODB_URI" \
               "JWT_KEY=$JWT_KEY" \
               "JWT_ACCESS_EXPIRATION=$JWT_ACCESS_EXPIRATION" \
@@ -197,7 +209,10 @@ jobs:
             git clone --depth 1 -b production "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_FULL_NAME}.git" temp_repo
             echo ">>> [Deploy] Clone 완료, docker-compose.yml · monitoring 복사 중..."
             
-            if [ -f "temp_repo/docker-compose.yml" ]; then
+            if [ -f "temp_repo/BE/docker-compose.yml" ]; then
+              cp temp_repo/BE/docker-compose.yml .
+              echo ">>> [Deploy] BE/docker-compose.yml 복사 완료"
+            elif [ -f "temp_repo/docker-compose.yml" ]; then
               cp temp_repo/docker-compose.yml .
               echo ">>> [Deploy] docker-compose.yml 복사 완료"
             else
@@ -206,15 +221,23 @@ jobs:
               exit 1
             fi
             
-            if [ -d "temp_repo/monitoring" ]; then
+            if [ -d "temp_repo/BE/monitoring" ]; then
+              mkdir -p monitoring
+              cp -r temp_repo/BE/monitoring/* monitoring/
+              echo ">>> [Deploy] monitoring 설정 파일 복사 완료 (BE)"
+            elif [ -d "temp_repo/monitoring" ]; then
               mkdir -p monitoring
               cp -r temp_repo/monitoring/* monitoring/
               echo ">>> [Deploy] monitoring 설정 파일 복사 완료"
+            elif [ -d "temp_repo/INFRA/monitoring" ]; then
+              mkdir -p monitoring
+              cp -r temp_repo/INFRA/monitoring/* monitoring/
+              echo ">>> [Deploy] monitoring 설정 파일 복사 완료 (INFRA)"
             else
               echo "WARNING: monitoring directory not found, creating empty structure"
               mkdir -p monitoring/prometheus monitoring/grafana/provisioning/dashboards/json monitoring/grafana/provisioning/datasources
             fi
-            
+
             rm -rf temp_repo
             echo ">>> [Deploy] temp_repo 삭제, compose 파일 확인 중..."
 
@@ -235,9 +258,81 @@ jobs:
             export CONTAINER_NAME="$CONTAINER_NAME"
             echo ">>> [Deploy] 기존 컨테이너 정리 (down + 이름으로 강제 제거)..."
             docker-compose -f docker-compose.yml down --remove-orphans >/dev/null 2>&1 || true
-            docker rm -f dorumdorum-redis dorumdorum-be dorumdorum-prometheus dorumdorum-grafana 2>/dev/null || true
-            echo ">>> [Deploy] docker-compose up -d 실행 중..."
-            docker-compose -f docker-compose.yml up -d
+            docker rm -f dorumdorum-redis dorumdorum-be dorumdorum-prometheus dorumdorum-grafana zoo1 pinpoint-hbase pinpoint-collector pinpoint-web 2>/dev/null || true
+
+            echo ">>> [Deploy] [1/6] ZooKeeper 기동..."
+            docker-compose -f docker-compose.yml up -d zoo1
+            for i in $(seq 1 30); do
+              if docker ps --format '{{.Names}}' | grep -q '^zoo1$'; then
+                echo ">>> [Deploy] ZooKeeper up"
+                break
+              fi
+              sleep 2
+            done
+
+            echo ">>> [Deploy] [2/6] HBase 기동..."
+            docker-compose -f docker-compose.yml up -d pinpoint-hbase
+            echo ">>> [Deploy] HBase 초기화 대기..."
+            HBASE_READY=0
+            for i in $(seq 1 180); do
+              if docker logs pinpoint-hbase 2>&1 | grep -Eq "Master has completed initialization|Tables already exist"; then
+                echo ">>> [Deploy] HBase initialized"
+                HBASE_READY=1
+                break
+              fi
+              if ! docker ps --format '{{.Names}}' | grep -q '^pinpoint-hbase$'; then
+                echo "ERROR: pinpoint-hbase container is not running"
+                docker ps -a | grep pinpoint-hbase || true
+                docker logs --tail 200 pinpoint-hbase || true
+                exit 1
+              fi
+              sleep 2
+            done
+            if [ "$HBASE_READY" -ne 1 ]; then
+              echo "ERROR: HBase initialization timeout"
+              docker logs --tail 200 pinpoint-hbase || true
+              exit 1
+            fi
+
+            echo ">>> [Deploy] [3/6] Pinpoint Collector 기동..."
+            docker-compose -f docker-compose.yml up -d pinpoint-collector
+            COLLECTOR_READY=0
+            for i in $(seq 1 60); do
+              if docker logs pinpoint-collector 2>&1 | grep -Eq "Started .*CollectorApp|Started CollectorApp"; then
+                echo ">>> [Deploy] Pinpoint Collector started"
+                COLLECTOR_READY=1
+                break
+              fi
+              sleep 2
+            done
+            if [ "$COLLECTOR_READY" -ne 1 ]; then
+              echo "ERROR: Pinpoint Collector startup timeout"
+              docker logs --tail 200 pinpoint-collector || true
+              exit 1
+            fi
+
+            echo ">>> [Deploy] [4/6] Pinpoint Web 기동..."
+            docker-compose -f docker-compose.yml up -d pinpoint-web
+            WEB_READY=0
+            for i in $(seq 1 60); do
+              if docker logs pinpoint-web 2>&1 | grep -Eq "Started .*WebApp|Started WebApp|Started .*PinpointWebApplication"; then
+                echo ">>> [Deploy] Pinpoint Web started"
+                WEB_READY=1
+                break
+              fi
+              sleep 2
+            done
+            if [ "$WEB_READY" -ne 1 ]; then
+              echo "ERROR: Pinpoint Web startup timeout"
+              docker logs --tail 200 pinpoint-web || true
+              exit 1
+            fi
+
+            echo ">>> [Deploy] [5/6] Backend 기동..."
+            docker-compose -f docker-compose.yml up -d backend
+
+            echo ">>> [Deploy] [6/6] Redis/Monitoring 기동..."
+            docker-compose -f docker-compose.yml up -d redis prometheus grafana
 
             echo ">>> [Deploy] 오래된 이미지 정리 중..."
             docker image prune -af --filter "until=168h"
@@ -247,3 +342,4 @@ jobs:
             echo "- Redis: localhost:6379"
             echo "- Prometheus: http://localhost:9090"
             echo "- Grafana: http://localhost:3000 (admin/admin)"
+            echo "- Pinpoint Web: http://localhost:8079"

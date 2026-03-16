@@ -1,16 +1,18 @@
 package com.project.dorumdorum.domain.notification.application.usecase;
 
-import com.project.dorumdorum.domain.notification.domain.repository.UserDeviceTokenRepository;
+import com.project.dorumdorum.domain.notification.domain.service.NotificationDeviceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class RegisterDeviceTokenUseCase {
 
-    private final UserDeviceTokenRepository userDeviceTokenRepository;
+    private final NotificationDeviceService notificationDeviceService;
 
+    @Transactional
     public void execute(String userNo, String deviceId, String fcmToken) {
-        userDeviceTokenRepository.save(userNo, deviceId, fcmToken);
+        notificationDeviceService.registerOrUpdateToken(userNo, deviceId, fcmToken);
     }
 }

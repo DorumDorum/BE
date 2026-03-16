@@ -12,7 +12,7 @@ services:
       - dorumdorum-net
 
   backend:
-    image: ${BACKEND_IMAGE:-koungq/dorumdorum-be:latest}
+    image: ${BACKEND_IMAGE:-koungq/dorumdorum-be:pinpoint}
     container_name: ${CONTAINER_NAME:-dorumdorum-be}
     ports:
       - "8080:8080"
@@ -21,13 +21,94 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - PINPOINT_COLLECTOR_IP=pinpoint-collector
+      - PINPOINT_APPLICATION_NAME=dorumdorum
+      - PINPOINT_AGENT_ID=${PINPOINT_AGENT_ID:-dorumdorum-backend-${HOSTNAME}}
+      - PINPOINT_AGENT_NAME=${PINPOINT_AGENT_NAME:-dorumdorum-be}
     volumes:
       - ./firebase-service-account.json:/app/firebase-service-account.json:ro
     depends_on:
       - redis
+      - pinpoint-collector
     restart: unless-stopped
     networks:
       - dorumdorum-net
+
+  zoo1:
+    image: zookeeper:3.4.13
+    container_name: zoo1
+    ports:
+      - "2181:2181"
+    environment:
+      - ZOO_MY_ID=1
+    volumes:
+      - zookeeper_data:/data
+    restart: unless-stopped
+    networks:
+      dorumdorum-net:
+        aliases:
+          - zoo2
+          - zoo3
+
+  pinpoint-hbase:
+    image: pinpointdocker/pinpoint-hbase:2.5.4
+    container_name: pinpoint-hbase
+    hostname: pinpoint-hbase
+    depends_on:
+      - zoo1
+    networks:
+      - dorumdorum-net
+    ports:
+      - "16000:16000"
+      - "16010:16010"
+      - "16020:16020"
+      - "16030:16030"
+    volumes:
+      - hbase_data:/home/pinpoint/hbase
+    restart: unless-stopped
+
+  pinpoint-collector:
+    image: pinpointdocker/pinpoint-collector:2.5.4
+    container_name: pinpoint-collector
+    depends_on:
+      - pinpoint-hbase
+    networks:
+      - dorumdorum-net
+    environment:
+      - SPRING_PROFILES_ACTIVE=release
+      - PINPOINT_ZOOKEEPER_ADDRESS=zoo1:2181
+      - HBASE_HOST=zoo1
+      - HBASE_PORT=2181
+    ports:
+      - "9991:9991"
+      - "9992:9992"
+      - "9993:9993"
+      - "9994:9994"
+      - "9995:9995/udp"
+      - "9996:9996/udp"
+    restart: unless-stopped
+
+  pinpoint-web:
+    image: pinpointdocker/pinpoint-web:2.5.4
+    container_name: pinpoint-web
+    env_file:
+      - .env
+    depends_on:
+      - pinpoint-hbase
+    networks:
+      - dorumdorum-net
+    environment:
+      - SPRING_PROFILES_ACTIVE=release
+      - PINPOINT_ZOOKEEPER_ADDRESS=zoo1:2181
+      - HBASE_HOST=zoo1
+      - HBASE_PORT=2181
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+    ports:
+      - "8079:8080"
+    restart: unless-stopped
 
   prometheus:
     image: prom/prometheus:v2.52.0
@@ -71,6 +152,8 @@ volumes:
   redis_data:
   prometheus_data:
   grafana_data:
+  hbase_data:
+  zookeeper_data:
 
 networks:
   dorumdorum-net:
