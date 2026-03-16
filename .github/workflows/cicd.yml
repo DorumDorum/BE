@@ -109,7 +109,12 @@ jobs:
           RDB_USERNAME: ${{ secrets.RDB_USERNAME }}
           RDB_URL: ${{ secrets.RDB_URL }}
           RDB_PASSWORD: ${{ secrets.RDB_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          MONGO_ROOT_USERNAME: ${{ secrets.MONGO_ROOT_USERNAME }}
+          MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
+          MONGO_DATABASE: ${{ secrets.MONGO_DATABASE }}
           JWT_KEY: ${{ secrets.JWT_KEY }}
           JWT_ACCESS_EXPIRATION: ${{ secrets.JWT_ACCESS_EXPIRATION }}
           JWT_REFRESH_EXPIRATION: ${{ secrets.JWT_REFRESH_EXPIRATION }}
@@ -124,7 +129,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT }}
-          envs: IMAGE,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,FIREBASE_SERVICE_ACCOUNT_B64,RDB_USERNAME,RDB_URL,RDB_PASSWORD,MONGODB_URI,JWT_KEY,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION,SMTP_USERNAME,SMTP_PASSWORD,CONTAINER_NAME,GITHUB_TOKEN,REPO_FULL_NAME,DISCORD_WEBHOOK
+          envs: IMAGE,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,FIREBASE_SERVICE_ACCOUNT_B64,RDB_USERNAME,RDB_URL,RDB_PASSWORD,MYSQL_ROOT_PASSWORD,MYSQL_DATABASE,MONGODB_URI,MONGO_ROOT_USERNAME,MONGO_ROOT_PASSWORD,MONGO_DATABASE,JWT_KEY,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION,SMTP_USERNAME,SMTP_PASSWORD,CONTAINER_NAME,GITHUB_TOKEN,REPO_FULL_NAME,DISCORD_WEBHOOK
           script_stop: true
           script: |
             set -e
@@ -133,7 +138,12 @@ jobs:
             RDB_USERNAME="$(printf '%s' "$RDB_USERNAME" | tr -d '\r\n')"
             RDB_URL="$(printf '%s' "$RDB_URL" | tr -d '\r\n')"
             RDB_PASSWORD="$(printf '%s' "$RDB_PASSWORD" | tr -d '\r\n')"
+            MYSQL_ROOT_PASSWORD="$(printf '%s' "$MYSQL_ROOT_PASSWORD" | tr -d '\r\n')"
+            MYSQL_DATABASE="$(printf '%s' "$MYSQL_DATABASE" | tr -d '\r\n')"
             MONGODB_URI="$(printf '%s' "$MONGODB_URI" | tr -d '\r\n')"
+            MONGO_ROOT_USERNAME="$(printf '%s' "$MONGO_ROOT_USERNAME" | tr -d '\r\n')"
+            MONGO_ROOT_PASSWORD="$(printf '%s' "$MONGO_ROOT_PASSWORD" | tr -d '\r\n')"
+            MONGO_DATABASE="$(printf '%s' "$MONGO_DATABASE" | tr -d '\r\n')"
             JWT_KEY="$(printf '%s' "$JWT_KEY" | tr -d '\r\n')"
             JWT_ACCESS_EXPIRATION="$(printf '%s' "$JWT_ACCESS_EXPIRATION" | tr -d '\r\n')"
             JWT_REFRESH_EXPIRATION="$(printf '%s' "$JWT_REFRESH_EXPIRATION" | tr -d '\r\n')"
@@ -158,7 +168,12 @@ jobs:
               "RDB_USERNAME=$RDB_USERNAME" \
               "RDB_URL=$RDB_URL" \
               "RDB_PASSWORD=$RDB_PASSWORD" \
+              "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" \
+              "MYSQL_DATABASE=$MYSQL_DATABASE" \
               "MONGODB_URI=$MONGODB_URI" \
+              "MONGO_ROOT_USERNAME=$MONGO_ROOT_USERNAME" \
+              "MONGO_ROOT_PASSWORD=$MONGO_ROOT_PASSWORD" \
+              "MONGO_DATABASE=$MONGO_DATABASE" \
               "JWT_KEY=$JWT_KEY" \
               "JWT_ACCESS_EXPIRATION=$JWT_ACCESS_EXPIRATION" \
               "JWT_REFRESH_EXPIRATION=$JWT_REFRESH_EXPIRATION" \
@@ -178,6 +193,10 @@ jobs:
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             echo ">>> [Deploy] Docker Hub 로그인 완료"
 
+            echo ">>> [Deploy] MySQL 이미지 pull 중..."
+            docker pull mysql:8.0
+            echo ">>> [Deploy] MongoDB 이미지 pull 중..."
+            docker pull mongo:7.0
             echo ">>> [Deploy] Redis 이미지 pull 중..."
             docker pull redis:7-alpine
             echo ">>> [Deploy] Backend 이미지 pull 중..."
