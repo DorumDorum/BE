@@ -76,13 +76,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      pinpoint-collector:
+        condition: service_started
     deploy:
       resources:
         limits:
           cpus: "4.0"
           memory: 16G
-      - redis
-      - pinpoint-collector
     restart: unless-stopped
     networks:
       - dorumdorum-net
