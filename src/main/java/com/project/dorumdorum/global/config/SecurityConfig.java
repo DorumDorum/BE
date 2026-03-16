@@ -12,6 +12,7 @@ import com.project.dorumdorum.global.warmer.RequestActivityTrackingFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.dorumdorum.global.security.JwtAuthenticationFilter;
 import com.project.dorumdorum.global.security.TokenProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -91,7 +92,13 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(tokenProvider, excludeAuthPathProperties, tokenWhitelistService, excludeWhitelistPathProperties, objectMapper);
+        return new JwtAuthenticationFilter(
+                tokenProvider,
+                excludeAuthPathProperties,
+                tokenWhitelistService,
+                excludeWhitelistPathProperties,
+                objectMapper
+        );
     }
 
     @Bean

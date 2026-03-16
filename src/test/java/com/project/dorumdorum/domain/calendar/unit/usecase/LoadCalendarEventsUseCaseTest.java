@@ -4,7 +4,7 @@ import com.project.dorumdorum.domain.calendar.application.dto.response.CalendarE
 import com.project.dorumdorum.domain.calendar.application.mapper.CalendarEventMapper;
 import com.project.dorumdorum.domain.calendar.application.usecase.LoadCalendarEventsUseCase;
 import com.project.dorumdorum.domain.calendar.domain.entity.CalendarEvent;
-import com.project.dorumdorum.domain.calendar.domain.repository.CalendarEventRepository;
+import com.project.dorumdorum.domain.calendar.domain.service.CalendarEventService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 @DisplayName("LoadCalendarEventsUseCase Unit Tests")
 class LoadCalendarEventsUseCaseTest {
 
-    @Mock private CalendarEventRepository calendarEventRepository;
+    @Mock private CalendarEventService calendarEventService;
     @Mock private CalendarEventMapper calendarEventMapper;
     @InjectMocks private LoadCalendarEventsUseCase useCase;
 
@@ -36,13 +36,13 @@ class LoadCalendarEventsUseCaseTest {
         );
         List<CalendarEventResponse> responses = List.of(new CalendarEventResponse(start, "title"));
 
-        when(calendarEventRepository.findByEventDateBetween(start, end)).thenReturn(events);
+        when(calendarEventService.loadBetween(start, end)).thenReturn(events);
         when(calendarEventMapper.toResponseList(events)).thenReturn(responses);
 
         List<CalendarEventResponse> result = useCase.execute(start, end);
 
         assertThat(result).isEqualTo(responses);
-        verify(calendarEventRepository).findByEventDateBetween(start, end);
+        verify(calendarEventService).loadBetween(start, end);
         verify(calendarEventMapper).toResponseList(events);
     }
 }

@@ -9,12 +9,7 @@ import com.google.firebase.messaging.Notification;
 import com.google.firebase.messaging.SendResponse;
 import com.google.firebase.messaging.WebpushConfig;
 import com.google.firebase.messaging.WebpushFcmOptions;
-import com.project.dorumdorum.domain.notification.domain.entity.Device;
-import com.project.dorumdorum.domain.notification.domain.entity.NotificationDeliveryChannel;
-import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDelivery;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
-import com.project.dorumdorum.global.properties.NotificationRateLimitProperties;
-import com.project.dorumdorum.global.ratelimit.DistributedRateLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -27,20 +22,10 @@ import java.util.Set;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FcmNotificationDelivery implements NotificationDelivery {
+public class FcmNotificationDelivery {
 
     private static final int MULTICAST_MAX_TOKENS = 500;
     private final FirebaseMessaging firebaseMessaging;
-    private final DistributedRateLimiter distributedRateLimiter;
-    private final NotificationRateLimitProperties rateLimitProperties;
-
-    @Override
-    public void send(NotificationDeliveryChannel channel, NotificationDeliveryPayload payload, Device device) {
-        if (channel != NotificationDeliveryChannel.FCM) {
-            return;
-        }
-        sendMulticast(payload, List.of(device.getFcmToken()));
-    }
 
     public MulticastSendResult sendMulticast(NotificationDeliveryPayload payload, List<String> rawTokens) {
         List<String> tokens = sanitizeTokens(rawTokens);
@@ -54,13 +39,6 @@ public class FcmNotificationDelivery implements NotificationDelivery {
         for (int i = 0; i < tokens.size(); i += MULTICAST_MAX_TOKENS) {
             int end = Math.min(i + MULTICAST_MAX_TOKENS, tokens.size());
             List<String> chunk = tokens.subList(i, end);
-
-            if (isRateLimited()) {
-                retryableFailureCount += chunk.size();
-                log.debug("[FCM] rate limit exceeded userNo={} notificationNo={} chunkSize={}",
-                        payload.recipientNo(), payload.notificationNo(), chunk.size());
-                continue;
-            }
 
             MulticastMessage.Builder messageBuilder = MulticastMessage.builder();
             configureMessageCommon(messageBuilder, payload)
@@ -92,19 +70,6 @@ public class FcmNotificationDelivery implements NotificationDelivery {
         }
 
         return new MulticastSendResult(retryableFailureCount, invalidTokens);
-    }
-
-    private boolean isRateLimited() {
-        if (!rateLimitProperties.isEnabled()) {
-            return false;
-        }
-
-        return !distributedRateLimiter.tryAcquire(
-                rateLimitProperties.getKey(),
-                rateLimitProperties.getBucketCapacity(),
-                rateLimitProperties.getPermitsPerSecond(),
-                1
-        );
     }
 
     private MulticastMessage.Builder configureMessageCommon(MulticastMessage.Builder builder, NotificationDeliveryPayload payload) {

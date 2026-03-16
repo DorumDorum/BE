@@ -35,5 +35,9 @@ public class Device extends BaseEntity {
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
     }
+
+    public void clearFcmToken() {
+        this.fcmToken = "";
+    }
 }
 

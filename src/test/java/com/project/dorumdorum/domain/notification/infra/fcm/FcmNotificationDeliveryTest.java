@@ -6,8 +6,6 @@ import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.SendResponse;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
-import com.project.dorumdorum.global.properties.NotificationRateLimitProperties;
-import com.project.dorumdorum.global.ratelimit.DistributedRateLimiter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,12 +25,6 @@ class FcmNotificationDeliveryTest {
 
     @Mock
     private FirebaseMessaging firebaseMessaging;
-
-    @Mock
-    private DistributedRateLimiter distributedRateLimiter;
-
-    @Mock
-    private NotificationRateLimitProperties rateLimitProperties;
 
     @InjectMocks
     private FcmNotificationDelivery delivery;
@@ -56,11 +48,6 @@ class FcmNotificationDeliveryTest {
         BatchResponse batchResponse = mock(BatchResponse.class);
         SendResponse sendResponse = mock(SendResponse.class);
 
-        when(rateLimitProperties.isEnabled()).thenReturn(true);
-        when(rateLimitProperties.getKey()).thenReturn("notification:fcm:rate-limit");
-        when(rateLimitProperties.getBucketCapacity()).thenReturn(120L);
-        when(rateLimitProperties.getPermitsPerSecond()).thenReturn(30L);
-        when(distributedRateLimiter.tryAcquire("notification:fcm:rate-limit", 120L, 30L, 1L)).thenReturn(true);
         when(sendResponse.isSuccessful()).thenReturn(true);
         when(batchResponse.getResponses()).thenReturn(List.of(sendResponse));
         when(firebaseMessaging.sendEachForMulticast(any(MulticastMessage.class))).thenReturn(batchResponse);
@@ -83,26 +70,6 @@ class FcmNotificationDeliveryTest {
 
         verify(firebaseMessaging, never()).sendEachForMulticast(any(MulticastMessage.class));
         assertThat(result.hasRetryableFailure()).isFalse();
-        assertThat(result.invalidTokens()).isEmpty();
-    }
-
-    @Test
-    @DisplayName("레이트리밋에 걸리면 Firebase 호출 없이 재시도 실패로 집계한다")
-    void sendMulticast_WhenRateLimited_SkipsFirebaseAndMarksRetryableFailure() throws Exception {
-        NotificationDeliveryPayload payload = payload("user-1");
-
-        when(rateLimitProperties.isEnabled()).thenReturn(true);
-        when(rateLimitProperties.getKey()).thenReturn("notification:fcm:rate-limit");
-        when(rateLimitProperties.getBucketCapacity()).thenReturn(120L);
-        when(rateLimitProperties.getPermitsPerSecond()).thenReturn(30L);
-        when(distributedRateLimiter.tryAcquire("notification:fcm:rate-limit", 120L, 30L, 1L)).thenReturn(false);
-
-        FcmNotificationDelivery.MulticastSendResult result =
-                delivery.sendMulticast(payload, List.of("token-1", "token-2", "token-3"));
-
-        verify(firebaseMessaging, never()).sendEachForMulticast(any(MulticastMessage.class));
-        assertThat(result.hasRetryableFailure()).isTrue();
-        assertThat(result.retryableFailureCount()).isEqualTo(3);
         assertThat(result.invalidTokens()).isEmpty();
     }
 }

@@ -11,5 +11,7 @@ public interface NotificationDeviceRepository extends JpaRepository<Device, Stri
     Optional<Device> findByUserNoAndDeviceId(String userNo, String deviceId);
 
     List<Device> findByUserNo(String userNo);
+
+    List<Device> findByFcmTokenIn(List<String> fcmTokens);
 }
 
