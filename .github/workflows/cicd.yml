@@ -276,11 +276,11 @@ jobs:
             export BACKEND_IMAGE="$IMAGE"
             export CONTAINER_NAME="$CONTAINER_NAME"
             echo ">>> [Deploy] 기존 컨테이너 정리 (down + 이름으로 강제 제거)..."
-            docker-compose -f docker-compose.yml down --remove-orphans >/dev/null 2>&1 || true
+            docker compose -f docker-compose.yml down --remove-orphans >/dev/null 2>&1 || true
             docker rm -f dorumdorum-redis dorumdorum-be dorumdorum-prometheus dorumdorum-grafana zoo1 pinpoint-hbase pinpoint-collector pinpoint-web 2>/dev/null || true
 
             echo ">>> [Deploy] [1/6] ZooKeeper 기동..."
-            docker-compose -f docker-compose.yml up -d zoo1
+            docker compose -f docker-compose.yml up -d zoo1
             for i in $(seq 1 30); do
               if docker ps --format '{{.Names}}' | grep -q '^zoo1$'; then
                 echo ">>> [Deploy] ZooKeeper up"
@@ -290,7 +290,7 @@ jobs:
             done
 
             echo ">>> [Deploy] [2/6] HBase 기동..."
-            docker-compose -f docker-compose.yml up -d pinpoint-hbase
+            docker compose -f docker-compose.yml up -d pinpoint-hbase
             echo ">>> [Deploy] HBase 초기화 대기..."
             HBASE_READY=0
             for i in $(seq 1 180); do
@@ -314,7 +314,7 @@ jobs:
             fi
 
             echo ">>> [Deploy] [3/6] Pinpoint Collector 기동..."
-            docker-compose -f docker-compose.yml up -d pinpoint-collector
+            docker compose -f docker-compose.yml up -d pinpoint-collector
             COLLECTOR_READY=0
             for i in $(seq 1 60); do
               if docker logs pinpoint-collector 2>&1 | grep -Eq "Started .*CollectorApp|Started CollectorApp"; then
@@ -331,7 +331,7 @@ jobs:
             fi
 
             echo ">>> [Deploy] [4/6] Pinpoint Web 기동..."
-            docker-compose -f docker-compose.yml up -d pinpoint-web
+            docker compose -f docker-compose.yml up -d pinpoint-web
             WEB_READY=0
             for i in $(seq 1 60); do
               if docker logs pinpoint-web 2>&1 | grep -Eq "Started .*WebApp|Started WebApp|Started .*PinpointWebApplication"; then
@@ -348,10 +348,10 @@ jobs:
             fi
 
             echo ">>> [Deploy] [5/6] Backend 기동..."
-            docker-compose -f docker-compose.yml up -d backend
+            docker compose -f docker-compose.yml up -d backend
 
             echo ">>> [Deploy] [6/6] Redis/Monitoring 기동..."
-            docker-compose -f docker-compose.yml up -d redis prometheus grafana
+            docker compose -f docker-compose.yml up -d redis prometheus grafana
 
             echo ">>> [Deploy] 오래된 이미지 정리 중..."
             docker image prune -af --filter "until=168h"
