@@ -9,9 +9,12 @@ import com.google.firebase.messaging.Notification;
 import com.google.firebase.messaging.SendResponse;
 import com.google.firebase.messaging.WebpushConfig;
 import com.google.firebase.messaging.WebpushFcmOptions;
+import com.project.dorumdorum.domain.notification.domain.entity.Device;
+import com.project.dorumdorum.domain.notification.domain.entity.NotificationDeliveryChannel;
+import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDelivery;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
-import com.project.dorumdorum.domain.notification.domain.service.rate.DistributedRateLimiter;
 import com.project.dorumdorum.global.properties.NotificationRateLimitProperties;
+import com.project.dorumdorum.global.ratelimit.DistributedRateLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -24,12 +27,20 @@ import java.util.Set;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FcmNotificationDelivery {
+public class FcmNotificationDelivery implements NotificationDelivery {
 
     private static final int MULTICAST_MAX_TOKENS = 500;
     private final FirebaseMessaging firebaseMessaging;
     private final DistributedRateLimiter distributedRateLimiter;
     private final NotificationRateLimitProperties rateLimitProperties;
+
+    @Override
+    public void send(NotificationDeliveryChannel channel, NotificationDeliveryPayload payload, Device device) {
+        if (channel != NotificationDeliveryChannel.FCM) {
+            return;
+        }
+        sendMulticast(payload, List.of(device.getFcmToken()));
+    }
 
     public MulticastSendResult sendMulticast(NotificationDeliveryPayload payload, List<String> rawTokens) {
         List<String> tokens = sanitizeTokens(rawTokens);
