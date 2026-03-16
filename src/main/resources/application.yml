@@ -176,3 +176,11 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
+notification:
+  rate-limit:
+    fcm:
+      enabled: ${FCM_RATE_LIMIT_ENABLED:true}
+      key: ${FCM_RATE_LIMIT_KEY:notification:fcm:rate-limit}
+      permits-per-second: ${FCM_RATE_LIMIT_PERMITS_PER_SECOND:30}
+      bucket-capacity: ${FCM_RATE_LIMIT_BUCKET_CAPACITY:120}
