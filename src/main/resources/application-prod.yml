@@ -20,7 +20,7 @@ spring:
       uri: ${MONGODB_URI}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
 
 jwt:
