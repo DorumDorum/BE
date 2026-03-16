@@ -33,8 +33,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final ExcludeAuthPathProperties excludeAuthPathProperties;
     private final TokenWhitelistService tokenWhitelistService;
     private final ExcludeWhitelistPathProperties excludeWhitelistPathProperties;
+    private final ObjectMapper objectMapper;
     private static final PathPatternParser pathPatternParser = new PathPatternParser();
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

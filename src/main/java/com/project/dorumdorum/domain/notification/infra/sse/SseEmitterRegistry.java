@@ -96,26 +96,6 @@ public class SseEmitterRegistry {
         });
     }
 
-    public void sendToUser(String userNo, NotificationDeliveryPayload payload) {
-        Map<String, SseEmitter> emitters = userEmitters.get(userNo);
-        if (emitters == null || emitters.isEmpty())
-            return;
-
-        String json = toJson(payload);
-        if (json == null)
-            return;
-
-        emitters.entrySet().removeIf(entry -> {
-            try {
-                entry.getValue().send(SseEmitter.event().data(json));
-                return false;
-            } catch (IOException e) {
-                log.warn("[SSE] send failed userNo={} deviceId={}", userNo, entry.getKey(), e);
-                return true;
-            }
-        });
-    }
-
     public void sendToDevice(String userNo, String deviceId, NotificationDeliveryPayload payload) {
         if (deviceId == null || deviceId.isBlank())
             return;

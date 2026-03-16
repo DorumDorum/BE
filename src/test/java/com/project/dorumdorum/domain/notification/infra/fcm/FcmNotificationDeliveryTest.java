@@ -1,13 +1,11 @@
 package com.project.dorumdorum.domain.notification.infra.fcm;
 
+import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.Message;
-import com.project.dorumdorum.domain.notification.domain.entity.NotificationDeliveryChannel;
+import com.google.firebase.messaging.MulticastMessage;
+import com.google.firebase.messaging.SendResponse;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
-import com.project.dorumdorum.domain.notification.domain.vo.Device;
-import com.project.dorumdorum.domain.user.domain.entity.User;
-import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -28,13 +26,10 @@ class FcmNotificationDeliveryTest {
     @Mock
     private FirebaseMessaging firebaseMessaging;
 
-    @Mock
-    private UserRepository userRepository;
-
     @InjectMocks
     private FcmNotificationDelivery delivery;
 
-    private NotificationDeliveryPayload payload(String recipientNo, String token) {
+    private NotificationDeliveryPayload payload(String recipientNo) {
         return new NotificationDeliveryPayload(
                 "n1",
                 recipientNo,
@@ -47,64 +42,35 @@ class FcmNotificationDeliveryTest {
     }
 
     @Test
-    @DisplayName("채널이 FCM이 아니면 아무 것도 전송하지 않는다")
-    void send_WhenNotFcm_DoesNothing() throws Exception {
-        NotificationDeliveryPayload payload = payload("user-1", null);
-        delivery.send(NotificationDeliveryChannel.SSE, payload);
-        delivery.send(NotificationDeliveryChannel.SSE, payload, new Device("d1", "t1"));
+    @DisplayName("유효 토큰이 있으면 멀티캐스트 전송을 수행한다")
+    void sendMulticast_WithValidTokens_SendsMulticast() throws Exception {
+        NotificationDeliveryPayload payload = payload("user-1");
+        BatchResponse batchResponse = mock(BatchResponse.class);
+        SendResponse sendResponse = mock(SendResponse.class);
 
-        verify(firebaseMessaging, never()).send(any(Message.class));
+        when(sendResponse.isSuccessful()).thenReturn(true);
+        when(batchResponse.getResponses()).thenReturn(List.of(sendResponse));
+        when(firebaseMessaging.sendEachForMulticast(any(MulticastMessage.class))).thenReturn(batchResponse);
+
+        FcmNotificationDelivery.MulticastSendResult result = delivery.sendMulticast(payload, List.of("token-1"));
+
+        ArgumentCaptor<MulticastMessage> captor = ArgumentCaptor.forClass(MulticastMessage.class);
+        verify(firebaseMessaging).sendEachForMulticast(captor.capture());
+        assertThat(captor.getValue()).isNotNull();
+        assertThat(result.hasRetryableFailure()).isFalse();
+        assertThat(result.invalidTokens()).isEmpty();
     }
 
     @Test
-    @DisplayName("채널이 FCM이고 유저 토큰이 있으면 해당 토큰으로 메시지를 보낸다")
-    void send_WithUserToken_SendsMessage() throws Exception {
-        NotificationDeliveryPayload payload = payload("user-1", null);
-        User user = User.builder().userNo("user-1").build();
-        // User 엔티티에 firebaseToken 필드가 있다고 가정
-        java.lang.reflect.Field field = User.class.getDeclaredField("firebaseToken");
-        field.setAccessible(true);
-        field.set(user, "user-token");
+    @DisplayName("토큰이 비어있으면 FCM 호출 없이 빈 결과를 반환한다")
+    void sendMulticast_WithoutToken_DoesNotSend() throws Exception {
+        NotificationDeliveryPayload payload = payload("user-1");
 
-        when(userRepository.findById("user-1")).thenReturn(Optional.of(user));
-        when(firebaseMessaging.send(any(Message.class))).thenReturn("message-id");
+        FcmNotificationDelivery.MulticastSendResult result = delivery.sendMulticast(payload, List.of("", " "));
 
-        delivery.send(NotificationDeliveryChannel.FCM, payload);
-
-        ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
-        verify(firebaseMessaging).send(captor.capture());
-        Message message = captor.getValue();
-        // 직접 필드는 확인하기 어렵기 때문에 null 이 아님만 확인
-        assertThat(message).isNotNull();
-    }
-
-    @Test
-    @DisplayName("디바이스 기반 전송은 Device 토큰으로 메시지를 보낸다")
-    void send_WithDeviceToken_SendsMessage() throws Exception {
-        NotificationDeliveryPayload payload = payload("user-1", null);
-        Device device = new Device("device-1", "device-token");
-
-        when(firebaseMessaging.send(any(Message.class))).thenReturn("message-id");
-
-        delivery.send(NotificationDeliveryChannel.FCM, payload, device);
-
-        ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
-        verify(firebaseMessaging).send(captor.capture());
-        Message message = captor.getValue();
-        assertThat(message).isNotNull();
-    }
-
-    @Test
-    @DisplayName("토큰이 없으면 메시지를 보내지 않는다")
-    void send_WithoutToken_DoesNotSend() throws Exception {
-        NotificationDeliveryPayload payload = payload("user-1", null);
-        User user = User.builder().userNo("user-1").build();
-
-        when(userRepository.findById("user-1")).thenReturn(Optional.of(user));
-
-        delivery.send(NotificationDeliveryChannel.FCM, payload);
-
-        verify(firebaseMessaging, never()).send(any(Message.class));
+        verify(firebaseMessaging, never()).sendEachForMulticast(any(MulticastMessage.class));
+        assertThat(result.hasRetryableFailure()).isFalse();
+        assertThat(result.invalidTokens()).isEmpty();
     }
 }
 

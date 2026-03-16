@@ -1,7 +1,6 @@
 package com.project.dorumdorum.domain.notification.infra.sse;
 
 import com.project.dorumdorum.domain.notification.domain.repository.UserPresenceRepository;
-import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,14 +40,5 @@ class SseEmitterRegistryTest {
         assertThat(registry.getConnectedUsers()).contains("user-1");
     }
 
-    @Test
-    @DisplayName("sendToUser는 연결이 없는 경우 아무 것도 하지 않는다")
-    void sendToUser_NoConnections_DoesNothing() {
-        NotificationDeliveryPayload payload = new NotificationDeliveryPayload(
-                "n1", "user-1", "t", "b", null, null, null
-        );
-        registry.sendToUser("user-1", payload);
-        // 예외가 나지 않으면 성공으로 간주
-    }
 }
 
