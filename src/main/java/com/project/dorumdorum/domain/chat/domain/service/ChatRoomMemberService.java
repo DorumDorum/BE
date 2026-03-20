@@ -68,5 +68,6 @@ public class ChatRoomMemberService {
 
     public void updateLastReadAt(ChatRoomMember member, LocalDateTime readAt) {
         member.updateLastReadAt(readAt);
+        chatRoomMemberRepository.save(member);
     }
 }
