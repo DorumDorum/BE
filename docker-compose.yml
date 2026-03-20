@@ -21,26 +21,6 @@ services:
     networks:
       - dorumdorum-net
 
-  mongodb:
-    image: mongo:7.0
-    container_name: dorumdorum-mongodb
-    ports:
-      - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
-      - MONGO_INITDB_DATABASE=${MONGO_DATABASE}
-    volumes:
-      - mongodb_data:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    networks:
-      - dorumdorum-net
-
   redis:
     image: redis:7-alpine
     container_name: dorumdorum-redis
@@ -71,8 +51,6 @@ services:
       - ./firebase-service-account.json:/app/firebase-service-account.json:ro
     depends_on:
       mysql:
-        condition: service_healthy
-      mongodb:
         condition: service_healthy
       redis:
         condition: service_started
@@ -203,7 +181,6 @@ services:
 
 volumes:
   mysql_data:
-  mongodb_data:
   redis_data:
   prometheus_data:
   grafana_data:

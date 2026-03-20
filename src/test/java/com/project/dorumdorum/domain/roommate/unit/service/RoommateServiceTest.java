@@ -158,4 +158,44 @@ class RoommateServiceTest {
 
         assertThat(result).isEqualTo(expected);
     }
+
+    @Test
+    @DisplayName("isHostOfRoom: 룸메이트가 HOST 역할이면 true를 반환한다")
+    void isHostOfRoom_WhenHostRole_ReturnsTrue() {
+        Roommate roommate = Roommate.builder()
+                .userNo("u1")
+                .roomRole(RoomRole.HOST)
+                .confirmStatus(ConfirmStatus.PENDING)
+                .build();
+        when(roommateRepository.findByUserNoAndRoomNo("u1", "room1")).thenReturn(Optional.of(roommate));
+
+        boolean result = roommateService.isHostOfRoom("u1", "room1");
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("isHostOfRoom: 룸메이트가 MEMBER 역할이면 false를 반환한다")
+    void isHostOfRoom_WhenMemberRole_ReturnsFalse() {
+        Roommate roommate = Roommate.builder()
+                .userNo("u1")
+                .roomRole(RoomRole.MEMBER)
+                .confirmStatus(ConfirmStatus.PENDING)
+                .build();
+        when(roommateRepository.findByUserNoAndRoomNo("u1", "room1")).thenReturn(Optional.of(roommate));
+
+        boolean result = roommateService.isHostOfRoom("u1", "room1");
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("isHostOfRoom: 룸메이트를 찾지 못하면 false를 반환한다")
+    void isHostOfRoom_WhenNotFound_ReturnsFalse() {
+        when(roommateRepository.findByUserNoAndRoomNo("u1", "room1")).thenReturn(Optional.empty());
+
+        boolean result = roommateService.isHostOfRoom("u1", "room1");
+
+        assertThat(result).isFalse();
+    }
 }
