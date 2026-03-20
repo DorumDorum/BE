@@ -15,6 +15,11 @@ public interface RoommateRepository extends JpaRepository<Roommate, String>, Roo
            "from Roommate rm " +
            "where rm.userNo = :userNo and rm.room.roomNo = :roomNo")
     Boolean existsByUserNoAndRoomNo(@Param("userNo") String userNo, @Param("roomNo") String roomNo);
+
+    @Query("select rm from Roommate rm " +
+           "where rm.userNo = :userNo and rm.room.roomNo = :roomNo")
+    Optional<Roommate> findByUserNoAndRoomNo(@Param("userNo") String userNo, @Param("roomNo") String roomNo);
+
     List<Roommate> findAllByUserNo(String userNo);
     Optional<Roommate> findByUserNoAndRoom(String userNo, Room room);
     List<Roommate> findByRoom(Room room);

@@ -1,8 +1,8 @@
 package com.project.dorumdorum.domain.roommate.infra.repository;
 
 import com.project.dorumdorum.domain.roommate.application.dto.response.MyRoommateResponse;
+import com.project.dorumdorum.domain.roommate.domain.entity.QRoommate;
 import com.project.dorumdorum.domain.roommate.domain.repository.RoommateQueryRepository;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -21,6 +21,8 @@ public class RoommateRepositoryImpl implements RoommateQueryRepository {
 
     @Override
     public List<MyRoommateResponse> findMyRoommates(String userNo) {
+        QRoommate myRoommate = new QRoommate("myRoommate");
+
         return query
                 .select(
                         constructor(MyRoommateResponse.class,
@@ -39,15 +41,8 @@ public class RoommateRepositoryImpl implements RoommateQueryRepository {
                         )
                 )
                 .from(roommate)
+                .join(myRoommate).on(myRoommate.room.eq(roommate.room).and(myRoommate.userNo.eq(userNo)))
                 .leftJoin(user).on(user.userNo.eq(roommate.userNo))
-                .where(
-                        roommate.room.in(
-                                JPAExpressions
-                                        .select(roommate.room)
-                                        .from(roommate)
-                                        .where(roommate.userNo.eq(userNo))
-                        )
-                )
                 .fetch();
     }
 }

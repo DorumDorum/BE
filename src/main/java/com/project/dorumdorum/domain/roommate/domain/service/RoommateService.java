@@ -58,6 +58,18 @@ public class RoommateService {
         return roommateRepository.findByUserNo(userNo);
     }
 
+    public boolean isHostOfRoom(String userNo, String roomNo) {
+        return roommateRepository.findByUserNoAndRoomNo(userNo, roomNo)
+                .map(r -> RoomRole.HOST.equals(r.getRoomRole()))
+                .orElse(false);
+    }
+
+    public void leaveRoom(String userNo, String roomNo) {
+        Roommate roommate = roommateRepository.findByUserNoAndRoomNo(userNo, roomNo)
+                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+        roommateRepository.delete(roommate);
+    }
+
     public List<MyRoommateResponse> findMyRoommates(String userNo) {
         return roommateRepository.findMyRoommates(userNo);
     }
