@@ -50,3 +50,6 @@ pinpoint-agent/tools/
 
 ### claude ###
 .claude
+
+### env ###
+.env
