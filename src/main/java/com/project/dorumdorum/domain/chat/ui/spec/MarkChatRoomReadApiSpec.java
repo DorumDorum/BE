@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.chat.ui.spec;
 
-import com.project.dorumdorum.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,7 +15,7 @@ public interface MarkChatRoomReadApiSpec {
             description = "채팅방의 미읽은 메시지를 읽음 처리합니다."
     )
     @PostMapping("/api/chat/rooms/{chatRoomNo}/read")
-    ResponseEntity<BaseResponse<Void>> markAsRead(
+    ResponseEntity<Void> markAsRead(
             @Parameter(hidden = true) String userNo,
             @Parameter(description = "채팅방 번호") @PathVariable String chatRoomNo
     );

@@ -4,7 +4,6 @@ import com.project.dorumdorum.domain.chat.application.dto.response.ChatMessageSu
 import com.project.dorumdorum.domain.chat.application.usecase.LoadChatMessagesUseCase;
 import com.project.dorumdorum.domain.chat.ui.spec.LoadChatMessagesApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
-import com.project.dorumdorum.global.common.BaseResponse;
 import com.project.dorumdorum.global.pagination.CursorPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +18,11 @@ public class LoadChatMessagesController implements LoadChatMessagesApiSpec {
     private final LoadChatMessagesUseCase loadChatMessagesUseCase;
 
     @Override
-    public ResponseEntity<BaseResponse<CursorPage<ChatMessageSummary>>> loadChatMessages(
+    public ResponseEntity<CursorPage<ChatMessageSummary>> loadChatMessages(
             @CurrentUser String userNo,
             @PathVariable String chatRoomNo,
             @RequestParam(required = false) String cursor
     ) {
-        return ResponseEntity.ok(BaseResponse.onSuccess(
-                loadChatMessagesUseCase.execute(chatRoomNo, userNo, cursor)));
+        return ResponseEntity.ok(loadChatMessagesUseCase.execute(chatRoomNo, userNo, cursor));
     }
 }

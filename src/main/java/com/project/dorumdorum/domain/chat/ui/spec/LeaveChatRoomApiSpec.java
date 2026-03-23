@@ -1,6 +1,5 @@
 package com.project.dorumdorum.domain.chat.ui.spec;
 
-import com.project.dorumdorum.global.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,7 +15,7 @@ public interface LeaveChatRoomApiSpec {
             description = "채팅방에서 퇴장합니다. 다른 멤버가 있는 경우 방장은 퇴장할 수 없습니다."
     )
     @DeleteMapping("/api/chat/rooms/{chatRoomNo}/leave")
-    ResponseEntity<BaseResponse<Void>> leave(
+    ResponseEntity<Void> leave(
             @Parameter(hidden = true) String userNo,
             @Parameter(description = "채팅방 번호") @PathVariable String chatRoomNo
     );
