@@ -1,6 +1,7 @@
 package com.project.dorumdorum.domain.chat.infra.repository;
 
 import com.project.dorumdorum.domain.chat.application.dto.response.ChatRoomSummary;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomType;
 import com.project.dorumdorum.domain.chat.domain.entity.QChatMessage;
 import com.project.dorumdorum.domain.chat.domain.entity.QChatRoomMember;
 import com.project.dorumdorum.domain.chat.domain.repository.ChatRoomQueryRepository;
@@ -49,7 +50,8 @@ public class ChatRoomRepositoryImpl implements ChatRoomQueryRepository {
                                 .from(partnerMember)
                                 .where(
                                         partnerMember.chatRoom.eq(chatRoom),
-                                        partnerMember.userNo.ne(userNo)
+                                        partnerMember.userNo.ne(userNo),
+                                        chatRoom.chatRoomType.eq(ChatRoomType.DIRECT)
                                 )
                                 .limit(1),
                         // DIRECT이면 상대방 닉네임, GROUP이면 null
@@ -61,7 +63,8 @@ public class ChatRoomRepositoryImpl implements ChatRoomQueryRepository {
                                                         .from(partnerMemberForNickname)
                                                         .where(
                                                                 partnerMemberForNickname.chatRoom.eq(chatRoom),
-                                                                partnerMemberForNickname.userNo.ne(userNo)
+                                                                partnerMemberForNickname.userNo.ne(userNo),
+                                                                chatRoom.chatRoomType.eq(ChatRoomType.DIRECT)
                                                         )
                                                         .limit(1)
                                         )
