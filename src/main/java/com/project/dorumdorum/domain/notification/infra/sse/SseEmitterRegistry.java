@@ -33,15 +33,19 @@ public class SseEmitterRegistry {
 
         Map<String, SseEmitter> emitters = userEmitters.computeIfAbsent(userNo, k -> new ConcurrentHashMap<>());
         SseEmitter previous = emitters.put(key, emitter);
-        if (previous != null)
-            previous.completeWithError(new IllegalStateException("replaced by new connection"));
+        if (previous != null) {
+            try {
+                previous.complete();
+            } catch (Exception ignored) {}
+        }
 
         if (emitters.size() == 1)
             userPresenceRepository.setOnline(userNo);
 
-        emitter.onCompletion(() -> remove(userNo, key));
-        emitter.onTimeout(() -> remove(userNo, key));
-        emitter.onError(e -> remove(userNo, key));
+        // remove() -> removeIfCurrent()
+        emitter.onCompletion(() -> removeIfCurrent(userNo, key, emitter));
+        emitter.onTimeout(() -> removeIfCurrent(userNo, key, emitter));
+        emitter.onError(e -> removeIfCurrent(userNo, key, emitter));
 
         return emitter;
     }
@@ -49,6 +53,17 @@ public class SseEmitterRegistry {
     public void remove(String userNo, String deviceId) {
         Map<String, SseEmitter> emitters = userEmitters.get(userNo);
         if (emitters != null) {
+            emitters.remove(deviceId);
+            if (emitters.isEmpty()) {
+                userEmitters.remove(userNo);
+                userPresenceRepository.setOffline(userNo);
+            }
+        }
+    }
+
+    private void removeIfCurrent(String userNo, String deviceId, SseEmitter target) {
+        Map<String, SseEmitter> emitters = userEmitters.get(userNo);
+        if (emitters != null && emitters.get(deviceId) == target) {
             emitters.remove(deviceId);
             if (emitters.isEmpty()) {
                 userEmitters.remove(userNo);
