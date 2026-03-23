@@ -104,11 +104,15 @@ public class SseEmitterRegistry {
             try {
                 entry.getValue().send(SseEmitter.event().name("heartbeat").data("{}"));
                 return false;
-            } catch (IOException e) {
-                log.warn("[SSE] heartbeat send failed userNo={} deviceId={}", userNo, entry.getKey(), e);
+            } catch (Exception e) {
+                log.debug("[SSE] heartbeat send failed userNo={} deviceId={}: {}", userNo, entry.getKey(), e.getMessage());
                 return true;
             }
         });
+        if (emitters.isEmpty()) {
+            userEmitters.remove(userNo);
+            userPresenceRepository.setOffline(userNo);
+        }
     }
 
     public void sendToDevice(String userNo, String deviceId, NotificationDeliveryPayload payload) {
@@ -128,8 +132,8 @@ public class SseEmitterRegistry {
 
         try {
             emitter.send(SseEmitter.event().data(json));
-        } catch (IOException e) {
-            log.warn("[SSE] send failed userNo={} deviceId={}", userNo, deviceId, e);
+        } catch (Exception e) {
+            log.warn("[SSE] send failed userNo={} deviceId={}: {}", userNo, deviceId, e.getMessage());
             emitters.remove(deviceId);
             if (emitters.isEmpty()) {
                 userEmitters.remove(userNo);
