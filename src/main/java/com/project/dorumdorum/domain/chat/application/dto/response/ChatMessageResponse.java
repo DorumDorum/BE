@@ -6,6 +6,7 @@ public record ChatMessageResponse(
         String messageNo,
         String chatRoomNo,
         String senderNo,
+        String senderNickname,
         String content,
         String messageType,
         LocalDateTime sentAt

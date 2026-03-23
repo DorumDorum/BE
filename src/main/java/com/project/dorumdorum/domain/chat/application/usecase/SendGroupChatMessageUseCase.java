@@ -10,6 +10,7 @@ import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
 import com.project.dorumdorum.domain.notification.application.event.NotificationRequestPublisher;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
+import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -48,17 +49,24 @@ public class SendGroupChatMessageUseCase {
 
         chatRoomService.updateLastMessage(chatRoom, content, senderNo, message.getCreatedAt());
 
+        User user = userService.findById(senderNo);
+        String nickname = user.getNickname();
+        if (nickname == null || nickname.isBlank()) {
+            nickname = user.getName();
+        }
+        final String senderNickname = (nickname != null && !nickname.isBlank()) ? nickname : "알 수 없음";
+
         ChatMessageResponse response = new ChatMessageResponse(
                 message.getMessageNo(),
                 chatRoom.getChatRoomNo(),
                 senderNo,
+                senderNickname,
                 content,
                 MessageType.TEXT.name(),
                 message.getCreatedAt()
         );
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomNo, response);
 
-        String senderNickname = userService.findById(senderNo).getNickname();
         members.stream()
                 .filter(member -> !member.getUserNo().equals(senderNo))
                 .forEach(member -> notificationRequestPublisher.publish(
