@@ -2,6 +2,7 @@ package com.project.dorumdorum.domain.chat.domain.service;
 
 import com.project.dorumdorum.domain.chat.application.dto.response.ChatRoomSummary;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoom;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomType;
 import com.project.dorumdorum.domain.chat.domain.repository.ChatRoomRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +33,30 @@ public class ChatRoomService {
     }
 
     public Optional<ChatRoom> findByRoomNo(String roomNo) {
-        return chatRoomRepository.findByRoomNo(roomNo);
+        return chatRoomRepository.findByRoomNoAndChatRoomType(roomNo, ChatRoomType.GROUP);
     }
 
     public boolean existsByRoomNo(String roomNo) {
         return chatRoomRepository.existsByRoomNo(roomNo);
+    }
+
+    public ChatRoom createDirectChatRoom(String roomNo, String applicantUserNo) {
+        ChatRoom chatRoom = ChatRoom.builder()
+                .roomNo(roomNo)
+                .chatRoomType(ChatRoomType.DIRECT)
+                .applicantUserNo(applicantUserNo)
+                .build();
+        return chatRoomRepository.save(chatRoom);
+    }
+
+    public boolean existsDirectChatRoom(String roomNo, String applicantUserNo) {
+        return chatRoomRepository.existsByRoomNoAndChatRoomTypeAndApplicantUserNo(
+                roomNo, ChatRoomType.DIRECT, applicantUserNo);
+    }
+
+    public Optional<ChatRoom> findDirectChatRoom(String roomNo, String applicantUserNo) {
+        return chatRoomRepository.findByRoomNoAndChatRoomTypeAndApplicantUserNo(
+                roomNo, ChatRoomType.DIRECT, applicantUserNo);
     }
 
     public void updateLastMessage(ChatRoom chatRoom, String content, String senderNo, LocalDateTime sentAt) {

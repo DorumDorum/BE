@@ -1,6 +1,7 @@
 package com.project.dorumdorum.domain.chat.unit.ui;
 
 import com.project.dorumdorum.domain.chat.application.dto.response.ChatRoomSummary;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomType;
 import com.project.dorumdorum.domain.chat.application.usecase.LoadMyChatRoomsUseCase;
 import com.project.dorumdorum.domain.chat.ui.LoadMyChatRoomsController;
 import com.project.dorumdorum.global.common.BaseResponse;
@@ -29,7 +30,7 @@ class LoadMyChatRoomsControllerTest {
     @DisplayName("UseCase 결과를 BaseResponse로 감싸 반환한다")
     void loadMyChatRooms_ReturnsWrappedResult() {
         List<ChatRoomSummary> list = List.of(
-                new ChatRoomSummary("cr-1", "r-1", "hi", null, 1L)
+                new ChatRoomSummary("cr-1", "r-1", ChatRoomType.GROUP, null, "hi", null, 1L)
         );
         when(useCase.execute("u1")).thenReturn(list);
 

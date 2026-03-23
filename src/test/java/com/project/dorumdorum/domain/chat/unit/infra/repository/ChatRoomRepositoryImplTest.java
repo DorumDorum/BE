@@ -1,6 +1,7 @@
 package com.project.dorumdorum.domain.chat.unit.infra.repository;
 
 import com.project.dorumdorum.domain.chat.application.dto.response.ChatRoomSummary;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomType;
 import com.project.dorumdorum.domain.chat.infra.repository.ChatRoomRepositoryImpl;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -32,7 +33,7 @@ class ChatRoomRepositoryImplTest {
         ChatRoomRepositoryImpl repository = new ChatRoomRepositoryImpl(queryFactory);
         JPAQuery<ChatRoomSummary> jpaQuery = mock(JPAQuery.class, RETURNS_SELF);
         List<ChatRoomSummary> expected = List.of(
-                new ChatRoomSummary("cr-1", "room-1", "안녕", LocalDateTime.now(), 3L)
+                new ChatRoomSummary("cr-1", "room-1", ChatRoomType.GROUP, null, "안녕", LocalDateTime.now(), 3L)
         );
 
         when(queryFactory.select(any(Expression.class))).thenReturn(jpaQuery);

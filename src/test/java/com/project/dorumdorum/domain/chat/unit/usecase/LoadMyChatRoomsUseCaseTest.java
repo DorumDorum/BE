@@ -2,6 +2,7 @@ package com.project.dorumdorum.domain.chat.unit.usecase;
 
 import com.project.dorumdorum.domain.chat.application.dto.response.ChatRoomSummary;
 import com.project.dorumdorum.domain.chat.application.usecase.LoadMyChatRoomsUseCase;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomType;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ class LoadMyChatRoomsUseCaseTest {
     @DisplayName("내 채팅방 목록을 반환한다")
     void execute_ReturnsChatRoomList() {
         List<ChatRoomSummary> expected = List.of(
-                new ChatRoomSummary("cr-1", "r-1", "마지막 메시지", null, 2L)
+                new ChatRoomSummary("cr-1", "r-1", ChatRoomType.GROUP, null, "마지막 메시지", null, 2L)
         );
         when(chatRoomService.findMyChatRooms("u1")).thenReturn(expected);
 

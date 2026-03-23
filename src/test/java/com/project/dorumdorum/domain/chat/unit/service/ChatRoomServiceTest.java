@@ -1,6 +1,7 @@
 package com.project.dorumdorum.domain.chat.unit.service;
 
 import com.project.dorumdorum.domain.chat.application.dto.response.ChatRoomSummary;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomType;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoom;
 import com.project.dorumdorum.domain.chat.domain.repository.ChatRoomRepository;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
@@ -19,8 +20,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ChatRoomService Unit Tests")
@@ -65,7 +66,7 @@ class ChatRoomServiceTest {
     @DisplayName("findByRoomNo: repository에 위임하고 Optional 반환")
     void findByRoomNo_DelegatesToRepository() {
         ChatRoom chatRoom = ChatRoom.builder().roomNo("room-1").build();
-        when(chatRoomRepository.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
+        when(chatRoomRepository.findByRoomNoAndChatRoomType("room-1", ChatRoomType.GROUP)).thenReturn(Optional.of(chatRoom));
 
         Optional<ChatRoom> result = service.findByRoomNo("room-1");
 
@@ -107,12 +108,75 @@ class ChatRoomServiceTest {
     @DisplayName("findMyChatRooms: repository에 위임하고 목록 반환")
     void findMyChatRooms_DelegatesToRepository() {
         List<ChatRoomSummary> summaries = List.of(
-                new ChatRoomSummary("cr-1", "room-1", "마지막 메시지", LocalDateTime.now(), 2L)
+                new ChatRoomSummary("cr-1", "room-1", ChatRoomType.GROUP, null, "마지막 메시지", LocalDateTime.now(), 2L)
         );
         when(chatRoomRepository.findMyChatRooms("user-1")).thenReturn(summaries);
 
         List<ChatRoomSummary> result = service.findMyChatRooms("user-1");
 
         assertThat(result).isEqualTo(summaries);
+    }
+
+    @Test
+    @DisplayName("createDirectChatRoom: DIRECT 타입과 applicantUserNo를 설정하여 저장")
+    void createDirectChatRoom_SavesWithDirectTypeAndApplicantUserNo() {
+        ChatRoom saved = ChatRoom.builder()
+                .roomNo("room-1")
+                .chatRoomType(ChatRoomType.DIRECT)
+                .applicantUserNo("user-applicant")
+                .build();
+        when(chatRoomRepository.save(any(ChatRoom.class))).thenReturn(saved);
+
+        ChatRoom result = service.createDirectChatRoom("room-1", "user-applicant");
+
+        ArgumentCaptor<ChatRoom> captor = ArgumentCaptor.forClass(ChatRoom.class);
+        verify(chatRoomRepository).save(captor.capture());
+        ChatRoom toBeSaved = captor.getValue();
+        assertThat(toBeSaved.getChatRoomType()).isEqualTo(ChatRoomType.DIRECT);
+        assertThat(toBeSaved.getApplicantUserNo()).isEqualTo("user-applicant");
+        assertThat(toBeSaved.getRoomNo()).isEqualTo("room-1");
+        assertThat(result).isEqualTo(saved);
+    }
+
+    @Test
+    @DisplayName("existsDirectChatRoom: DIRECT 타입 조건으로 repository에 위임")
+    void existsDirectChatRoom_DelegatesToRepositoryWithDirectType() {
+        when(chatRoomRepository.existsByRoomNoAndChatRoomTypeAndApplicantUserNo(
+                "room-1", ChatRoomType.DIRECT, "user-applicant")).thenReturn(true);
+
+        boolean result = service.existsDirectChatRoom("room-1", "user-applicant");
+
+        assertThat(result).isTrue();
+        verify(chatRoomRepository).existsByRoomNoAndChatRoomTypeAndApplicantUserNo(
+                "room-1", ChatRoomType.DIRECT, "user-applicant");
+    }
+
+    @Test
+    @DisplayName("findDirectChatRoom: DIRECT 타입 조건으로 repository에 위임하고 Optional 반환")
+    void findDirectChatRoom_DelegatesToRepositoryWithDirectType() {
+        ChatRoom chatRoom = ChatRoom.builder()
+                .roomNo("room-1")
+                .chatRoomType(ChatRoomType.DIRECT)
+                .applicantUserNo("user-applicant")
+                .build();
+        when(chatRoomRepository.findByRoomNoAndChatRoomTypeAndApplicantUserNo(
+                "room-1", ChatRoomType.DIRECT, "user-applicant")).thenReturn(Optional.of(chatRoom));
+
+        Optional<ChatRoom> result = service.findDirectChatRoom("room-1", "user-applicant");
+
+        assertThat(result).contains(chatRoom);
+        verify(chatRoomRepository).findByRoomNoAndChatRoomTypeAndApplicantUserNo(
+                "room-1", ChatRoomType.DIRECT, "user-applicant");
+    }
+
+    @Test
+    @DisplayName("findDirectChatRoom: DIRECT 채팅방 없으면 빈 Optional 반환")
+    void findDirectChatRoom_WhenNotExists_ReturnsEmpty() {
+        when(chatRoomRepository.findByRoomNoAndChatRoomTypeAndApplicantUserNo(
+                "room-1", ChatRoomType.DIRECT, "user-applicant")).thenReturn(Optional.empty());
+
+        Optional<ChatRoom> result = service.findDirectChatRoom("room-1", "user-applicant");
+
+        assertThat(result).isEmpty();
     }
 }
