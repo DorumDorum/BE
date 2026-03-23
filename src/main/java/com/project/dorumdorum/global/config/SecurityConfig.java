@@ -64,6 +64,7 @@ public class SecurityConfig {
             request.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
             request.requestMatchers("/ws/**", "/ws", "/ws-native/**", "/ws-native").permitAll();
             request.requestMatchers(HttpMethod.GET, "/api/notifications/stream").permitAll();
+            request.requestMatchers("/error").permitAll();
         });
 
         http.authorizeHttpRequests(request -> request
