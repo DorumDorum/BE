@@ -14,9 +14,11 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, String
     @Query("UPDATE ChatMessage m SET m.unreadCount = m.unreadCount - 1 " +
            "WHERE m.chatRoom.chatRoomNo = :chatRoomNo " +
            "AND m.createdAt > :fromTime " +
+           "AND m.senderNo != :userNo " +
            "AND m.unreadCount > 0")
     int decreaseUnreadCount(@Param("chatRoomNo") String chatRoomNo,
-                            @Param("fromTime") LocalDateTime fromTime);
+                            @Param("fromTime") LocalDateTime fromTime,
+                            @Param("userNo") String userNo);
 
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM ChatMessage m WHERE m.chatRoom.chatRoomNo = :chatRoomNo")

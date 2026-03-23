@@ -28,8 +28,8 @@ public class ChatMessageService {
         return chatMessageRepository.save(message);
     }
 
-    public int decreaseUnreadCount(String chatRoomNo, LocalDateTime fromTime) {
-        return chatMessageRepository.decreaseUnreadCount(chatRoomNo, fromTime);
+    public int decreaseUnreadCount(String chatRoomNo, LocalDateTime fromTime, String userNo) {
+        return chatMessageRepository.decreaseUnreadCount(chatRoomNo, fromTime, userNo);
     }
 
     public List<ChatMessage> findMessages(String chatRoomNo, LocalDateTime joinedAt,

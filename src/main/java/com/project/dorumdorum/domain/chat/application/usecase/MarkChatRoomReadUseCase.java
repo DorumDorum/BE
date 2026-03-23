@@ -28,7 +28,7 @@ public class MarkChatRoomReadUseCase {
                 ? member.getLastReadAt()
                 : member.getJoinedAt();
 
-        chatMessageService.decreaseUnreadCount(chatRoomNo, fromTime);
+        chatMessageService.decreaseUnreadCount(chatRoomNo, fromTime, userNo);
         chatRoomMemberService.updateLastReadAt(member, LocalDateTime.now());
     }
 }
