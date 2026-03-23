@@ -10,6 +10,7 @@ import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
 import com.project.dorumdorum.domain.notification.application.event.NotificationRequestPublisher;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
+import com.project.dorumdorum.domain.user.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class SendGroupChatMessageUseCase {
     private final ChatMessageService chatMessageService;
     private final SimpMessagingTemplate messagingTemplate;
     private final NotificationRequestPublisher notificationRequestPublisher;
+    private final UserService userService;
 
     @Transactional
     public void send(String chatRoomNo, String senderNo, String content) {
@@ -56,11 +58,12 @@ public class SendGroupChatMessageUseCase {
         );
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomNo, response);
 
+        String senderNickname = userService.findById(senderNo).getNickname();
         members.stream()
                 .filter(member -> !member.getUserNo().equals(senderNo))
                 .forEach(member -> notificationRequestPublisher.publish(
                         member.getUserNo(),
-                        "새 메시지",
+                        senderNickname,
                         content,
                         NotificationType.NEW_MESSAGE_RECEIVED,
                         chatRoomNo
