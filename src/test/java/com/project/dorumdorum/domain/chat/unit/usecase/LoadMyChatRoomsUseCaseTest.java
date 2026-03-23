@@ -28,7 +28,7 @@ class LoadMyChatRoomsUseCaseTest {
     @DisplayName("내 채팅방 목록을 반환한다")
     void execute_ReturnsChatRoomList() {
         List<ChatRoomSummary> expected = List.of(
-                new ChatRoomSummary("cr-1", "r-1", ChatRoomType.GROUP, null, "마지막 메시지", null, 2L)
+                new ChatRoomSummary("cr-1", "r-1", ChatRoomType.GROUP, null, null, null, "마지막 메시지", null, 2L)
         );
         when(chatRoomService.findMyChatRooms("u1")).thenReturn(expected);
 

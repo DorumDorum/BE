@@ -10,6 +10,8 @@ import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
 import com.project.dorumdorum.domain.notification.application.event.NotificationRequestPublisher;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
+import com.project.dorumdorum.domain.user.domain.entity.User;
+import com.project.dorumdorum.domain.user.domain.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +35,7 @@ class SendGroupChatMessageUseCaseTest {
     @Mock private ChatMessageService chatMessageService;
     @Mock private SimpMessagingTemplate messagingTemplate;
     @Mock private NotificationRequestPublisher notificationRequestPublisher;
+    @Mock private UserService userService;
     @InjectMocks private SendGroupChatMessageUseCase useCase;
 
     @Test
@@ -43,6 +46,7 @@ class SendGroupChatMessageUseCaseTest {
         ChatRoomMember sender = mock(ChatRoomMember.class);
         ChatRoomMember other = mock(ChatRoomMember.class);
 
+        User mockUser = mock(User.class);
         when(chatRoom.getChatRoomNo()).thenReturn("cr-1");
         when(chatRoomService.findByChatRoomNo("cr-1")).thenReturn(chatRoom);
         when(sender.getUserNo()).thenReturn("user-1");
@@ -51,6 +55,8 @@ class SendGroupChatMessageUseCaseTest {
         when(chatMessageService.save(chatRoom, "user-1", "hello", MessageType.TEXT, 1)).thenReturn(message);
         when(message.getMessageNo()).thenReturn("msg-1");
         when(message.getCreatedAt()).thenReturn(LocalDateTime.now());
+        when(userService.findById("user-1")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn("user1Nick");
 
         useCase.send("cr-1", "user-1", "hello");
 
@@ -72,6 +78,7 @@ class SendGroupChatMessageUseCaseTest {
         ChatMessage message = mock(ChatMessage.class);
         ChatRoomMember sender = mock(ChatRoomMember.class);
 
+        User mockUser = mock(User.class);
         when(chatRoom.getChatRoomNo()).thenReturn("cr-1");
         when(chatRoomService.findByChatRoomNo("cr-1")).thenReturn(chatRoom);
         when(sender.getUserNo()).thenReturn("user-1");
@@ -79,6 +86,8 @@ class SendGroupChatMessageUseCaseTest {
         when(chatMessageService.save(chatRoom, "user-1", "hello", MessageType.TEXT, 0)).thenReturn(message);
         when(message.getMessageNo()).thenReturn("msg-1");
         when(message.getCreatedAt()).thenReturn(LocalDateTime.now());
+        when(userService.findById("user-1")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn("user1Nick");
 
         useCase.send("cr-1", "user-1", "hello");
 

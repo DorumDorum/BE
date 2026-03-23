@@ -7,8 +7,14 @@ import com.project.dorumdorum.domain.chat.domain.entity.MessageType;
 import com.project.dorumdorum.domain.chat.domain.service.ChatMessageService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatMessage;
 import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
+import com.project.dorumdorum.domain.user.domain.entity.User;
+import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +34,8 @@ class LeaveChatRoomUseCaseTest {
     @Mock private ChatRoomMemberService chatRoomMemberService;
     @Mock private ChatMessageService chatMessageService;
     @Mock private RoommateService roommateService;
+    @Mock private UserService userService;
+    @Mock private SimpMessagingTemplate messagingTemplate;
     @InjectMocks private LeaveChatRoomUseCase useCase;
 
     @Test
@@ -36,11 +44,18 @@ class LeaveChatRoomUseCaseTest {
         ChatRoom chatRoom = mock(ChatRoom.class);
         ChatRoomMember member = mock(ChatRoomMember.class);
 
+        User mockUser = mock(User.class);
+        ChatMessage mockMessage = mock(ChatMessage.class);
         when(chatRoomService.findByChatRoomNo("cr-1")).thenReturn(chatRoom);
         when(chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, "u1")).thenReturn(member);
         when(chatRoomMemberService.countByChatRoom(chatRoom)).thenReturn(2L);
         when(chatRoom.getRoomNo()).thenReturn("room-1");
         when(roommateService.isHostOfRoom("u1", "room-1")).thenReturn(false);
+        when(userService.findById("u1")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn("nick1");
+        when(chatMessageService.save(any(), eq("SYSTEM"), anyString(), eq(MessageType.SYSTEM), eq(0))).thenReturn(mockMessage);
+        when(mockMessage.getMessageNo()).thenReturn("msg-1");
+        when(mockMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
 
         useCase.execute("cr-1", "u1");
 

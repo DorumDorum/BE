@@ -108,7 +108,7 @@ class ChatRoomServiceTest {
     @DisplayName("findMyChatRooms: repository에 위임하고 목록 반환")
     void findMyChatRooms_DelegatesToRepository() {
         List<ChatRoomSummary> summaries = List.of(
-                new ChatRoomSummary("cr-1", "room-1", ChatRoomType.GROUP, null, "마지막 메시지", LocalDateTime.now(), 2L)
+                new ChatRoomSummary("cr-1", "room-1", ChatRoomType.GROUP, null, null, null, "마지막 메시지", LocalDateTime.now(), 2L)
         );
         when(chatRoomRepository.findMyChatRooms("user-1")).thenReturn(summaries);
 

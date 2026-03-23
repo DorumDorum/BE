@@ -41,7 +41,7 @@ class MarkChatRoomReadUseCaseTest {
 
         useCase.execute("cr-1", "u1");
 
-        verify(chatMessageService).decreaseUnreadCount("cr-1", lastReadAt);
+        verify(chatMessageService).decreaseUnreadCount("cr-1", lastReadAt, "u1");
         verify(chatRoomMemberService).updateLastReadAt(eq(member), any(LocalDateTime.class));
     }
 
@@ -59,7 +59,7 @@ class MarkChatRoomReadUseCaseTest {
 
         useCase.execute("cr-1", "u1");
 
-        verify(chatMessageService).decreaseUnreadCount("cr-1", joinedAt);
+        verify(chatMessageService).decreaseUnreadCount("cr-1", joinedAt, "u1");
         verify(chatRoomMemberService).updateLastReadAt(eq(member), any(LocalDateTime.class));
     }
 }

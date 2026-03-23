@@ -7,7 +7,13 @@ import com.project.dorumdorum.domain.chat.domain.entity.MessageType;
 import com.project.dorumdorum.domain.chat.domain.service.ChatMessageService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatMessage;
 import com.project.dorumdorum.domain.room.application.event.RoommateKickedEvent;
+import com.project.dorumdorum.domain.user.domain.entity.User;
+import com.project.dorumdorum.domain.user.domain.service.UserService;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +33,8 @@ class RoommateKickedEventListenerTest {
     @Mock private ChatRoomService chatRoomService;
     @Mock private ChatRoomMemberService chatRoomMemberService;
     @Mock private ChatMessageService chatMessageService;
+    @Mock private UserService userService;
+    @Mock private SimpMessagingTemplate messagingTemplate;
     @InjectMocks private RoommateKickedEventListener listener;
 
     private final ChatRoom chatRoom = ChatRoom.builder().roomNo("room-1").build();
@@ -35,9 +43,16 @@ class RoommateKickedEventListenerTest {
     @DisplayName("채팅방에 강퇴 멤버가 있으면 퇴장 처리 및 시스템 메시지 저장")
     void handle_WhenMemberExists_LeavesAndSavesSystemMessage() {
         ChatRoomMember member = ChatRoomMember.builder().chatRoom(chatRoom).userNo("user-kicked").build();
+        User mockUser = mock(User.class);
+        ChatMessage mockMessage = mock(ChatMessage.class);
         when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
         when(chatRoomMemberService.isMember(chatRoom, "user-kicked")).thenReturn(true);
         when(chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, "user-kicked")).thenReturn(member);
+        when(userService.findById("user-kicked")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn("kickedNick");
+        when(chatMessageService.save(any(), eq("SYSTEM"), anyString(), eq(MessageType.SYSTEM), eq(0))).thenReturn(mockMessage);
+        when(mockMessage.getMessageNo()).thenReturn("msg-1");
+        when(mockMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
 
         listener.handle(new RoommateKickedEvent("room-1", "user-kicked"));
 

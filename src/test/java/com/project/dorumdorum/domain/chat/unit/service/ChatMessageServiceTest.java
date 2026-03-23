@@ -54,12 +54,12 @@ class ChatMessageServiceTest {
     @DisplayName("decreaseUnreadCount: repository에 위임하고 수정 건수 반환")
     void decreaseUnreadCount_DelegatesToRepository() {
         LocalDateTime from = LocalDateTime.of(2026, 3, 19, 12, 0);
-        when(chatMessageRepository.decreaseUnreadCount("cr-1", from)).thenReturn(5);
+        when(chatMessageRepository.decreaseUnreadCount("cr-1", from, "user-1")).thenReturn(5);
 
-        int updated = service.decreaseUnreadCount("cr-1", from);
+        int updated = service.decreaseUnreadCount("cr-1", from, "user-1");
 
         assertThat(updated).isEqualTo(5);
-        verify(chatMessageRepository).decreaseUnreadCount("cr-1", from);
+        verify(chatMessageRepository).decreaseUnreadCount("cr-1", from, "user-1");
     }
 
     @Test
