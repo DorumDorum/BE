@@ -8,6 +8,8 @@ import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
 import com.project.dorumdorum.domain.room.application.event.RoommateKickedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -23,7 +25,8 @@ public class RoommateKickedEventListener {
      * 룸메이트 강퇴(RoommateKickedEvent) → 채팅방에서 퇴장 처리
      * 발행: KickRoommateUseCase (room 도메인 담당자)
      */
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handle(RoommateKickedEvent event) {
         chatRoomService.findByRoomNo(event.roomNo()).ifPresent(chatRoom -> {
             if (chatRoomMemberService.isMember(chatRoom, event.kickedUserNo())) {
