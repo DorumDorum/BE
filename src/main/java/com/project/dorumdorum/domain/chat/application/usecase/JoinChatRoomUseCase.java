@@ -1,12 +1,17 @@
 package com.project.dorumdorum.domain.chat.application.usecase;
 
+import com.project.dorumdorum.domain.chat.application.dto.response.ChatMessageResponse;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatMessage;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoom;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageType;
 import com.project.dorumdorum.domain.chat.domain.service.ChatMessageService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
 import com.project.dorumdorum.domain.room.application.event.RoommateAcceptedEvent;
+import com.project.dorumdorum.domain.user.domain.entity.User;
+import com.project.dorumdorum.domain.user.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +25,8 @@ public class JoinChatRoomUseCase {
     private final ChatRoomService chatRoomService;
     private final ChatRoomMemberService chatRoomMemberService;
     private final ChatMessageService chatMessageService;
+    private final UserService userService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * 방장이 룸메이트 승인(RoommateAcceptedEvent) → 채팅방 입장
@@ -39,7 +46,15 @@ public class JoinChatRoomUseCase {
 
         if (!chatRoomMemberService.isMember(chatRoom, event.acceptedUserNo())) {
             chatRoomMemberService.join(chatRoom, event.acceptedUserNo());
-            chatMessageService.save(chatRoom, "SYSTEM", "새 룸메이트가 입장했습니다.", MessageType.SYSTEM, 0);
+            User accepted = userService.findById(event.acceptedUserNo());
+            String displayName = (accepted.getNickname() != null && !accepted.getNickname().isBlank())
+                    ? accepted.getNickname() : accepted.getName();
+            String content = displayName + "가 입장했습니다.";
+            ChatMessage message = chatMessageService.save(chatRoom, "SYSTEM", content, MessageType.SYSTEM, 0);
+            ChatMessageResponse response = new ChatMessageResponse(
+                    message.getMessageNo(), chatRoom.getChatRoomNo(),
+                    "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt());
+            messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoom.getChatRoomNo(), response);
         }
     }
 }
