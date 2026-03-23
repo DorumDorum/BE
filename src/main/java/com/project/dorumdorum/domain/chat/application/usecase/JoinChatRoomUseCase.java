@@ -8,6 +8,8 @@ import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
 import com.project.dorumdorum.domain.room.application.event.RoommateAcceptedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -25,7 +27,8 @@ public class JoinChatRoomUseCase {
      * - 채팅방 있으면 신규 멤버만 입장 (중복 방지)
      * - 입장 시스템 메시지 저장
      */
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handle(RoommateAcceptedEvent event) {
         ChatRoom chatRoom = chatRoomService.findByRoomNo(event.roomNo())
                 .orElseGet(() -> {

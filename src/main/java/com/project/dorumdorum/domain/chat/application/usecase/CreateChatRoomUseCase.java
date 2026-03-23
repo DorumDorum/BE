@@ -6,6 +6,8 @@ import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
 import com.project.dorumdorum.domain.room.application.event.RoomConfirmedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -21,7 +23,8 @@ public class CreateChatRoomUseCase {
      * - 채팅방 없으면 생성 후 미입장 멤버 전원 입장
      * - 채팅방 있으면 아직 미입장인 멤버만 추가 (RoommateAcceptedEvent로 일부 이미 입장했을 수 있음)
      */
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handle(RoomConfirmedEvent event) {
         ChatRoom chatRoom = chatRoomService.findByRoomNo(event.roomNo())
                 .orElseGet(() -> chatRoomService.create(event.roomNo()));
