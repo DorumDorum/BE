@@ -38,12 +38,11 @@ public class NotificationDeliveryService {
     )
     public void deliver(Notification notification) {
         RetryContext retryContext = RetrySynchronizationManager.getContext();
-        NotificationDeliveryOrchestrator.DeliveryResult deliveryResult = notificationDeliveryOrchestrator.deliver(
-                notification,
-                resolveTargetDevices(notification, retryContext)
-        );
+        List<Device> targetDevices = selectTargetDevices(notification, retryContext);
+        NotificationDeliveryOrchestrator.DeliveryResult deliveryResult =
+                notificationDeliveryOrchestrator.deliver(notification, targetDevices);
 
-        if (!deliveryResult.invalidTokens().isEmpty()) {
+        if (deliveryResult.hasInvalidTokens()) {
             notificationDeviceService.clearInvalidFcmTokens(deliveryResult.invalidTokens());
         }
 
@@ -77,7 +76,7 @@ public class NotificationDeliveryService {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Device> resolveTargetDevices(
+    private List<Device> selectTargetDevices(
             Notification notification,
             RetryContext retryContext
     ) {

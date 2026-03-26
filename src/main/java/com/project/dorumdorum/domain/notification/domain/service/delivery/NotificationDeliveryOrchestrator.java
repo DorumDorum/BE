@@ -76,6 +76,10 @@ public class NotificationDeliveryOrchestrator {
         public boolean hasRetryableFailure() {
             return !retryableTokens.isEmpty();
         }
+
+        public boolean hasInvalidTokens() {
+            return !invalidTokens.isEmpty();
+        }
     }
 
     private record DeviceChannelBuckets(
