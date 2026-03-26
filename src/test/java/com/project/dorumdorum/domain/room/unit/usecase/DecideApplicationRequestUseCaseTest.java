@@ -40,6 +40,7 @@ class DecideApplicationRequestUseCaseTest {
         when(roommateService.existsByUserNo("applicant")).thenReturn(false);
         when(roomService.findById("r1")).thenReturn(room);
         when(roommateService.isHost("host", room)).thenReturn(true);
+        when(room.isFull()).thenReturn(false);
 
         useCase.approve("host", "r1", "rq1");
 
@@ -47,6 +48,24 @@ class DecideApplicationRequestUseCaseTest {
         verify(room).plusCurrentMate();
         verify(roommateService).create("applicant", room, RoomRole.MEMBER);
         verify(roomRequestService).delete(request);
+    }
+
+    @Test
+    @DisplayName("Should throw when room is already full")
+    void approve_WhenRoomFull_Throws() {
+        Room room = mock(Room.class);
+        RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").userNo("applicant").build();
+        when(roomRequestService.findById("rq1")).thenReturn(request);
+        when(roommateService.existsByUserNo("applicant")).thenReturn(false);
+        when(roomService.findById("r1")).thenReturn(room);
+        when(roommateService.isHost("host", room)).thenReturn(true);
+        when(room.isFull()).thenReturn(true);
+
+        assertThatThrownBy(() -> useCase.approve("host", "r1", "rq1"))
+                .isInstanceOf(RestApiException.class);
+
+        verify(room, never()).plusCurrentMate();
+        verify(roomRequestService, never()).delete(any(RoomRequest.class));
     }
 
     @Test

@@ -22,6 +22,7 @@ public enum RoomErrorStatus implements BaseCodeInterface {
     ROOM_RULE_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "ROOM010", "이미 방 규칙이 존재합니다."),
     CANNOT_APPLY_TO_OWN_ROOM(HttpStatus.BAD_REQUEST, "ROOM011", "자신이 만든 방에는 지원할 수 없습니다."),
     CANNOT_KICK_SELF(HttpStatus.BAD_REQUEST, "ROOM012", "자기 자신은 강퇴할 수 없습니다."),
+    ROOM_FULL(HttpStatus.BAD_REQUEST, "ROOM014", "방 정원이 가득 찼습니다."),
     ;
 
     private final HttpStatus httpStatus;
