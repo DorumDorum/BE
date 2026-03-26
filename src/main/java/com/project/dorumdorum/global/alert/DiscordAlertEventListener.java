@@ -13,9 +13,11 @@ public class DiscordAlertEventListener {
     private final DiscordAlertSender discordAlertSender;
 
     @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(
+            phase = TransactionPhase.AFTER_COMMIT,
+            fallbackExecution = true
+    )
     public void handle(SystemAlertEvent event) {
         discordAlertSender.send(event.alert());
     }
 }
-

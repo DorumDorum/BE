@@ -27,7 +27,7 @@ public class FcmNotificationDelivery {
             return MulticastSendResult.empty();
         }
 
-        int retryableFailureCount = 0;
+        List<String> retryableTokens = new ArrayList<>();
         List<String> invalidTokens = new ArrayList<>();
 
         for (int i = 0; i < tokens.size(); i += MULTICAST_MAX_TOKENS) {
@@ -53,17 +53,17 @@ public class FcmNotificationDelivery {
                     if (isPermanentFailure(exception)) {
                         invalidTokens.add(token);
                     } else {
-                        retryableFailureCount++;
+                        retryableTokens.add(token);
                     }
                 }
             } catch (FirebaseMessagingException e) {
-                retryableFailureCount += chunk.size();
+                retryableTokens.addAll(chunk);
                 log.warn("[FCM] multicast failed userNo={} notificationNo={} chunkSize={} error={}",
                         payload.recipientNo(), payload.notificationNo(), chunk.size(), e.getMessage(), e);
             }
         }
 
-        return new MulticastSendResult(retryableFailureCount, invalidTokens);
+        return new MulticastSendResult(retryableTokens, invalidTokens);
     }
 
     private MulticastMessage.Builder configureMessageCommon(MulticastMessage.Builder builder, NotificationDeliveryPayload payload) {
@@ -107,13 +107,13 @@ public class FcmNotificationDelivery {
         return errorCode == MessagingErrorCode.UNREGISTERED || errorCode == MessagingErrorCode.INVALID_ARGUMENT;
     }
 
-    public record MulticastSendResult(int retryableFailureCount, List<String> invalidTokens) {
+    public record MulticastSendResult(List<String> retryableTokens, List<String> invalidTokens) {
         public static MulticastSendResult empty() {
-            return new MulticastSendResult(0, List.of());
+            return new MulticastSendResult(List.of(), List.of());
         }
 
         public boolean hasRetryableFailure() {
-            return retryableFailureCount > 0;
+            return !retryableTokens.isEmpty();
         }
     }
 }

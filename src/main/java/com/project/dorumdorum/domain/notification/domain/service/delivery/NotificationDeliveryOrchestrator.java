@@ -66,13 +66,20 @@ public class NotificationDeliveryOrchestrator {
     }
 
     private DeliveryResult toDeliveryResult(FcmNotificationDelivery.MulticastSendResult result) {
-        return new DeliveryResult(result.hasRetryableFailure(), result.invalidTokens());
+        return new DeliveryResult(result.retryableTokens(), result.invalidTokens());
     }
 
     public record DeliveryResult(
-            boolean hasRetryableFailure,
+            List<String> retryableTokens,
             List<String> invalidTokens
     ) {
+        public boolean hasRetryableFailure() {
+            return !retryableTokens.isEmpty();
+        }
+
+        public boolean hasInvalidTokens() {
+            return !invalidTokens.isEmpty();
+        }
     }
 
     private record DeviceChannelBuckets(

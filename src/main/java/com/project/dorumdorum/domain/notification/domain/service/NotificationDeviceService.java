@@ -36,6 +36,14 @@ public class NotificationDeviceService {
         return notificationDeviceRepository.findByUserNo(userNo);
     }
 
+    public List<Device> findByFcmTokens(List<String> fcmTokens) {
+        List<String> sanitizedTokens = sanitizeTokens(fcmTokens);
+        if (sanitizedTokens.isEmpty()) {
+            return List.of();
+        }
+        return notificationDeviceRepository.findByFcmTokenIn(sanitizedTokens);
+    }
+
     public void clearInvalidFcmTokens(List<String> fcmTokens) {
         List<String> sanitizedTokens = sanitizeTokens(fcmTokens);
         if (sanitizedTokens.isEmpty()) {
@@ -47,6 +55,7 @@ public class NotificationDeviceService {
         for (Device device : devices) {
             device.clearFcmToken();
         }
+        notificationDeviceRepository.saveAll(devices);
     }
 
     private static List<String> sanitizeTokens(List<String> fcmTokens) {

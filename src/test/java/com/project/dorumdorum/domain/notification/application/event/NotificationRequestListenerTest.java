@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.notification.application.event;
 
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
-import com.project.dorumdorum.domain.notification.domain.service.NotificationOutboxDeliveryProcessor;
+import com.project.dorumdorum.domain.notification.domain.service.NotificationDispatchService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.verify;
 class NotificationRequestListenerTest {
 
     @Mock
-    private NotificationOutboxDeliveryProcessor notificationOutboxDeliveryProcessor;
+    private NotificationDispatchService notificationDispatchService;
 
     @InjectMocks
     private NotificationRequestListener listener;
@@ -25,7 +25,6 @@ class NotificationRequestListenerTest {
     @DisplayName("handle은 이벤트 처리를 outbox 프로세서에 위임한다")
     void handle_DelegatesToProcessor() {
         NotificationRequestEvent event = new NotificationRequestEvent(
-                "outbox-1",
                 "user-1",
                 "title",
                 "body",
@@ -35,7 +34,6 @@ class NotificationRequestListenerTest {
 
         listener.handle(event);
 
-        verify(notificationOutboxDeliveryProcessor).processFromEvent(event);
+        verify(notificationDispatchService).dispatch(event);
     }
 }
-
