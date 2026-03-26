@@ -41,6 +41,11 @@ public class DecideApplicationRequestUseCase {
         if(!roommateService.isHost(userNo, room))
             throw new RestApiException(NO_PERMISSION_ON_ROOM);
 
+        // 정원 초과 방지
+        if (room.isFull()) {
+            throw new RestApiException(ROOM_FULL);
+        }
+
         // 방 인원수 +1
         room.plusCurrentMate();
         roommateService.create(roomRequest.getUserNo(), room, RoomRole.MEMBER);

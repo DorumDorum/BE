@@ -4,10 +4,13 @@ import com.project.dorumdorum.domain.chat.application.dto.response.ChatMessageRe
 import com.project.dorumdorum.domain.chat.domain.entity.ChatMessage;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoom;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomMember;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomType;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageType;
 import com.project.dorumdorum.domain.chat.domain.service.ChatMessageService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
+import com.project.dorumdorum.domain.room.domain.entity.Room;
+import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
@@ -26,6 +29,7 @@ public class LeaveChatRoomUseCase {
     private final ChatRoomService chatRoomService;
     private final ChatRoomMemberService chatRoomMemberService;
     private final ChatMessageService chatMessageService;
+    private final RoomService roomService;
     private final RoommateService roommateService;
     private final UserService userService;
     private final SimpMessagingTemplate messagingTemplate;
@@ -44,7 +48,13 @@ public class LeaveChatRoomUseCase {
         }
 
         chatRoomMemberService.leave(member);
-        roommateService.leaveRoom(userNo, chatRoom.getRoomNo());
+
+        // GROUP 채팅방인 경우에만 룸메이트 삭제 및 방 인원수 감소
+        if (ChatRoomType.GROUP.equals(chatRoom.getChatRoomType())) {
+            roommateService.leaveRoom(userNo, chatRoom.getRoomNo());
+            Room room = roomService.findById(chatRoom.getRoomNo());
+            room.minusCurrentMate();
+        }
 
         if (memberCount == 1) {
             // 마지막 멤버가 나가는 경우: 메시지 먼저 삭제 후 채팅방 삭제 (FK 제약 위반 방지)
