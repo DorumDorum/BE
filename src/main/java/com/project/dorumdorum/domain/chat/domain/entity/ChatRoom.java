@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.*;
@@ -14,10 +15,15 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(
-        name = "uk_chat_room_direct",
-        columnNames = {"room_no", "chat_room_type", "applicant_user_no"}
-))
+@Table(
+        indexes = {
+                @Index(name = "idx_chat_room_last_message_at", columnList = "last_message_at")
+        },
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_chat_room_direct",
+                columnNames = {"room_no", "chat_room_type", "applicant_user_no"}
+        )
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)

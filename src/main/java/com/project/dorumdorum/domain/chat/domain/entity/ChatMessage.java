@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(
-    indexes = @Index(name = "idx_chat_message_room_created", columnList = "chat_room_no, created_at")
+    indexes = @Index(name = "idx_chat_message_room_created_message", columnList = "chat_room_no, created_at, message_no")
 )
 public class ChatMessage extends BaseEntity {
 
