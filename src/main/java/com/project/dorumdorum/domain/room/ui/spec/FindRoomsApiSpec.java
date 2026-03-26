@@ -3,6 +3,7 @@ package com.project.dorumdorum.domain.room.ui.spec;
 import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.global.pagination.CursorPage;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,6 +21,6 @@ public interface FindRoomsApiSpec {
     @PostMapping("/api/rooms/search")
     ResponseEntity<CursorPage<FindRoomsResponse>> loadAll(
             @Parameter(description = "체크리스트 기반 방 검색 조건", required = true)
-            @RequestBody ChecklistFilterRequest request
+            @Valid @RequestBody ChecklistFilterRequest request
     );
 }

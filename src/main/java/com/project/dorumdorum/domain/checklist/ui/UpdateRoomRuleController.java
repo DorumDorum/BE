@@ -4,6 +4,7 @@ import com.project.dorumdorum.domain.checklist.application.dto.request.UpdateRoo
 import com.project.dorumdorum.domain.checklist.application.usecase.UpdateRoomRuleUseCase;
 import com.project.dorumdorum.domain.checklist.ui.spec.UpdateRoomRuleApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class UpdateRoomRuleController implements UpdateRoomRuleApiSpec {
     public ResponseEntity<Void> update(
             @CurrentUser String userNo,
             @RequestParam String roomNo,
-            @RequestBody UpdateRoomRuleRequest request
+            @Valid @RequestBody UpdateRoomRuleRequest request
     ) {
         updateRoomRuleUseCase.execute(userNo, roomNo, request);
         return ResponseEntity.ok().build();
