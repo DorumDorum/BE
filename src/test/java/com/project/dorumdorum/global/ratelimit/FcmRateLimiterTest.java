@@ -31,7 +31,8 @@ class FcmRateLimiterTest {
         when(rateLimitProperties.isEnabled()).thenReturn(true);
         when(rateLimitProperties.getKey()).thenReturn("notification:fcm:rate-limit");
         when(rateLimitProperties.getPermitsPerWindow()).thenReturn(20L);
-        when(rateLimitProperties.getWindowSeconds()).thenReturn(10L);
+        when(rateLimitProperties.getWindowMillis()).thenReturn(10_000L);
+        when(rateLimitProperties.getTtlSeconds()).thenReturn(20L);
         when(stringRedisTemplate.execute(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.eq(java.util.List.of("notification:fcm:rate-limit:user-1")),
@@ -39,7 +40,7 @@ class FcmRateLimiterTest {
                 ArgumentMatchers.eq("10000"),
                 ArgumentMatchers.eq("20"),
                 ArgumentMatchers.any(),
-                ArgumentMatchers.eq("11")
+                ArgumentMatchers.eq("20")
         )).thenReturn(1L);
 
         boolean rateLimited = rateLimiter.isRateLimited("user-1");
@@ -52,7 +53,7 @@ class FcmRateLimiterTest {
                 ArgumentMatchers.eq("10000"),
                 ArgumentMatchers.eq("20"),
                 ArgumentMatchers.any(),
-                ArgumentMatchers.eq("11")
+                ArgumentMatchers.eq("20")
         );
     }
 
@@ -75,7 +76,8 @@ class FcmRateLimiterTest {
         when(rateLimitProperties.isEnabled()).thenReturn(true);
         when(rateLimitProperties.getKey()).thenReturn("notification:fcm:rate-limit");
         when(rateLimitProperties.getPermitsPerWindow()).thenReturn(20L);
-        when(rateLimitProperties.getWindowSeconds()).thenReturn(10L);
+        when(rateLimitProperties.getWindowMillis()).thenReturn(10_000L);
+        when(rateLimitProperties.getTtlSeconds()).thenReturn(20L);
         when(stringRedisTemplate.execute(
                 ArgumentMatchers.any(),
                 ArgumentMatchers.eq(java.util.List.of("notification:fcm:rate-limit:user-1")),
@@ -83,7 +85,7 @@ class FcmRateLimiterTest {
                 ArgumentMatchers.eq("10000"),
                 ArgumentMatchers.eq("20"),
                 ArgumentMatchers.any(),
-                ArgumentMatchers.eq("11")
+                ArgumentMatchers.eq("20")
         )).thenReturn(0L);
 
         boolean rateLimited = rateLimiter.isRateLimited("user-1");

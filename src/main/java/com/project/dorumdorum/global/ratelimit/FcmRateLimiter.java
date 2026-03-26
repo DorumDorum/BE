@@ -27,18 +27,18 @@ public class FcmRateLimiter {
         long nowMs = System.currentTimeMillis();
         String requestNo = nowMs + "-" + UUID.randomUUID();
         String now = String.valueOf(nowMs);
-        String windowMillis = String.valueOf(rateLimitProperties.getWindowSeconds() * 1000L);
+        String windowMillis = String.valueOf(rateLimitProperties.getWindowMillis());
         String permits = String.valueOf(rateLimitProperties.getPermitsPerWindow());
-        String ttlSeconds = String.valueOf(rateLimitProperties.getWindowSeconds() + 1);
+        String ttlSeconds = String.valueOf(rateLimitProperties.getTtlSeconds());
 
-        boolean allowed = stringRedisTemplate.execute(  // Redis Sorted Set으로 슬라이딩 윈도우 구현
-                SLIDING_WINDOW_SCRIPT,  // 슬라이딩 윈도우 스크립트
-                List.of(key),   // 키
-                now,    // 현재 시점
-                windowMillis,   // 집계 구간
-                permits,    // 요청 횟수
-                requestNo,  // 요청
-                ttlSeconds  // TTL
+        boolean allowed = stringRedisTemplate.execute(
+                SLIDING_WINDOW_SCRIPT,
+                List.of(key),
+                now,
+                windowMillis,
+                permits,
+                requestNo,
+                ttlSeconds
         ) == 1L;
 
         return !allowed;

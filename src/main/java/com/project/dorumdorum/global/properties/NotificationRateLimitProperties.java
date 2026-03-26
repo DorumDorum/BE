@@ -9,8 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "notification.rate-limit.fcm")
 public class NotificationRateLimitProperties {
 
-    private boolean enabled = true;
-    private String key = "notification:fcm:rate-limit";
-    private long permitsPerWindow = 20;
-    private long windowSeconds = 10;
+    private boolean enabled;
+    private String key;
+    private long permitsPerWindow;
+    private long windowMillis;
+    private long ttlSeconds;
 }
