@@ -65,7 +65,7 @@ class NotificationDeliveryOrchestratorTest {
         when(decisionService.decide("user-1", "device-skip", NotificationType.NEW_MESSAGE_RECEIVED, "room-1"))
                 .thenReturn(NotificationDeliveryChannel.SKIP);
         when(fcmNotificationDelivery.sendMulticast(payload, List.of("token-fcm")))
-                .thenReturn(new FcmNotificationDelivery.MulticastSendResult(0, List.of()));
+                .thenReturn(new FcmNotificationDelivery.MulticastSendResult(List.of(), List.of()));
 
         NotificationDeliveryOrchestrator.DeliveryResult result = orchestrator.deliver(
                 notification, List.of(sseDevice, fcmDevice, skipDevice)
@@ -97,7 +97,7 @@ class NotificationDeliveryOrchestratorTest {
                 .thenReturn(NotificationDeliveryChannel.FCM);
         when(notificationMapper.toDeliveryPayload(notification)).thenReturn(payload);
         when(fcmNotificationDelivery.sendMulticast(payload, List.of("token-1")))
-                .thenReturn(new FcmNotificationDelivery.MulticastSendResult(1, List.of("token-1")));
+                .thenReturn(new FcmNotificationDelivery.MulticastSendResult(List.of("token-1"), List.of("token-1")));
 
         NotificationDeliveryOrchestrator.DeliveryResult result = orchestrator.deliver(notification, List.of(device));
 
@@ -106,4 +106,3 @@ class NotificationDeliveryOrchestratorTest {
         org.junit.jupiter.api.Assertions.assertEquals(List.of("token-1"), result.invalidTokens());
     }
 }
-
