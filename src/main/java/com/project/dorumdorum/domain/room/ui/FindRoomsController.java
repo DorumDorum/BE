@@ -1,19 +1,14 @@
 package com.project.dorumdorum.domain.room.ui;
 
-import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
-import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
+import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.application.usecase.FindRoomsUseCase;
-import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
-import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.ui.spec.FindRoomsApiSpec;
 import org.springframework.http.ResponseEntity;
 import com.project.dorumdorum.global.pagination.CursorPage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,15 +18,8 @@ public class FindRoomsController implements FindRoomsApiSpec {
 
     @Override
     public ResponseEntity<CursorPage<FindRoomsResponse>> loadAll(
-            @RequestParam RoomRelation relation,
-            @RequestParam(required = false) List<RoomType> types,
-            @RequestParam(required = false) List<Integer> capacities,
-            @RequestParam(required = false) List<ResidencePeriod> residencePeriods,
-            @RequestParam(required = false) RoomSort sort,
-            @RequestParam(required = false) String cursor
+            @RequestBody ChecklistFilterRequest request
     ) {
-        return ResponseEntity.ok(findRoomsUseCase.execute(
-                relation, types, capacities, residencePeriods, sort, cursor
-        ));
+        return ResponseEntity.ok(findRoomsUseCase.execute(request));
     }
 }

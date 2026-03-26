@@ -1,8 +1,7 @@
 package com.project.dorumdorum.domain.room.unit.service;
 
 import com.project.dorumdorum.domain.room.application.dto.request.RoomCreateRequest;
-import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
-import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
+import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
@@ -63,12 +62,17 @@ class RoomServiceTest {
                 new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, LocalDateTime.now(),
                         "title", "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name())
         );
-        when(roomRepository.findByCursor(any(), any(), any(), any(), any(), any(), any(), anyInt()))
+        ChecklistFilterRequest request = new ChecklistFilterRequest(
+                ChecklistFilterRequest.SortType.LATEST, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null
+        );
+        when(roomRepository.findByCursor(any(), any(), any(), anyInt()))
                 .thenReturn(expected);
 
         List<FindRoomsResponse> result = service.searchByCursor(
-                RoomRelation.RECRUITING, null, null, null,
-                RoomSort.CREATED_AT, null, null, 10
+                request, null, null, 10
         );
 
         assertThat(result).isEqualTo(expected);
