@@ -3,6 +3,7 @@ package com.project.dorumdorum.domain.checklist.unit.service;
 import com.project.dorumdorum.domain.checklist.domain.entity.RoomRule;
 import com.project.dorumdorum.domain.checklist.domain.repository.RoomRuleRepository;
 import com.project.dorumdorum.domain.checklist.domain.service.RoomRuleService;
+import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.global.exception.RestApiException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,14 +27,14 @@ class RoomRuleServiceTest {
 
     @Test
     void save_ReturnsSavedRule() {
-        RoomRule roomRule = RoomRule.builder().roomNo("r1").build();
+        RoomRule roomRule = RoomRule.builder().room(Room.builder().roomNo("r1").build()).build();
         when(roomRuleRepository.save(roomRule)).thenReturn(roomRule);
         assertThat(service.save(roomRule)).isEqualTo(roomRule);
     }
 
     @Test
     void findByRoomNo_WhenExists_ReturnsRule() {
-        RoomRule roomRule = RoomRule.builder().roomNo("r1").build();
+        RoomRule roomRule = RoomRule.builder().room(Room.builder().roomNo("r1").build()).build();
         when(roomRuleRepository.findByRoomNo("r1")).thenReturn(Optional.of(roomRule));
         assertThat(service.findByRoomNo("r1")).isEqualTo(roomRule);
     }

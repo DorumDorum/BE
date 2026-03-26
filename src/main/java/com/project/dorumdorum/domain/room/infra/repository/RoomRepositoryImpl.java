@@ -53,7 +53,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                         )
                 )
                 .from(room)
-                .leftJoin(roomRule).on(roomRule.roomNo.eq(room.roomNo))
+                .leftJoin(roomRule).on(roomRule.room.eq(room))
                 .leftJoin(user).on(user.userNo.eq(room.hostUserNo))
                 .where(
                         room.roomStatus.eq(RoomStatus.CONFIRM_PENDING),

@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.checklist.domain.entity;
 
+import com.project.dorumdorum.domain.room.domain.entity.Room;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -41,6 +42,16 @@ public class RoomRule extends ChecklistBase {
     @Column(name = "room_rule_no", updatable = false, nullable = false)
     private String roomRuleNo;
 
-    @Column(name = "room_no", nullable = false, unique = true)
-    private String roomNo;
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "room_no",
+            nullable = false,
+            unique = true,
+            foreignKey = @ForeignKey(name = "fk_room_rule_room")
+    )
+    private Room room;
+
+    public String getRoomNo() {
+        return room == null ? null : room.getRoomNo();
+    }
 }
