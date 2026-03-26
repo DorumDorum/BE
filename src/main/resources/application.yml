@@ -177,11 +177,9 @@ management:
     health:
       show-details: when-authorized
 
-notification:
-  rate-limit:
+rate-limit:
+  rules:
     fcm:
-      enabled: ${FCM_RATE_LIMIT_ENABLED:true}
-      key: ${FCM_RATE_LIMIT_KEY:notification:fcm:rate-limit}
       permits-per-window: ${FCM_RATE_LIMIT_PER_WINDOW:20}
       window-millis: ${FCM_RATE_LIMIT_WINDOW_MILLIS:10000}
       ttl-seconds: ${FCM_RATE_LIMIT_TTL_SECONDS:20}

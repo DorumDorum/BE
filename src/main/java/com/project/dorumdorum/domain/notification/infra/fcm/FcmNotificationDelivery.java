@@ -2,7 +2,7 @@ package com.project.dorumdorum.domain.notification.infra.fcm;
 
 import com.google.firebase.messaging.*;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
-import com.project.dorumdorum.global.ratelimit.FcmRateLimiter;
+import com.project.dorumdorum.global.ratelimit.RateLimited;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,15 +19,12 @@ public class FcmNotificationDelivery {
 
     private static final int MULTICAST_MAX_TOKENS = 500;
     private final FirebaseMessaging firebaseMessaging;
-    private final FcmRateLimiter fcmRateLimiter;
 
+    @RateLimited(tag = "fcm", key = "#p0.recipientNo()")
     public MulticastSendResult sendMulticast(NotificationDeliveryPayload payload, List<String> rawTokens) {
         List<String> tokens = sanitizeTokens(rawTokens);
         if (tokens.isEmpty()) {
             return MulticastSendResult.empty();
-        }
-        if (fcmRateLimiter.isRateLimited(payload.recipientNo())) {
-            return rateLimited(tokens.size());
         }
 
         int retryableFailureCount = 0;
@@ -67,10 +64,6 @@ public class FcmNotificationDelivery {
         }
 
         return new MulticastSendResult(retryableFailureCount, invalidTokens);
-    }
-
-    private MulticastSendResult rateLimited(int tokenCount) {
-        return new MulticastSendResult(tokenCount, List.of());
     }
 
     private MulticastMessage.Builder configureMessageCommon(MulticastMessage.Builder builder, NotificationDeliveryPayload payload) {

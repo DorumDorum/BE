@@ -1,6 +1,5 @@
 package com.project.dorumdorum.global.ratelimit;
 
-import com.project.dorumdorum.global.properties.NotificationRateLimitProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -11,29 +10,23 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class FcmRateLimiter {
+public class SlidingWindowRateLimiter {
 
     private static final DefaultRedisScript<Long> SLIDING_WINDOW_SCRIPT = createScript();
 
     private final StringRedisTemplate stringRedisTemplate;
-    private final NotificationRateLimitProperties rateLimitProperties;
 
-    public boolean isRateLimited(String userNo) {
-        if (!rateLimitProperties.isEnabled()) {
-            return false;
-        }
-
-        String key = buildUserKey(userNo);
+    public boolean isRateLimited(String tag, String subjectKey, RateLimitRule rule) {
         long nowMs = System.currentTimeMillis();
         String requestNo = nowMs + "-" + UUID.randomUUID();
         String now = String.valueOf(nowMs);
-        String windowMillis = String.valueOf(rateLimitProperties.getWindowMillis());
-        String permits = String.valueOf(rateLimitProperties.getPermitsPerWindow());
-        String ttlSeconds = String.valueOf(rateLimitProperties.getTtlSeconds());
+        String windowMillis = String.valueOf(rule.windowMillis());
+        String permits = String.valueOf(rule.permitsPerWindow());
+        String ttlSeconds = String.valueOf(rule.ttlSeconds());
 
         boolean allowed = stringRedisTemplate.execute(
                 SLIDING_WINDOW_SCRIPT,
-                List.of(key),
+                List.of(buildRedisKey(tag, subjectKey)),
                 now,
                 windowMillis,
                 permits,
@@ -44,8 +37,8 @@ public class FcmRateLimiter {
         return !allowed;
     }
 
-    private String buildUserKey(String userNo) {
-        return rateLimitProperties.getKey() + ":" + userNo;
+    private String buildRedisKey(String tag, String subjectKey) {
+        return "rate-limit:" + tag + ":" + subjectKey;
     }
 
     private static DefaultRedisScript<Long> createScript() {
