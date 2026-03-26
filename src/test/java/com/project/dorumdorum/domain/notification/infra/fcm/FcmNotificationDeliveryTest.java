@@ -73,4 +73,3 @@ class FcmNotificationDeliveryTest {
         assertThat(result.invalidTokens()).isEmpty();
     }
 }
-

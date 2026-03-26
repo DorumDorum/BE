@@ -176,3 +176,10 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
+rate-limit:
+  rules:
+    fcm:
+      permits-per-window: ${FCM_RATE_LIMIT_PER_WINDOW:20}
+      window-millis: ${FCM_RATE_LIMIT_WINDOW_MILLIS:10000}
+      ttl-seconds: ${FCM_RATE_LIMIT_TTL_SECONDS:20}
