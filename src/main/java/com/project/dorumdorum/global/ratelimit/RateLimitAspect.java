@@ -30,8 +30,12 @@ public class RateLimitAspect {
     private final ExpressionParser expressionParser = new SpelExpressionParser();
     private final DefaultParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-    @Around("@annotation(rateLimited)")
-    public Object applyRateLimit(ProceedingJoinPoint joinPoint, RateLimited rateLimited) throws Throwable {
+    @Around("@annotation(com.project.dorumdorum.global.ratelimit.RateLimited)")
+    public Object applyRateLimit(ProceedingJoinPoint joinPoint) throws Throwable {
+        // signature.getMethod()가 추후 인터페이스 추가하면 method.getAnnotation()이 null을 반환할 수도 있음.
+        // 이 경우 AopUtils.getMostSpecificMethod()를 사용해야 함.
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        RateLimited rateLimited = method.getAnnotation(RateLimited.class);
         String subjectKey = evaluateKey(joinPoint, rateLimited.key());
         RateLimitRule rule = rateLimitPolicyRegistry.get(rateLimited.tag());
 

@@ -183,3 +183,7 @@ rate-limit:
       permits-per-window: ${FCM_RATE_LIMIT_PER_WINDOW:20}
       window-millis: ${FCM_RATE_LIMIT_WINDOW_MILLIS:10000}
       ttl-seconds: ${FCM_RATE_LIMIT_TTL_SECONDS:20}
+    chat-message:
+      permits-per-window: ${CHAT_RATE_LIMIT_PER_WINDOW:30}
+      window-millis: ${CHAT_RATE_LIMIT_WINDOW_MILLIS:10000}
+      ttl-seconds: ${CHAT_RATE_LIMIT_TTL_SECONDS:20}
