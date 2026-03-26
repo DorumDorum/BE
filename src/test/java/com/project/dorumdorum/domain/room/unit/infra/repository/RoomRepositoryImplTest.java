@@ -1,6 +1,6 @@
 package com.project.dorumdorum.domain.room.unit.infra.repository;
 
-import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
+import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
 import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
@@ -31,25 +31,13 @@ class RoomRepositoryImplTest {
 
     @Mock private JPAQueryFactory queryFactory;
 
-    @SuppressWarnings("unchecked")
-    @Test
-    @DisplayName("Should return empty list when relation is not recruiting")
-    void findByCursor_WhenRelationNotRecruiting_ReturnsEmpty() {
-        RoomRepositoryImpl repository = new RoomRepositoryImpl(queryFactory);
-        JPAQuery<FindRoomsResponse> jpaQuery = mock(JPAQuery.class, RETURNS_SELF);
-
-        when(queryFactory.select(any(Expression.class))).thenReturn(jpaQuery);
-        when(jpaQuery.fetch()).thenReturn(List.of());
-
-        List<FindRoomsResponse> result = repository.findByCursor(
-                RoomRelation.APPLIED, null, null, null,
-                RoomSort.CREATED_AT, null, null, 10
+    private ChecklistFilterRequest request(ChecklistFilterRequest.SortType sortType) {
+        return new ChecklistFilterRequest(
+                sortType, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null
         );
-
-        assertThat(result).isEmpty();
-        verify(queryFactory).select(any(Expression.class));
-        verify(jpaQuery).limit(10L);
-        verify(jpaQuery).fetch();
     }
 
     @SuppressWarnings("unchecked")
@@ -67,10 +55,15 @@ class RoomRepositoryImplTest {
         when(jpaQuery.fetch()).thenReturn(expected);
 
         LocalDateTime cursorCreatedAt = LocalDateTime.now();
+        ChecklistFilterRequest request = new ChecklistFilterRequest(
+                ChecklistFilterRequest.SortType.REMAINING, null, RoomType.TYPE_1, ResidencePeriod.SEMESTER, 2,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null
+        );
 
         List<FindRoomsResponse> result = repository.findByCursor(
-                RoomRelation.RECRUITING, List.of(RoomType.TYPE_1), List.of(2), List.of(ResidencePeriod.SEMESTER),
-                RoomSort.REMAINING, cursorCreatedAt, "r1", 51
+                request, cursorCreatedAt, "r1", 51
         );
 
         assertThat(result).isEqualTo(expected);
@@ -89,10 +82,10 @@ class RoomRepositoryImplTest {
         when(jpaQuery.fetch()).thenReturn(List.of());
 
         LocalDateTime cursorCreatedAt = LocalDateTime.now();
+        ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.LATEST);
 
         List<FindRoomsResponse> result = repository.findByCursor(
-                RoomRelation.RECRUITING, null, null, null,
-                RoomSort.CREATED_AT, cursorCreatedAt, "r9", 11
+                request, cursorCreatedAt, "r9", 11
         );
 
         assertThat(result).isEmpty();
@@ -108,10 +101,10 @@ class RoomRepositoryImplTest {
 
         when(queryFactory.select(org.mockito.ArgumentMatchers.<Expression<FindRoomsResponse>>any())).thenReturn(jpaQuery);
         when(jpaQuery.fetch()).thenReturn(List.of());
+        ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.LATEST);
 
         List<FindRoomsResponse> result = repository.findByCursor(
-                RoomRelation.RECRUITING, List.of(), List.of(), List.of(),
-                RoomSort.CREATED_AT, null, null, 7
+                request, null, null, 7
         );
 
         assertThat(result).isEmpty();
@@ -130,10 +123,10 @@ class RoomRepositoryImplTest {
         when(jpaQuery.fetch()).thenReturn(List.of());
 
         LocalDateTime cursorCreatedAt = LocalDateTime.now();
+        ChecklistFilterRequest request = request(null);
 
         List<FindRoomsResponse> result = repository.findByCursor(
-                RoomRelation.RECRUITING, null, null, null,
-                null, cursorCreatedAt, "r3", 5
+                request, cursorCreatedAt, "r3", 5
         );
 
         assertThat(result).isEmpty();

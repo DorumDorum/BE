@@ -11,7 +11,12 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "users")
+@Table(
+        name = "users",
+        indexes = {
+                @Index(name = "idx_user_email", columnList = "email")
+        }
+)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

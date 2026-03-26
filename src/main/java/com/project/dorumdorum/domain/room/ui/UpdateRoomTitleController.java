@@ -4,6 +4,7 @@ import com.project.dorumdorum.domain.room.application.dto.request.UpdateRoomTitl
 import com.project.dorumdorum.domain.room.application.usecase.UpdateRoomTitleUseCase;
 import com.project.dorumdorum.domain.room.ui.spec.UpdateRoomTitleApiSpec;
 import com.project.dorumdorum.global.annotation.CurrentUser;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class UpdateRoomTitleController implements UpdateRoomTitleApiSpec {
     public ResponseEntity<Void> update(
             @CurrentUser String userNo,
             @RequestParam String roomNo,
-            @RequestBody UpdateRoomTitleRequest request
+            @Valid @RequestBody UpdateRoomTitleRequest request
     ) {
         updateRoomTitleUseCase.execute(userNo, roomNo, request);
         return ResponseEntity.ok().build();

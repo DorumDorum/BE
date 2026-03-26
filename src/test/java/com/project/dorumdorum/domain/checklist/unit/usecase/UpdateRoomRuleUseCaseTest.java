@@ -34,7 +34,7 @@ class UpdateRoomRuleUseCaseTest {
     void execute_WhenHost_UpdatesRoomAndRule() {
         UpdateRoomRuleRequest request = ChecklistFixtures.updateRoomRuleRequest();
         Room room = mock(Room.class);
-        RoomRule roomRule = RoomRule.builder().roomNo("r1").build();
+        RoomRule roomRule = RoomRule.builder().room(Room.builder().roomNo("r1").build()).build();
         when(roomService.findById("r1")).thenReturn(room);
         when(roommateService.isHost("u1", room)).thenReturn(true);
         when(roomRuleService.findByRoomNo("r1")).thenReturn(roomRule);

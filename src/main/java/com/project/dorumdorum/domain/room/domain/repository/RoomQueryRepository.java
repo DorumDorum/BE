@@ -1,10 +1,7 @@
 package com.project.dorumdorum.domain.room.domain.repository;
 
-import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
-import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
+import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
-import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
-import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,17 +9,16 @@ import java.util.Optional;
 
 public interface RoomQueryRepository {
 
-    List<FindRoomsResponse> findByCursor(RoomRelation relation, List<RoomType> types, List<Integer> capacities, List<ResidencePeriod> residencePeriods, RoomSort sort, LocalDateTime cursorCreatedAt, String cursorId, int limitPlusOne);
+    List<FindRoomsResponse> findByCursor(
+            ChecklistFilterRequest request,
+            LocalDateTime cursorCreatedAt,
+            String cursorId,
+            int limitPlusOne
+    );
 
     Optional<FindRoomsResponse> findMyRoom(String userNo);
 
-    /**
-     * 사용자가 관심(좋아요) 표시한 방 목록을 조회한다.
-     */
     List<FindRoomsResponse> findLikedRooms(String userNo);
 
-    /**
-     * 사용자가 지원한 방(RoomRequest.USER_TO_ROOM) 목록을 조회한다.
-     */
     List<FindRoomsResponse> findAppliedRooms(String userNo);
 }

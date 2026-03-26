@@ -1,7 +1,6 @@
 package com.project.dorumdorum.domain.room.unit.ui;
 
-import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
-import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
+import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.application.usecase.FindRoomsUseCase;
 import com.project.dorumdorum.domain.room.ui.FindRoomsController;
@@ -17,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,13 +28,19 @@ class FindRoomsControllerTest {
 
     @Test
     void loadAll_ReturnsUseCaseResult() {
+        ChecklistFilterRequest request = new ChecklistFilterRequest(
+                ChecklistFilterRequest.SortType.LATEST, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null
+        );
         CursorPage<FindRoomsResponse> page = new CursorPage<>(List.of(), null, false);
-        when(useCase.execute(RoomRelation.RECRUITING, null, null, null, RoomSort.CREATED_AT, null)).thenReturn(page);
+        when(useCase.execute(request)).thenReturn(page);
 
         ResponseEntity<CursorPage<FindRoomsResponse>> response =
-                controller.loadAll(RoomRelation.RECRUITING, null, null, null, RoomSort.CREATED_AT, null);
+                controller.loadAll(request);
 
-        verify(useCase).execute(RoomRelation.RECRUITING, null, null, null, RoomSort.CREATED_AT, null);
+        verify(useCase).execute(request);
         assertThat(response.getBody()).isEqualTo(page);
     }
 }

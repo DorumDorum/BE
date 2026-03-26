@@ -1,16 +1,16 @@
 spring:
   datasource:
-    username: ${RDB_USERNAME:root}
-    url: ${RDB_URL:jdbc:mysql://localhost:3306/dorumdorum?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=UTC}
-    password: ${RDB_PASSWORD:}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${RDB_USERNAME:postgres}
+    url: ${RDB_URL:jdbc:postgresql://localhost:5432/dorumdorum}
+    password: ${RDB_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
   data:
     redis:
       host: localhost
       port: 6379
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
 
 jwt:

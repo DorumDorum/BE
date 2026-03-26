@@ -26,7 +26,7 @@ public class CreateRoomUseCase {
         Room room = roomService.create(userNo, request);
         roommateService.create(userNo, room, RoomRole.HOST);
 
-        RoomRule roomRule = roomRuleMapper.toRoomRule(room.getRoomNo(), request.rule());
+        RoomRule roomRule = roomRuleMapper.toRoomRule(room, request.rule());
         roomRuleService.save(roomRule);
         return room.getRoomNo();
     }

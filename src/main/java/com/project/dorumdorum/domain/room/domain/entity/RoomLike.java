@@ -10,6 +10,11 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Table(
+        indexes = {
+                @Index(name = "uk_room_like_user_room", columnList = "user_no, room_no", unique = true)
+        }
+)
 public class RoomLike extends BaseEntity {
 
     @Id @Tsid
@@ -22,4 +27,3 @@ public class RoomLike extends BaseEntity {
     @Column(nullable = false)
     private String userNo;
 }
-
