@@ -23,6 +23,13 @@ public enum ChatErrorStatus implements BaseCodeInterface {
     ONLY_HOST_CAN_DELETE_GROUP_ROOM(HttpStatus.FORBIDDEN, "MESSAGE012", "그룹 채팅방은 방장만 삭제할 수 있습니다."),
     ONLY_HOST_CAN_INVITE(HttpStatus.FORBIDDEN, "MESSAGE013", "그룹 채팅방에는 방장만 초대할 수 있습니다."),
     TARGET_USER_NOT_IN_ROOM(HttpStatus.BAD_REQUEST, "MESSAGE014", "초대할 유저가 방의 구성원이 아닙니다."),
+
+    // 그룹 채팅
+    CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT001", "존재하지 않는 채팅방입니다."),
+    CHAT_ROOM_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT002", "채팅방 멤버를 찾을 수 없습니다."),
+    NOT_CHAT_ROOM_MEMBER(HttpStatus.FORBIDDEN, "CHAT003", "채팅방 멤버가 아닙니다."),
+    ALREADY_CHAT_ROOM_MEMBER(HttpStatus.BAD_REQUEST, "CHAT004", "이미 채팅방에 참여 중입니다."),
+    HOST_CANNOT_LEAVE(HttpStatus.FORBIDDEN, "CHAT005", "다른 멤버가 있는 경우 방장은 채팅방을 나갈 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

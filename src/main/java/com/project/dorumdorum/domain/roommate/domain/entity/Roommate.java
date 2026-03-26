@@ -16,7 +16,7 @@ public class Roommate extends BaseEntity {
     @Id @Tsid
     private String roommateNo;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_no", nullable = false)
     private Room room;
 

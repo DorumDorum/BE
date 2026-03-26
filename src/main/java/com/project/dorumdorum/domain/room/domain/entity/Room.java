@@ -63,6 +63,9 @@ public class Room extends BaseEntity {
     }
 
     public void minusCurrentMate() {
+        if (this.currentMateCount <= 0) {
+            throw new IllegalStateException("currentMateCount는 0 이하로 감소할 수 없습니다.");
+        }
         this.currentMateCount--;
         this.remaining = capacity - currentMateCount;
     }

@@ -9,13 +9,16 @@ import com.project.dorumdorum.domain.room.domain.service.RoomRequestService;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
+import com.project.dorumdorum.domain.room.application.event.RoomApplicationSubmittedEvent;
 import com.project.dorumdorum.global.exception.RestApiException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,6 +33,7 @@ class ApplyRoomUseCaseTest {
     @Mock private RoomRequestService roomRequestService;
     @Mock private RoomService roomService;
     @Mock private RoommateService roommateService;
+    @Mock private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks private ApplyRoomUseCase useCase;
 
@@ -38,7 +42,7 @@ class ApplyRoomUseCaseTest {
     void execute_WithValidState_CreatesJoinRequest() {
         String userNo = "u1";
         String roomNo = "r1";
-        Room room = Room.builder().roomNo(roomNo).build();
+        Room room = Room.builder().roomNo(roomNo).hostUserNo("host-1").build();
         JoinRoomRequest request = new JoinRoomRequest("intro", "msg");
         RoomRequest createdRequest = RoomRequest.builder()
                 .roomRequestNo("req-1")
@@ -60,6 +64,14 @@ class ApplyRoomUseCaseTest {
         verify(userService).validateExistsById(userNo);
         verify(roomRequestService).create(userNo, room, request, Direction.USER_TO_ROOM);
         assertThat(requestNo).isEqualTo("req-1");
+
+        ArgumentCaptor<RoomApplicationSubmittedEvent> eventCaptor =
+                ArgumentCaptor.forClass(RoomApplicationSubmittedEvent.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        RoomApplicationSubmittedEvent event = eventCaptor.getValue();
+        assertThat(event.roomNo()).isEqualTo("r1");
+        assertThat(event.applicantUserNo()).isEqualTo("u1");
+        assertThat(event.hostUserNo()).isEqualTo("host-1");
     }
 
     @Test
@@ -103,5 +115,19 @@ class ApplyRoomUseCaseTest {
 
         assertThatThrownBy(() -> useCase.execute(userNo, roomNo, new JoinRoomRequest("intro", null)))
                 .isInstanceOf(RestApiException.class);
+    }
+
+    @Test
+    @DisplayName("검증 실패 시 이벤트가 발행되지 않는다")
+    void execute_WhenValidationFails_NoEventPublished() {
+        String userNo = "u1";
+        String roomNo = "r1";
+        when(roomService.findById(roomNo)).thenReturn(Room.builder().roomNo(roomNo).build());
+        when(roommateService.isUserRoommate(userNo, roomNo)).thenReturn(true);
+
+        assertThatThrownBy(() -> useCase.execute(userNo, roomNo, new JoinRoomRequest("intro", null)))
+                .isInstanceOf(RestApiException.class);
+
+        verify(eventPublisher, never()).publishEvent(any());
     }
 }

@@ -38,7 +38,7 @@ class NotificationMapperTest {
         // then
         assertThat(response.notificationNo()).isEqualTo("n1");
         assertThat(response.isRead()).isTrue();
-        assertThat(response.redirectPath()).isEqualTo("/chat/room-1");
+        assertThat(response.redirectPath()).isEqualTo("/chats/room-1");
     }
 
     @Test
