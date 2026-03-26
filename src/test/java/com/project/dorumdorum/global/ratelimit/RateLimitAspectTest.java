@@ -36,7 +36,6 @@ class RateLimitAspectTest {
         RateLimitAspect aspect = new RateLimitAspect(slidingWindowRateLimiter, rateLimitPolicyRegistry);
         RateLimitRule rule = new RateLimitRule(20L, 10_000L, 20L);
         Method method = Target.class.getMethod("call", String.class);
-        RateLimited rateLimited = method.getAnnotation(RateLimited.class);
 
         when(joinPoint.getSignature()).thenReturn(methodSignature);
         when(methodSignature.getMethod()).thenReturn(method);
@@ -44,7 +43,7 @@ class RateLimitAspectTest {
         when(rateLimitPolicyRegistry.get("fcm")).thenReturn(rule);
         when(slidingWindowRateLimiter.isRateLimited("fcm", "user-1", rule)).thenReturn(true);
 
-        assertThatThrownBy(() -> aspect.applyRateLimit(joinPoint, rateLimited))
+        assertThatThrownBy(() -> aspect.applyRateLimit(joinPoint))
                 .isInstanceOf(RestApiException.class);
 
         verify(joinPoint, never()).proceed();

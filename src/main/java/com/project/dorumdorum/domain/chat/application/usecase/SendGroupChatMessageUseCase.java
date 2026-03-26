@@ -12,6 +12,7 @@ import com.project.dorumdorum.domain.notification.application.event.Notification
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
+import com.project.dorumdorum.global.ratelimit.RateLimited;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class SendGroupChatMessageUseCase {
     private final NotificationRequestPublisher notificationRequestPublisher;
     private final UserService userService;
 
+    @RateLimited(tag = "chat-message", key = "#senderNo + ':' + #chatRoomNo")
     @Transactional
     public void send(String chatRoomNo, String senderNo, String content) {
         ChatRoom chatRoom = chatRoomService.findByChatRoomNo(chatRoomNo);

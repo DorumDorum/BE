@@ -30,8 +30,10 @@ public class RateLimitAspect {
     private final ExpressionParser expressionParser = new SpelExpressionParser();
     private final DefaultParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
 
-    @Around("@annotation(rateLimited)")
-    public Object applyRateLimit(ProceedingJoinPoint joinPoint, RateLimited rateLimited) throws Throwable {
+    @Around("@annotation(com.project.dorumdorum.global.ratelimit.RateLimited)")
+    public Object applyRateLimit(ProceedingJoinPoint joinPoint) throws Throwable {
+        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        RateLimited rateLimited = method.getAnnotation(RateLimited.class);
         String subjectKey = evaluateKey(joinPoint, rateLimited.key());
         RateLimitRule rule = rateLimitPolicyRegistry.get(rateLimited.tag());
 
