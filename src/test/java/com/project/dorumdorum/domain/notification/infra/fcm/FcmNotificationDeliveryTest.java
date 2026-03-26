@@ -6,6 +6,7 @@ import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.SendResponse;
 import com.project.dorumdorum.domain.notification.domain.entity.NotificationType;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
+import com.project.dorumdorum.global.ratelimit.FcmRateLimiter;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +26,9 @@ class FcmNotificationDeliveryTest {
 
     @Mock
     private FirebaseMessaging firebaseMessaging;
+
+    @Mock
+    private FcmRateLimiter fcmRateLimiter;
 
     @InjectMocks
     private FcmNotificationDelivery delivery;
@@ -48,6 +52,7 @@ class FcmNotificationDeliveryTest {
         BatchResponse batchResponse = mock(BatchResponse.class);
         SendResponse sendResponse = mock(SendResponse.class);
 
+        when(fcmRateLimiter.isRateLimited("user-1")).thenReturn(false);
         when(sendResponse.isSuccessful()).thenReturn(true);
         when(batchResponse.getResponses()).thenReturn(List.of(sendResponse));
         when(firebaseMessaging.sendEachForMulticast(any(MulticastMessage.class))).thenReturn(batchResponse);
@@ -72,5 +77,17 @@ class FcmNotificationDeliveryTest {
         assertThat(result.hasRetryableFailure()).isFalse();
         assertThat(result.invalidTokens()).isEmpty();
     }
-}
 
+    @Test
+    @DisplayName("레이트리밋에 걸리면 FCM 호출 없이 재시도 실패로 집계한다")
+    void sendMulticast_WhenRateLimited_SkipsFcmAndReturnsRetryableFailure() throws Exception {
+        NotificationDeliveryPayload payload = payload("user-1");
+        when(fcmRateLimiter.isRateLimited("user-1")).thenReturn(true);
+
+        FcmNotificationDelivery.MulticastSendResult result = delivery.sendMulticast(payload, List.of("token-1", "token-2"));
+
+        verify(firebaseMessaging, never()).sendEachForMulticast(any(MulticastMessage.class));
+        assertThat(result.retryableFailureCount()).isEqualTo(2);
+        assertThat(result.invalidTokens()).isEmpty();
+    }
+}

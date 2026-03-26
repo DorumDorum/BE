@@ -11,6 +11,6 @@ public class NotificationRateLimitProperties {
 
     private boolean enabled = true;
     private String key = "notification:fcm:rate-limit";
-    private long permitsPerSecond = 30;
-    private long bucketCapacity = 120;
+    private long permitsPerWindow = 20;
+    private long windowSeconds = 10;
 }

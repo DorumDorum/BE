@@ -182,5 +182,5 @@ notification:
     fcm:
       enabled: ${FCM_RATE_LIMIT_ENABLED:true}
       key: ${FCM_RATE_LIMIT_KEY:notification:fcm:rate-limit}
-      permits-per-second: ${FCM_RATE_LIMIT_PERMITS_PER_SECOND:30}
-      bucket-capacity: ${FCM_RATE_LIMIT_BUCKET_CAPACITY:120}
+      permits-per-window: ${FCM_RATE_LIMIT_PER_WINDOW:20}
+      window-seconds: ${FCM_RATE_LIMIT_WINDOW_SECONDS:10}
