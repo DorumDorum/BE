@@ -1,19 +1,17 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: dorumdorum-mysql
+  postgres:
+    image: postgres:16-alpine
+    container_name: dorumdorum-postgres
     ports:
-      - "3306:3306"
+      - "5432:5432"
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${RDB_USERNAME}
-      - MYSQL_PASSWORD=${RDB_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-dorumdorum}
+      - POSTGRES_USER=${RDB_USERNAME}
+      - POSTGRES_PASSWORD=${RDB_PASSWORD}
     volumes:
-      - mysql_data:/var/lib/mysql
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: ["CMD-SHELL", "pg_isready -U ${RDB_USERNAME} -d ${POSTGRES_DB:-dorumdorum}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -50,7 +48,7 @@ services:
     volumes:
       - ./firebase-service-account.json:/app/firebase-service-account.json:ro
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_started
@@ -136,7 +134,7 @@ services:
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
-      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
     ports:
       - "8079:8080"
     restart: unless-stopped
@@ -180,7 +178,7 @@ services:
       - dorumdorum-net
 
 volumes:
-  mysql_data:
+  postgres_data:
   redis_data:
   prometheus_data:
   grafana_data:
