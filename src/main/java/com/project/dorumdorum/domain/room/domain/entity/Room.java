@@ -10,6 +10,16 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Table(
+        indexes = {
+                @Index(name = "idx_room_status_created", columnList = "room_status, created_at, room_no"),
+                @Index(name = "idx_room_status_remaining_created", columnList = "room_status, remaining, created_at, room_no"),
+                @Index(name = "idx_room_type", columnList = "room_type"),
+                @Index(name = "idx_room_capacity", columnList = "capacity"),
+                @Index(name = "idx_room_residence_period", columnList = "residence_period"),
+                @Index(name = "idx_room_host_user_no", columnList = "host_user_no")
+        }
+)
 public class Room extends BaseEntity {
 
     @Id @Tsid
@@ -63,6 +73,9 @@ public class Room extends BaseEntity {
     }
 
     public void minusCurrentMate() {
+        if (this.currentMateCount <= 0) {
+            throw new IllegalStateException("currentMateCount는 0 이하로 감소할 수 없습니다.");
+        }
         this.currentMateCount--;
         this.remaining = capacity - currentMateCount;
     }

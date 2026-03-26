@@ -4,10 +4,10 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
   jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
   mail:
@@ -176,3 +176,14 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+
+rate-limit:
+  rules:
+    fcm:
+      permits-per-window: ${FCM_RATE_LIMIT_PER_WINDOW:20}
+      window-millis: ${FCM_RATE_LIMIT_WINDOW_MILLIS:10000}
+      ttl-seconds: ${FCM_RATE_LIMIT_TTL_SECONDS:20}
+    chat-message:
+      permits-per-window: ${CHAT_RATE_LIMIT_PER_WINDOW:30}
+      window-millis: ${CHAT_RATE_LIMIT_WINDOW_MILLIS:10000}
+      ttl-seconds: ${CHAT_RATE_LIMIT_TTL_SECONDS:20}

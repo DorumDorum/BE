@@ -48,11 +48,11 @@ dependencies {
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api:3.1.0'
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api:2.1.1'
 
-    // MySQL
-    runtimeOnly 'com.mysql:mysql-connector-j'
+    // PostgreSQL
+    runtimeOnly 'org.postgresql:postgresql'
 
     // MongoDB
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    // implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
@@ -86,7 +86,8 @@ dependencies {
     testImplementation 'org.awaitility:awaitility:4.2.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-    testImplementation 'com.h2database:h2'
+    testImplementation 'org.testcontainers:jdbc:1.19.7'
+    testImplementation 'org.testcontainers:postgresql:1.19.7'
     testImplementation 'org.testcontainers:mongodb:1.19.7'
     testImplementation 'org.testcontainers:junit-jupiter:1.19.7'
 }

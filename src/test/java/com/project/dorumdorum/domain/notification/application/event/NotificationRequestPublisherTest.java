@@ -40,4 +40,3 @@ class NotificationRequestPublisherTest {
         org.assertj.core.api.Assertions.assertThat(event.relatedId()).isEqualTo("r1");
     }
 }
-

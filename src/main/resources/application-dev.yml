@@ -1,15 +1,13 @@
 spring:
   datasource:
-    username: ${RDB_USERNAME:root}
-    url: ${RDB_URL:jdbc:mysql://localhost:3306/dorumdorum}
-    password: ${RDB_PASSWORD:}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${RDB_USERNAME:postgres}
+    url: ${RDB_URL:jdbc:postgresql://localhost:5432/dorumdorum}
+    password: ${RDB_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
   data:
     redis:
       host: localhost
       port: 6379
-    mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/dorumdorum}
   jpa:
     hibernate:
       ddl-auto: update

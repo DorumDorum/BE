@@ -42,13 +42,13 @@ class CreateRoomUseCaseTest {
         RoomRule roomRule = org.mockito.Mockito.mock(RoomRule.class);
 
         when(roomService.create(userNo, request)).thenReturn(room);
-        when(roomRuleMapper.toRoomRule("r1", ruleRequest)).thenReturn(roomRule);
+        when(roomRuleMapper.toRoomRule(room, ruleRequest)).thenReturn(roomRule);
 
         useCase.execute(userNo, request);
 
         verify(roomService).create(userNo, request);
         verify(roommateService).create(userNo, room, RoomRole.HOST);
-        verify(roomRuleMapper).toRoomRule("r1", ruleRequest);
+        verify(roomRuleMapper).toRoomRule(room, ruleRequest);
         verify(roomRuleService).save(roomRule);
     }
 }

@@ -5,6 +5,7 @@ import com.project.dorumdorum.domain.checklist.application.mapper.RoomRuleMapper
 import com.project.dorumdorum.domain.checklist.application.usecase.LoadMyRoomRuleUseCase;
 import com.project.dorumdorum.domain.checklist.domain.entity.RoomRule;
 import com.project.dorumdorum.domain.checklist.domain.service.RoomRuleService;
+import com.project.dorumdorum.domain.room.domain.entity.Room;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +27,7 @@ class LoadMyRoomRuleUseCaseTest {
 
     @Test
     void execute_LoadsAndMapsRoomRule() {
-        RoomRule roomRule = RoomRule.builder().roomNo("r1").build();
+        RoomRule roomRule = RoomRule.builder().room(Room.builder().roomNo("r1").build()).build();
         MyRoomRuleResponse response = MyRoomRuleResponse.builder().bedtime("23:00").build();
         when(roomRuleService.findByRoomNo("r1")).thenReturn(roomRule);
         when(roomRuleMapper.toResponse(roomRule)).thenReturn(response);

@@ -1,15 +1,8 @@
 package com.project.dorumdorum.domain.notification.infra.fcm;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.BatchResponse;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.MessagingErrorCode;
-import com.google.firebase.messaging.MulticastMessage;
-import com.google.firebase.messaging.Notification;
-import com.google.firebase.messaging.SendResponse;
-import com.google.firebase.messaging.WebpushConfig;
-import com.google.firebase.messaging.WebpushFcmOptions;
+import com.google.firebase.messaging.*;
 import com.project.dorumdorum.domain.notification.domain.service.delivery.NotificationDeliveryPayload;
+import com.project.dorumdorum.global.ratelimit.RateLimited;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -27,13 +20,14 @@ public class FcmNotificationDelivery {
     private static final int MULTICAST_MAX_TOKENS = 500;
     private final FirebaseMessaging firebaseMessaging;
 
+    @RateLimited(tag = "fcm", key = "#p0.recipientNo()")
     public MulticastSendResult sendMulticast(NotificationDeliveryPayload payload, List<String> rawTokens) {
         List<String> tokens = sanitizeTokens(rawTokens);
         if (tokens.isEmpty()) {
             return MulticastSendResult.empty();
         }
 
-        int retryableFailureCount = 0;
+        List<String> retryableTokens = new ArrayList<>();
         List<String> invalidTokens = new ArrayList<>();
 
         for (int i = 0; i < tokens.size(); i += MULTICAST_MAX_TOKENS) {
@@ -59,17 +53,17 @@ public class FcmNotificationDelivery {
                     if (isPermanentFailure(exception)) {
                         invalidTokens.add(token);
                     } else {
-                        retryableFailureCount++;
+                        retryableTokens.add(token);
                     }
                 }
             } catch (FirebaseMessagingException e) {
-                retryableFailureCount += chunk.size();
+                retryableTokens.addAll(chunk);
                 log.warn("[FCM] multicast failed userNo={} notificationNo={} chunkSize={} error={}",
                         payload.recipientNo(), payload.notificationNo(), chunk.size(), e.getMessage(), e);
             }
         }
 
-        return new MulticastSendResult(retryableFailureCount, invalidTokens);
+        return new MulticastSendResult(retryableTokens, invalidTokens);
     }
 
     private MulticastMessage.Builder configureMessageCommon(MulticastMessage.Builder builder, NotificationDeliveryPayload payload) {
@@ -113,13 +107,13 @@ public class FcmNotificationDelivery {
         return errorCode == MessagingErrorCode.UNREGISTERED || errorCode == MessagingErrorCode.INVALID_ARGUMENT;
     }
 
-    public record MulticastSendResult(int retryableFailureCount, List<String> invalidTokens) {
+    public record MulticastSendResult(List<String> retryableTokens, List<String> invalidTokens) {
         public static MulticastSendResult empty() {
-            return new MulticastSendResult(0, List.of());
+            return new MulticastSendResult(List.of(), List.of());
         }
 
         public boolean hasRetryableFailure() {
-            return retryableFailureCount > 0;
+            return !retryableTokens.isEmpty();
         }
     }
 }

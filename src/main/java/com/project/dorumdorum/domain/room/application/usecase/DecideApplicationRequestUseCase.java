@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.room.application.usecase;
 
+import com.project.dorumdorum.domain.room.application.event.RoommateAcceptedEvent;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.entity.RoomRequest;
 import com.project.dorumdorum.domain.room.domain.service.RoomRequestService;
@@ -9,6 +10,7 @@ import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class DecideApplicationRequestUseCase {
     private final UserService userService;
     private final RoomService roomService;
     private final RoommateService roommateService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public void approve(String userNo, String roomNo, String roomRequestNo) {
         // 유저 존재 유무 검증
@@ -38,11 +41,19 @@ public class DecideApplicationRequestUseCase {
         if(!roommateService.isHost(userNo, room))
             throw new RestApiException(NO_PERMISSION_ON_ROOM);
 
+        // 정원 초과 방지
+        if (room.isFull()) {
+            throw new RestApiException(ROOM_FULL);
+        }
+
         // 방 인원수 +1
         room.plusCurrentMate();
         roommateService.create(roomRequest.getUserNo(), room, RoomRole.MEMBER);
 
-        // todo: 지원자에게 알림 roomRequest.getUserNo()
+        // 지원자에게 알림
+        eventPublisher.publishEvent(
+                new RoommateAcceptedEvent(room.getRoomNo(), roomRequest.getUserNo(), userNo)
+        );
 
         // 모든 플로우를 거쳤다면 요청은 삭제
         roomRequestService.delete(roomRequest);

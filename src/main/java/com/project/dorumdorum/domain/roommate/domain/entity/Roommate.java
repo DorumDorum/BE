@@ -11,12 +11,19 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Table(
+        indexes = {
+                @Index(name = "idx_roommate_room_no", columnList = "room_no"),
+                @Index(name = "idx_roommate_user_no", columnList = "user_no"),
+                @Index(name = "uk_roommate_user_room", columnList = "user_no, room_no", unique = true)
+        }
+)
 public class Roommate extends BaseEntity {
 
     @Id @Tsid
     private String roommateNo;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_no", nullable = false)
     private Room room;
 
