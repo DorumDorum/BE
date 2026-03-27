@@ -25,7 +25,7 @@ public class UpdateRoomRuleUseCase {
     private final RoomRuleMapper roomRuleMapper;
 
     public void execute(String userNo, String roomNo, UpdateRoomRuleRequest request) {
-        Room room = roomService.findById(roomNo);
+        Room room = roomService.findByIdForUpdate(roomNo);
 
         if (!roommateService.isHost(userNo, room))
             throw new RestApiException(NO_PERMISSION_ON_ROOM);

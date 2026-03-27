@@ -38,6 +38,11 @@ public class RoomService {
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
+    public Room findByIdForUpdate(String roomNo) {
+        return roomRepository.findByRoomNoForUpdate(roomNo)
+                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+    }
+
     public List<FindRoomsResponse> searchByCursor(
             ChecklistFilterRequest request,
             LocalDateTime cursorCreatedAt,

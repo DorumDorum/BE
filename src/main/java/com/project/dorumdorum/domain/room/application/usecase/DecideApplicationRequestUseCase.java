@@ -37,7 +37,7 @@ public class DecideApplicationRequestUseCase {
             throw new RestApiException(ALREADY_JOINED_USER);
 
         // 방장인지 확인
-        Room room = roomService.findById(roomNo);
+        Room room = roomService.findByIdForUpdate(roomNo);
         if(!roommateService.isHost(userNo, room))
             throw new RestApiException(NO_PERMISSION_ON_ROOM);
 

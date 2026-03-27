@@ -23,7 +23,7 @@ public class KickRoommateUseCase {
     private final ApplicationEventPublisher eventPublisher;
 
     public void execute(String requesterNo, String roomNo, String kickedUserNo) {
-        Room room = roomService.findById(roomNo);
+        Room room = roomService.findByIdForUpdate(roomNo);
 
         if (!roommateService.isHost(requesterNo, room)) {
             throw new RestApiException(NO_PERMISSION_ON_ROOM);

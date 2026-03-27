@@ -52,7 +52,7 @@ public class LeaveChatRoomUseCase {
         // GROUP 채팅방인 경우에만 룸메이트 삭제 및 방 인원수 감소
         if (ChatRoomType.GROUP.equals(chatRoom.getChatRoomType())) {
             roommateService.leaveRoom(userNo, chatRoom.getRoomNo());
-            Room room = roomService.findById(chatRoom.getRoomNo());
+            Room room = roomService.findByIdForUpdate(chatRoom.getRoomNo());
             room.minusCurrentMate();
         }
 

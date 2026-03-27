@@ -27,7 +27,7 @@ public class ConfirmRoomAssignmentUseCase {
     private final ApplicationEventPublisher eventPublisher;
 
     public void execute(String userNo, String roomNo) {
-        Room room = roomService.findById(roomNo);
+        Room room = roomService.findByIdForUpdate(roomNo);
 
         List<Roommate> allRoommates = roommateService.findByRoom(room);
 
