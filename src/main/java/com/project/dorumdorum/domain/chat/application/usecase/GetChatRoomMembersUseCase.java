@@ -24,6 +24,12 @@ public class GetChatRoomMembersUseCase {
     private final RoommateService roommateService;
     private final UserService userService;
 
+    /**
+     * 채팅방 멤버 목록 조회
+     * - 요청 사용자가 채팅방 멤버인지 검증
+     * - 멤버별 닉네임과 방장 여부를 조회
+     * - 방장이 먼저 보이도록 정렬해 반환
+     */
     @Transactional(readOnly = true)
     public List<ChatRoomMemberResponse> execute(String chatRoomNo, String requestingUserNo) {
         ChatRoom chatRoom = chatRoomService.findByChatRoomNo(chatRoomNo);

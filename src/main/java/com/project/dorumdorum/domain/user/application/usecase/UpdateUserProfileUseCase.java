@@ -14,6 +14,11 @@ public class UpdateUserProfileUseCase {
 
     private final UserProfileService userProfileService;
 
+    /**
+     * 사용자 프로필 수정
+     * - 요청 사용자 프로필을 수정
+     * - 갱신된 프로필 정보를 반환
+     */
     public ProfileResponse execute(String userNo, UpdateProfileRequest updateProfileRequest) {
         return userProfileService.updateProfile(userNo, updateProfileRequest);
     }

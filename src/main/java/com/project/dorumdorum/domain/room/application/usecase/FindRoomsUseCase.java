@@ -19,6 +19,11 @@ public class FindRoomsUseCase {
     private final RoomService roomService;
     private static final int LIMIT = 50;
 
+    /**
+     * 방 목록 커서 조회
+     * - 필터와 커서 기준으로 방 목록을 조회
+     * - 다음 페이지 커서를 포함한 결과를 반환
+     */
     public CursorPage<FindRoomsResponse> execute(ChecklistFilterRequest request) {
         CursorQueryParams params = PaginationHelper.prepareCursorQuery(request.cursor(), LIMIT);
 

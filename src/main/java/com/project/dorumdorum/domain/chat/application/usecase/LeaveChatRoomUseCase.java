@@ -34,6 +34,12 @@ public class LeaveChatRoomUseCase {
     private final UserService userService;
     private final SimpMessagingTemplate messagingTemplate;
 
+    /**
+     * 채팅방 퇴장 처리
+     * - 채팅방 멤버를 조회하고 방장 퇴장 가능 여부를 검증
+     * - 그룹 채팅방이면 룸메이트와 방 인원수를 함께 갱신
+     * - 마지막 멤버면 방을 삭제하고, 아니면 퇴장 메시지를 전송
+     */
     @Transactional
     public void execute(String chatRoomNo, String userNo) {
         ChatRoom chatRoom = chatRoomService.findByChatRoomNo(chatRoomNo);

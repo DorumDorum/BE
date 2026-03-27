@@ -24,6 +24,12 @@ public class UpdateRoomRuleUseCase {
     private final RoomRuleService roomRuleService;
     private final RoomRuleMapper roomRuleMapper;
 
+    /**
+     * 방 규칙 및 모집 조건 수정
+     * - 방장을 검증하고 방/규칙 정보를 조회
+     * - 방 기본 정보와 방 규칙을 함께 갱신
+     * - 변경된 규칙을 저장
+     */
     public void execute(String userNo, String roomNo, UpdateRoomRuleRequest request) {
         Room room = roomService.findByIdForUpdate(roomNo);
 

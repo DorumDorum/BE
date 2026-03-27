@@ -21,6 +21,12 @@ public class LoadMyNotificationsUseCase {
     private final NotificationMapper notificationMapper;
     private static final int LIMIT = 20;
 
+    /**
+     * 내 알림 목록 커서 조회
+     * - 커서 기반 조회 조건을 생성
+     * - 알림 목록을 조회해 응답 DTO로 변환
+     * - 다음 페이지 커서를 포함해 반환
+     */
     @Transactional(readOnly = true)
     public CursorPage<LoadNotificationResponse> execute(String userNo, String cursor) {
         CursorQueryParams params = PaginationHelper.prepareCursorQuery(cursor, LIMIT);

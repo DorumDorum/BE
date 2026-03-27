@@ -11,6 +11,11 @@ public class CheckMyRoomUseCase {
 
     private final RoommateService roommateService;
 
+    /**
+     * 내가 속한 방 여부 조회
+     * - 사용자 룸메이트 정보를 조회
+     * - 방 소속 여부와 방 번호를 함께 반환
+     */
     public CheckMyRoomResponse execute(String userNo) {
         CheckMyRoomResponse checkMyRoomResponse = roommateService.findByUserNo(userNo)
                 .map(roommate -> new CheckMyRoomResponse(

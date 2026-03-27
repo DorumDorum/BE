@@ -19,6 +19,12 @@ public class MarkChatRoomReadUseCase {
     private final ChatRoomMemberService chatRoomMemberService;
     private final ChatMessageService chatMessageService;
 
+    /**
+     * 채팅방 읽음 처리
+     * - 사용자의 채팅방 멤버 정보를 조회
+     * - 마지막 읽은 시점 이후 메시지의 안 읽은 수를 감소
+     * - 현재 시각으로 마지막 읽은 시점을 갱신
+     */
     @Transactional
     public void execute(String chatRoomNo, String userNo) {
         ChatRoom chatRoom = chatRoomService.findByChatRoomNo(chatRoomNo);

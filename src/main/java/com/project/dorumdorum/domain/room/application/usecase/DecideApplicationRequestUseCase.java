@@ -27,6 +27,12 @@ public class DecideApplicationRequestUseCase {
     private final RoommateService roommateService;
     private final ApplicationEventPublisher eventPublisher;
 
+    /**
+     * 지원 요청 승인
+     * - 요청자와 지원자의 상태를 검증
+     * - 방장 권한과 정원 초과 여부를 확인
+     * - 룸메이트를 추가하고 승인 이벤트를 발행한 뒤 요청을 삭제
+     */
     public void approve(String userNo, String roomNo, String roomRequestNo) {
         // 유저 존재 유무 검증
         userService.validateExistsById(userNo);
@@ -59,6 +65,11 @@ public class DecideApplicationRequestUseCase {
         roomRequestService.delete(roomRequest);
     }
 
+    /**
+     * 지원 요청 거절
+     * - 요청자 존재 여부와 방장 권한을 검증
+     * - 지원 요청을 삭제해 거절 처리
+     */
     public void reject(String userNo, String roomRequestNo) {
         // 유저 존재 유무 검증
         userService.validateExistsById(userNo);

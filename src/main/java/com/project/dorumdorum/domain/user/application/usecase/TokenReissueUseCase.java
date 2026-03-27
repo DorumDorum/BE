@@ -16,6 +16,11 @@ public class TokenReissueUseCase {
     private final TokenReissueService tokenReissueService;
     private final TokenProvider tokenProvider;
 
+    /**
+     * 토큰 재발급
+     * - 리프레시 토큰에서 사용자 식별값을 추출
+     * - 유효한 토큰이면 새 토큰 묶음을 재발급
+     */
     public TokenReissueResponse execute(String refreshToken) {
         String userNo = tokenProvider.getId(refreshToken)
                 .orElseThrow(() -> new RestApiException(INVALID_REFRESH_TOKEN));

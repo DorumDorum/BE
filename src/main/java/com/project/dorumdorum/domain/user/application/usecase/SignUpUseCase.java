@@ -18,6 +18,12 @@ public class SignUpUseCase {
 
     private final UserService userService;
 
+    /**
+     * 회원가입 처리
+     * - 비밀번호 확인 여부를 검증
+     * - 중복 이메일 가입을 차단
+     * - 사용자를 저장하고 생성된 사용자 번호를 반환
+     */
     public String execute(SignUpRequest request) {
         if(!request.isCheckedPassword()) {
             throw new RestApiException(_PASSWORD_NOT_MATCHES);

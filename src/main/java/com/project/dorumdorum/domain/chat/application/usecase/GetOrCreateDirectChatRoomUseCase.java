@@ -23,9 +23,9 @@ public class GetOrCreateDirectChatRoomUseCase {
 
     /**
      * 지원자-방장 1:1 채팅방 조회 또는 생성
-     * - 이미 존재하면 기존 채팅방 반환
-     * - 없으면 생성 후 반환
-     * - 호출자는 방장 또는 지원자여야 함
+     * - 호출자가 방장 또는 지원자인지 검증
+     * - 기존 채팅방이 있으면 그대로 반환
+     * - 없으면 생성 후 양쪽 사용자를 입장시켜 반환
      */
     public String execute(String callerUserNo, String roomNo, String applicantUserNo) {
         Room room = roomService.findById(roomNo);
@@ -46,7 +46,10 @@ public class GetOrCreateDirectChatRoomUseCase {
     }
 
     /**
-     * 이벤트 리스너에서 사용 — 인증 없이 채팅방 생성 (방 지원 시 자동 생성)
+     * 지원자-방장 1:1 채팅방 선생성
+     * - 이벤트 리스너에서 인증 없이 호출
+     * - 기존 채팅방이 있으면 그대로 반환
+     * - 없으면 생성 후 양쪽 사용자를 입장시켜 반환
      */
     public String createIfAbsent(String roomNo, String applicantUserNo, String hostUserNo) {
         return chatRoomService.findDirectChatRoom(roomNo, applicantUserNo)

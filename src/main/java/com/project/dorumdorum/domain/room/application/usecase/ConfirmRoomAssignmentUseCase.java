@@ -26,6 +26,12 @@ public class ConfirmRoomAssignmentUseCase {
     private final RoommateService roommateService;
     private final ApplicationEventPublisher eventPublisher;
 
+    /**
+     * 방 배정 확정 처리
+     * - 현재 사용자가 해당 방 룸메이트인지 검증
+     * - 본인 확정 상태를 승인으로 변경
+     * - 방이 가득 찼고 전원이 승인했으면 방 배정을 완료하고 이벤트를 발행
+     */
     public void execute(String userNo, String roomNo) {
         Room room = roomService.findByIdForUpdate(roomNo);
 

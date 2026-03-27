@@ -27,6 +27,12 @@ public class ApplyRoomUseCase {
     private final RoommateService roommateService;
     private final ApplicationEventPublisher eventPublisher;
 
+    /**
+     * 방 지원 요청 생성
+     * - 사용자/방 존재 여부와 지원 가능 상태를 검증
+     * - 중복 지원과 이미 방에 속한 상태를 차단
+     * - 지원 요청을 생성하고 1:1 채팅방 생성 이벤트를 발행
+     */
     public String execute(String userNo, String roomNo, JoinRoomRequest request) {
         userService.validateExistsById(userNo);
 
