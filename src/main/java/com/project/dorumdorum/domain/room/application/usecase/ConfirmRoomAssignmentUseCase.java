@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.ALREADY_CONFIRM_REQUEST;
 import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.NO_PERMISSION_ON_ROOM;
 
 @Service
@@ -41,6 +42,10 @@ public class ConfirmRoomAssignmentUseCase {
                 .filter(roommate -> roommate.getUserNo().equals(userNo))
                 .findFirst()
                 .orElseThrow(() -> new RestApiException(NO_PERMISSION_ON_ROOM));
+
+        if (room.isCompleted()) {
+            throw new RestApiException(ALREADY_CONFIRM_REQUEST);
+        }
 
         currentRoommate.accept();
 

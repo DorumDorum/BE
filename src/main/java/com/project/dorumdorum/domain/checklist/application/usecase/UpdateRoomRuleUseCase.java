@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.INVALID_ROOM_CAPACITY;
 import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.NO_PERMISSION_ON_ROOM;
 
 @Service
@@ -38,6 +39,9 @@ public class UpdateRoomRuleUseCase {
 
         RoomRule roomRule = roomRuleService.findByRoomNo(roomNo);
 
+        if (!room.isValidCapacity(request.capacity())) {
+            throw new RestApiException(INVALID_ROOM_CAPACITY);
+        }
         room.updateCapacity(request.capacity());
         room.updateRoomType(request.roomType());
         room.updateResidencePeriod(request.residencePeriod());

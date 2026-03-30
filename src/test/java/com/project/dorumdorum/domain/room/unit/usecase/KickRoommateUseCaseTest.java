@@ -34,7 +34,7 @@ class KickRoommateUseCaseTest {
     @DisplayName("방장이 다른 멤버를 강퇴하면 Roommate 삭제, 인원 감소, 이벤트 발행")
     void execute_WhenHostKicksOther_Success() {
         Room room = mock(Room.class);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.isHost("host", room)).thenReturn(true);
 
         useCase.execute("host", "r1", "member1");
@@ -47,7 +47,7 @@ class KickRoommateUseCaseTest {
     @Test
     @DisplayName("존재하지 않는 방 ID로 요청 시 RestApiException 발생")
     void execute_WhenRoomNotFound_ThrowsException() {
-        when(roomService.findById("nonexistent")).thenThrow(new RestApiException(NO_PERMISSION_ON_ROOM));
+        when(roomService.findByIdForUpdate("nonexistent")).thenThrow(new RestApiException(NO_PERMISSION_ON_ROOM));
 
         assertThatThrownBy(() -> useCase.execute("host", "nonexistent", "member1"))
                 .isInstanceOf(RestApiException.class);
@@ -61,7 +61,7 @@ class KickRoommateUseCaseTest {
     @DisplayName("강퇴 대상이 해당 방에 없으면 leaveRoom에서 RestApiException 발생")
     void execute_WhenKickedUserNotInRoom_ThrowsException() {
         Room room = mock(Room.class);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.isHost("host", room)).thenReturn(true);
         doThrow(new RestApiException(_NOT_FOUND))
                 .when(roommateService).leaveRoom("ghost", "r1");
@@ -77,7 +77,7 @@ class KickRoommateUseCaseTest {
     @DisplayName("방장이 아닌 사람이 강퇴 시도 시 NO_PERMISSION_ON_ROOM 예외")
     void execute_WhenNotHost_ThrowsNoPermission() {
         Room room = mock(Room.class);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.isHost("member1", room)).thenReturn(false);
 
         assertThatThrownBy(() -> useCase.execute("member1", "r1", "member2"))
@@ -91,7 +91,7 @@ class KickRoommateUseCaseTest {
     @DisplayName("방장이 자기 자신을 강퇴 시도 시 CANNOT_KICK_SELF 예외")
     void execute_WhenKickSelf_ThrowsCannotKickSelf() {
         Room room = mock(Room.class);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.isHost("host", room)).thenReturn(true);
 
         assertThatThrownBy(() -> useCase.execute("host", "r1", "host"))

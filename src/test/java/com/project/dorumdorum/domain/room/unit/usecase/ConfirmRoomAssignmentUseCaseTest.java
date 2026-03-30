@@ -20,6 +20,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.ALREADY_CONFIRM_REQUEST;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,10 +37,11 @@ class ConfirmRoomAssignmentUseCaseTest {
     void execute_WhenUserInRoom_AcceptsCurrentRoommate() {
         Room room = mock(Room.class);
         Roommate me = mock(Roommate.class);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.findByRoom(room)).thenReturn(List.of(me));
         when(me.getUserNo()).thenReturn("u1");
         when(room.isFull()).thenReturn(false);
+        when(room.isCompleted()).thenReturn(false);
 
         useCase.execute("u1", "r1");
 
@@ -53,10 +55,11 @@ class ConfirmRoomAssignmentUseCaseTest {
         Room room = mock(Room.class);
         Roommate me = mock(Roommate.class);
         Roommate other = mock(Roommate.class);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.findByRoom(room)).thenReturn(List.of(me, other));
         when(me.getUserNo()).thenReturn("u1");
         when(room.isFull()).thenReturn(true);
+        when(room.isCompleted()).thenReturn(false);
         when(me.getConfirmStatus()).thenReturn(ConfirmStatus.ACCEPTED);
         when(other.getConfirmStatus()).thenReturn(ConfirmStatus.ACCEPTED);
 
@@ -72,7 +75,7 @@ class ConfirmRoomAssignmentUseCaseTest {
     void execute_WhenUserNotInRoom_Throws() {
         Room room = Room.builder().roomNo("r1").build();
         Roommate other = Roommate.builder().userNo("u2").confirmStatus(ConfirmStatus.PENDING).roomRole(RoomRole.MEMBER).build();
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.findByRoom(room)).thenReturn(List.of(other));
 
         assertThatThrownBy(() -> useCase.execute("u1", "r1"))
@@ -85,10 +88,11 @@ class ConfirmRoomAssignmentUseCaseTest {
         Room room = mock(Room.class);
         Roommate me = mock(Roommate.class);
         Roommate other = mock(Roommate.class);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.findByRoom(room)).thenReturn(List.of(me, other));
         when(me.getUserNo()).thenReturn("u1");
         when(room.isFull()).thenReturn(true);
+        when(room.isCompleted()).thenReturn(false);
         when(me.getConfirmStatus()).thenReturn(ConfirmStatus.ACCEPTED);
         when(other.getConfirmStatus()).thenReturn(ConfirmStatus.PENDING);
 
@@ -98,5 +102,24 @@ class ConfirmRoomAssignmentUseCaseTest {
         verify(me, never()).complete();
         verify(other, never()).complete();
         verify(room, never()).updateStatus(RoomStatus.COMPLETED);
+    }
+
+    @Test
+    @DisplayName("Should throw when room assignment was already completed")
+    void execute_WhenAlreadyCompleted_Throws() {
+        Room room = mock(Room.class);
+        Roommate me = mock(Roommate.class);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
+        when(roommateService.findByRoom(room)).thenReturn(List.of(me));
+        when(me.getUserNo()).thenReturn("u1");
+        when(room.isCompleted()).thenReturn(true);
+
+        assertThatThrownBy(() -> useCase.execute("u1", "r1"))
+                .isInstanceOf(RestApiException.class)
+                .extracting("errorCode.code")
+                .isEqualTo(ALREADY_CONFIRM_REQUEST.getCode().getCode());
+
+        verify(me, never()).accept();
+        verify(room, never()).updateStatus(any());
     }
 }

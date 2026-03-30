@@ -46,36 +46,60 @@ public class LeaveChatRoomUseCase {
         ChatRoomMember member = chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, userNo);
         long memberCount = chatRoomMemberService.countByChatRoom(chatRoom);
 
-        if (memberCount > 1) {
-            boolean isHost = roommateService.isHostOfRoom(userNo, chatRoom.getRoomNo());
-            if (isHost) {
-                throw new RestApiException(HOST_CANNOT_LEAVE);
-            }
+        if (ChatRoomType.GROUP.equals(chatRoom.getChatRoomType())) {
+            leaveGroupChatRoom(chatRoom, member, userNo, memberCount);
+            return;
+        }
+
+        leaveDirectChatRoom(chatRoom, member, userNo, memberCount);
+    }
+
+    private void leaveGroupChatRoom(ChatRoom chatRoom, ChatRoomMember member, String userNo, long memberCount) {
+        Room room = roomService.findByIdForUpdate(chatRoom.getRoomNo());
+
+        if (memberCount > 1 && roommateService.isHost(userNo, room)) {
+            throw new RestApiException(HOST_CANNOT_LEAVE);
+        }
+
+        chatRoomMemberService.leave(member);
+        roommateService.leaveRoom(userNo, chatRoom.getRoomNo());
+        room.minusCurrentMate();
+
+        if (memberCount == 1) {
+            chatMessageService.deleteAllByChatRoom(chatRoom.getChatRoomNo());
+            chatRoomService.delete(chatRoom);
+            return;
+        }
+
+        sendLeaveSystemMessage(chatRoom, userNo);
+    }
+
+    private void leaveDirectChatRoom(ChatRoom chatRoom, ChatRoomMember member, String userNo, long memberCount) {
+        if (memberCount > 1 && roommateService.isHostOfRoom(userNo, chatRoom.getRoomNo())) {
+            throw new RestApiException(HOST_CANNOT_LEAVE);
         }
 
         chatRoomMemberService.leave(member);
 
-        // GROUP 채팅방인 경우에만 룸메이트 삭제 및 방 인원수 감소
-        if (ChatRoomType.GROUP.equals(chatRoom.getChatRoomType())) {
-            roommateService.leaveRoom(userNo, chatRoom.getRoomNo());
-            Room room = roomService.findByIdForUpdate(chatRoom.getRoomNo());
-            room.minusCurrentMate();
-        }
-
         if (memberCount == 1) {
-            // 마지막 멤버가 나가는 경우: 메시지 먼저 삭제 후 채팅방 삭제 (FK 제약 위반 방지)
             chatMessageService.deleteAllByChatRoom(chatRoom.getChatRoomNo());
             chatRoomService.delete(chatRoom);
-        } else {
-            User leavingUser = userService.findById(userNo);
-            String displayName = (leavingUser.getNickname() != null && !leavingUser.getNickname().isBlank())
-                    ? leavingUser.getNickname() : leavingUser.getName();
-            String content = displayName + "가 퇴장했습니다.";
-            ChatMessage message = chatMessageService.save(chatRoom, "SYSTEM", content, MessageType.SYSTEM, 0);
-            ChatMessageResponse response = new ChatMessageResponse(
-                    message.getMessageNo(), chatRoomNo,
-                    "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt());
-            messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomNo, response);
+            return;
         }
+
+        sendLeaveSystemMessage(chatRoom, userNo);
+    }
+
+    private void sendLeaveSystemMessage(ChatRoom chatRoom, String userNo) {
+        String chatRoomNo = chatRoom.getChatRoomNo();
+        User leavingUser = userService.findById(userNo);
+        String displayName = (leavingUser.getNickname() != null && !leavingUser.getNickname().isBlank())
+                ? leavingUser.getNickname() : leavingUser.getName();
+        String content = displayName + "가 퇴장했습니다.";
+        ChatMessage message = chatMessageService.save(chatRoom, "SYSTEM", content, MessageType.SYSTEM, 0);
+        ChatMessageResponse response = new ChatMessageResponse(
+                message.getMessageNo(), chatRoomNo,
+                "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt());
+        messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomNo, response);
     }
 }

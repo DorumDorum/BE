@@ -92,6 +92,14 @@ public class Room extends BaseEntity {
         return RoomStatus.CONFIRM_PENDING.equals(this.roomStatus);
     }
 
+    public boolean isCompleted() {
+        return RoomStatus.COMPLETED.equals(this.roomStatus);
+    }
+
+    public boolean isValidCapacity(Integer capacity) {
+        return capacity >= currentMateCount;
+    }
+
     public void updateStatus(RoomStatus roomStatus) {
         this.roomStatus = roomStatus;
     }
