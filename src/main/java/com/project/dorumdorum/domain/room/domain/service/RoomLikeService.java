@@ -36,4 +36,3 @@ public class RoomLikeService {
         roomLikeRepository.deleteByUserNoAndRoom(userNo, room);
     }
 }
-

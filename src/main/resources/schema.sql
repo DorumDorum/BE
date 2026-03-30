@@ -51,6 +51,44 @@ BEGIN
         SELECT 1
         FROM information_schema.tables
         WHERE table_schema = current_schema()
+          AND table_name = 'room_like'
+    ) THEN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM pg_constraint
+            WHERE conname = 'uk_room_like_user_room'
+        ) THEN
+            ALTER TABLE room_like
+                ADD CONSTRAINT uk_room_like_user_room UNIQUE (user_no, room_no);
+        END IF;
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = current_schema()
+          AND table_name = 'devices'
+    ) THEN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM pg_constraint
+            WHERE conname = 'uk_device_user_device'
+        ) THEN
+            ALTER TABLE devices
+                ADD CONSTRAINT uk_device_user_device UNIQUE (user_no, device_id);
+        END IF;
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = current_schema()
           AND table_name = 'room_request'
     ) THEN
         IF NOT EXISTS (
