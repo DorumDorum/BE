@@ -38,7 +38,7 @@ class DecideApplicationRequestUseCaseTest {
         RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").userNo("applicant").build();
         when(roomRequestService.findById("rq1")).thenReturn(request);
         when(roommateService.existsByUserNo("applicant")).thenReturn(false);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.isHost("host", room)).thenReturn(true);
         when(room.isFull()).thenReturn(false);
 
@@ -57,7 +57,7 @@ class DecideApplicationRequestUseCaseTest {
         RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").userNo("applicant").build();
         when(roomRequestService.findById("rq1")).thenReturn(request);
         when(roommateService.existsByUserNo("applicant")).thenReturn(false);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.isHost("host", room)).thenReturn(true);
         when(room.isFull()).thenReturn(true);
 
@@ -78,7 +78,7 @@ class DecideApplicationRequestUseCaseTest {
         assertThatThrownBy(() -> useCase.approve("host", "r1", "rq1"))
                 .isInstanceOf(RestApiException.class);
 
-        verify(roomService, never()).findById(anyString());
+        verify(roomService, never()).findByIdForUpdate(anyString());
         verify(roomRequestService, never()).delete(any(RoomRequest.class));
     }
 
@@ -89,7 +89,7 @@ class DecideApplicationRequestUseCaseTest {
         RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").userNo("applicant").build();
         when(roomRequestService.findById("rq1")).thenReturn(request);
         when(roommateService.existsByUserNo("applicant")).thenReturn(false);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.isHost("host", room)).thenReturn(false);
 
         assertThatThrownBy(() -> useCase.approve("host", "r1", "rq1"))
