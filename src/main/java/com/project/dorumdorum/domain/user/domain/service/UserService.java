@@ -6,9 +6,11 @@ import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static com.project.dorumdorum.global.exception.code.status.UserErrorStatus.DUPLICATE_SIGN_UP_INFO;
 import static com.project.dorumdorum.global.exception.code.status.UserErrorStatus.EMAIL_NOT_FOUND;
 import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
 
@@ -28,22 +30,30 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    public boolean isAlreadyRegisteredStudentNo(String studentNo) {
+        return userRepository.existsByStudentNo(studentNo);
+    }
+
     public User save(SignUpRequest request) {
-        return userRepository.save(
-                User.builder()
-                        .email(request.email())
-                        .name(request.name())
-                        .nickname(request.nickname())
-                        .password(passwordEncoder.encode(request.password()))
-                        .role(Role.USER)
-                        .gender(request.gender())
-                        .studentNo(request.studentNo())
-                        .major(request.major())
-                        .grade(request.grade())
-                        .birth(request.birth())
-                        .age(request.calculateAge())
-                        .build()
-        );
+        try {
+            return userRepository.save(
+                    User.builder()
+                            .email(request.email())
+                            .name(request.name())
+                            .nickname(request.nickname())
+                            .password(passwordEncoder.encode(request.password()))
+                            .role(Role.USER)
+                            .gender(request.gender())
+                            .studentNo(request.studentNo())
+                            .major(request.major())
+                            .grade(request.grade())
+                            .birth(request.birth())
+                            .age(request.calculateAge())
+                            .build()
+            );
+        } catch (DataIntegrityViolationException e) {
+            throw new RestApiException(DUPLICATE_SIGN_UP_INFO);
+        }
     }
 
     public User findById(String userNo) {

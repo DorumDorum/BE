@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.ALREADY_REGISTERED_EMAIL;
+import static com.project.dorumdorum.global.exception.code.status.UserErrorStatus.DUPLICATE_SIGN_UP_INFO;
 import static com.project.dorumdorum.global.exception.code.status.UserErrorStatus._PASSWORD_NOT_MATCHES;
 
 @Service
@@ -29,8 +29,9 @@ public class SignUpUseCase {
             throw new RestApiException(_PASSWORD_NOT_MATCHES);
         }
 
-        if (userService.isAlreadyRegistered(request.email())) {
-            throw new RestApiException(ALREADY_REGISTERED_EMAIL);
+        if (userService.isAlreadyRegistered(request.email())
+                || userService.isAlreadyRegisteredStudentNo(request.studentNo())) {
+            throw new RestApiException(DUPLICATE_SIGN_UP_INFO);
         }
 
         User savedUser = userService.save(request);
