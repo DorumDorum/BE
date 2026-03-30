@@ -10,6 +10,7 @@ import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
 import com.project.dorumdorum.domain.room.application.event.RoommateAcceptedEvent;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
@@ -91,5 +92,76 @@ class JoinChatRoomUseCaseTest {
 
         verify(chatRoomMemberService, never()).join(any(), any());
         verify(chatMessageService, never()).save(any(), any(), any(), any(), anyInt());
+    }
+
+    @Test
+    @DisplayName("방장 입장 중 DataIntegrityViolationException 발생 시 무시하고 계속 진행")
+    void handle_WhenHostJoinDuplicate_IgnoresAndContinues() {
+        User mockUser = mock(User.class);
+        ChatMessage mockMessage = mock(ChatMessage.class);
+        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.empty());
+        when(chatRoomService.create("room-1")).thenReturn(chatRoom);
+        doThrow(new DataIntegrityViolationException("duplicate")).when(chatRoomMemberService).join(chatRoom, "user-host");
+        when(chatRoomMemberService.isMember(chatRoom, "user-new")).thenReturn(false);
+        when(userService.findById("user-new")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn("nick");
+        when(chatMessageService.save(any(), any(), any(), any(), anyInt())).thenReturn(mockMessage);
+        when(mockMessage.getMessageNo()).thenReturn("msg-1");
+        when(mockMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
+
+        useCase.handle(new RoommateAcceptedEvent("room-1", "user-new", "user-host"));
+
+        verify(chatRoomMemberService).join(chatRoom, "user-new");
+    }
+
+    @Test
+    @DisplayName("신규 멤버 입장 중 DataIntegrityViolationException 발생 시 시스템 메시지 없이 조용히 종료")
+    void handle_WhenNewMemberJoinDuplicate_SkipsMessageAndReturns() {
+        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
+        when(chatRoomMemberService.isMember(chatRoom, "user-new")).thenReturn(false);
+        doThrow(new DataIntegrityViolationException("duplicate")).when(chatRoomMemberService).join(chatRoom, "user-new");
+
+        useCase.handle(new RoommateAcceptedEvent("room-1", "user-new", "user-host"));
+
+        verify(chatMessageService, never()).save(any(), any(), any(), any(), anyInt());
+        verify(messagingTemplate, never()).convertAndSend(anyString(), any(Object.class));
+    }
+
+    @Test
+    @DisplayName("닉네임이 없으면 이름으로 시스템 메시지 생성")
+    void handle_WhenNicknameBlank_UsesName() {
+        User mockUser = mock(User.class);
+        ChatMessage mockMessage = mock(ChatMessage.class);
+        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
+        when(chatRoomMemberService.isMember(chatRoom, "user-new")).thenReturn(false);
+        when(userService.findById("user-new")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn("");
+        when(mockUser.getName()).thenReturn("홍길동");
+        when(chatMessageService.save(any(), eq("SYSTEM"), contains("홍길동"), eq(MessageType.SYSTEM), eq(0))).thenReturn(mockMessage);
+        when(mockMessage.getMessageNo()).thenReturn("msg-1");
+        when(mockMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
+
+        useCase.handle(new RoommateAcceptedEvent("room-1", "user-new", "user-host"));
+
+        verify(chatMessageService).save(eq(chatRoom), eq("SYSTEM"), contains("홍길동"), eq(MessageType.SYSTEM), eq(0));
+    }
+
+    @Test
+    @DisplayName("WebSocket 브로드캐스트 실패 시 예외를 무시하고 정상 종료")
+    void handle_WhenWebSocketFails_LogsAndContinues() {
+        User mockUser = mock(User.class);
+        ChatMessage mockMessage = mock(ChatMessage.class);
+        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
+        when(chatRoomMemberService.isMember(chatRoom, "user-new")).thenReturn(false);
+        when(userService.findById("user-new")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn("nick");
+        when(chatMessageService.save(any(), any(), any(), any(), anyInt())).thenReturn(mockMessage);
+        when(mockMessage.getMessageNo()).thenReturn("msg-1");
+        when(mockMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
+        doThrow(new RuntimeException("WebSocket error")).when(messagingTemplate).convertAndSend(anyString(), any(Object.class));
+
+        useCase.handle(new RoommateAcceptedEvent("room-1", "user-new", "user-host"));
+
+        verify(chatMessageService).save(any(), any(), any(), any(), anyInt());
     }
 }

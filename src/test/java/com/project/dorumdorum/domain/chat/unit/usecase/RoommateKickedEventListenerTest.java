@@ -82,4 +82,47 @@ class RoommateKickedEventListenerTest {
         verify(chatRoomMemberService, never()).leave(any());
         verify(chatMessageService, never()).save(any(), any(), any(), any(), anyInt());
     }
+
+    @Test
+    @DisplayName("닉네임이 없으면 이름으로 시스템 메시지 생성")
+    void handle_WhenNicknameNull_UsesName() {
+        ChatRoomMember member = ChatRoomMember.builder().chatRoom(chatRoom).userNo("user-kicked").build();
+        User mockUser = mock(User.class);
+        ChatMessage mockMessage = mock(ChatMessage.class);
+        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
+        when(chatRoomMemberService.isMember(chatRoom, "user-kicked")).thenReturn(true);
+        when(chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, "user-kicked")).thenReturn(member);
+        when(userService.findById("user-kicked")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn(null);
+        when(mockUser.getName()).thenReturn("홍길동");
+        when(chatMessageService.save(any(), eq("SYSTEM"), contains("홍길동"), eq(MessageType.SYSTEM), eq(0))).thenReturn(mockMessage);
+        when(mockMessage.getMessageNo()).thenReturn("msg-1");
+        when(mockMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
+
+        listener.handle(new RoommateKickedEvent("room-1", "user-kicked"));
+
+        verify(chatMessageService).save(eq(chatRoom), eq("SYSTEM"), contains("홍길동"), eq(MessageType.SYSTEM), eq(0));
+    }
+
+    @Test
+    @DisplayName("WebSocket 브로드캐스트 실패 시 예외를 무시하고 정상 종료")
+    void handle_WhenWebSocketFails_LogsAndContinues() {
+        ChatRoomMember member = ChatRoomMember.builder().chatRoom(chatRoom).userNo("user-kicked").build();
+        User mockUser = mock(User.class);
+        ChatMessage mockMessage = mock(ChatMessage.class);
+        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
+        when(chatRoomMemberService.isMember(chatRoom, "user-kicked")).thenReturn(true);
+        when(chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, "user-kicked")).thenReturn(member);
+        when(userService.findById("user-kicked")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn("nick");
+        when(chatMessageService.save(any(), any(), any(), any(), anyInt())).thenReturn(mockMessage);
+        when(mockMessage.getMessageNo()).thenReturn("msg-1");
+        when(mockMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
+        doThrow(new RuntimeException("WebSocket error")).when(messagingTemplate).convertAndSend(anyString(), any(Object.class));
+
+        listener.handle(new RoommateKickedEvent("room-1", "user-kicked"));
+
+        verify(chatRoomMemberService).leave(member);
+        verify(chatMessageService).save(any(), any(), any(), any(), anyInt());
+    }
 }
