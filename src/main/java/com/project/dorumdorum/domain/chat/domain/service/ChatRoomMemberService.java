@@ -40,6 +40,11 @@ public class ChatRoomMemberService {
                 .orElseThrow(() -> new RestApiException(CHAT_ROOM_MEMBER_NOT_FOUND));
     }
 
+    public ChatRoomMember findByChatRoomNoAndUserNoForUpdate(String chatRoomNo, String userNo) {
+        return chatRoomMemberRepository.findByChatRoomNoAndUserNoForUpdate(chatRoomNo, userNo)
+                .orElseThrow(() -> new RestApiException(CHAT_ROOM_MEMBER_NOT_FOUND));
+    }
+
     public boolean isMember(ChatRoom chatRoom, String userNo) {
         return chatRoomMemberRepository.existsByChatRoomAndUserNo(chatRoom, userNo);
     }

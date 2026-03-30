@@ -86,6 +86,28 @@ class ChatRoomMemberServiceTest {
     }
 
     @Test
+    @DisplayName("findByChatRoomNoAndUserNoForUpdate: 존재하면 반환")
+    void findByChatRoomNoAndUserNoForUpdate_WhenExists_Returns() {
+        ChatRoomMember member = ChatRoomMember.builder().chatRoom(chatRoom).userNo("user-1").build();
+        when(chatRoomMemberRepository.findByChatRoomNoAndUserNoForUpdate("cr-1", "user-1"))
+                .thenReturn(Optional.of(member));
+
+        ChatRoomMember result = service.findByChatRoomNoAndUserNoForUpdate("cr-1", "user-1");
+
+        assertThat(result).isEqualTo(member);
+    }
+
+    @Test
+    @DisplayName("findByChatRoomNoAndUserNoForUpdate: 존재하지 않으면 RestApiException")
+    void findByChatRoomNoAndUserNoForUpdate_WhenMissing_Throws() {
+        when(chatRoomMemberRepository.findByChatRoomNoAndUserNoForUpdate("cr-1", "user-1"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.findByChatRoomNoAndUserNoForUpdate("cr-1", "user-1"))
+                .isInstanceOf(RestApiException.class);
+    }
+
+    @Test
     @DisplayName("validateMembership: 멤버가 아니면 RestApiException")
     void validateMembership_WhenNotMember_Throws() {
         when(chatRoomMemberRepository.existsByChatRoomAndUserNo(chatRoom, "user-1")).thenReturn(false);
