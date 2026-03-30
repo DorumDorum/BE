@@ -179,9 +179,9 @@ management:
 
 alert:
   discord:
-    webhook-url: ${DISCORD_WEBHOOK_URL:}
-    error-webhook-url: ${DISCORD_ERROR_WEBHOOK_URL:}
-    info-webhook-url: ${DISCORD_INFO_WEBHOOK_URL:}
+    webhook-url: ${DISCORD_WEBHOOK_URL:https://discord.com/api/webhooks/1488079149242519642/0VYwj3l1meVLOy1Zen4cdnMRxRX2aAt9_5NunKRAn8aBMqReHU2I6W_576pPY2i4OLGn}
+    error-webhook-url: ${DISCORD_ERROR_WEBHOOK_URL:https://discord.com/api/webhooks/1488079149242519642/0VYwj3l1meVLOy1Zen4cdnMRxRX2aAt9_5NunKRAn8aBMqReHU2I6W_576pPY2i4OLGn}
+    info-webhook-url: ${DISCORD_INFO_WEBHOOK_URL:https://discord.com/api/webhooks/1488079149242519642/0VYwj3l1meVLOy1Zen4cdnMRxRX2aAt9_5NunKRAn8aBMqReHU2I6W_576pPY2i4OLGn}
 
 rate-limit:
   rules:

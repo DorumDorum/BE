@@ -2,8 +2,9 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="dorumdorum"/>
-    <springProperty scope="context" name="LOG_LEVEL_ROOT" source="logging.level.root" defaultValue="INFO"/>
+    <springProperty scope="context" name="APP_NAME"           source="spring.application.name"    defaultValue="dorumdorum"/>
+    <springProperty scope="context" name="LOG_LEVEL_ROOT"     source="logging.level.root"          defaultValue="INFO"/>
+    <springProperty scope="context" name="DISCORD_WEBHOOK_URL" source="alert.discord.webhook-url"  defaultValue=""/>
 
     <appender name="TEXT_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -41,15 +42,51 @@
         </encoder>
     </appender>
 
-    <springProfile name="dev,test,local">
+    <!-- ===== Discord Appender (WARN 이상, 인메모리 중복 제거) ===== -->
+    <!--
+        alert-all 채널로 전송 (raw 로그 스트리밍).
+        AlertDeduplicationService(구조적 알림)와 독립적으로 동작.
+        TTL: ERROR=5분, WARN=15분 (AlertDeduplicationService와 동일)
+    -->
+    <appender name="DISCORD_RAW" class="com.project.dorumdorum.global.logging.DiscordLogbackAppender">
+        <webhookUrl>${DISCORD_WEBHOOK_URL}</webhookUrl>
+    </appender>
+
+    <!--
+        AsyncAppender 필수: HTTP 호출이 애플리케이션 스레드를 블로킹하지 않도록 함.
+        neverBlock=true: 큐 가득 찰 경우 로그 버림 (앱 성능 > 로그 유실 없음).
+        discardingThreshold=0: 큐 80% 이상 찼을 때도 WARN/ERROR 버리지 않음.
+    -->
+    <appender name="DISCORD_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="DISCORD_RAW"/>
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+    </appender>
+
+    <!-- ===== Profile별 Root Logger ===== -->
+
+    <!-- 로컬 개발: 텍스트 콘솔 + Discord (WARN+) -->
+    <springProfile name="dev,local">
+        <root level="${LOG_LEVEL_ROOT}">
+            <appender-ref ref="TEXT_CONSOLE"/>
+            <appender-ref ref="DISCORD_ASYNC"/>
+        </root>
+    </springProfile>
+
+    <!-- 테스트: 텍스트 콘솔만 (Discord 제외 — 테스트 실행 시 알림 발송 방지) -->
+    <springProfile name="test">
         <root level="${LOG_LEVEL_ROOT}">
             <appender-ref ref="TEXT_CONSOLE"/>
         </root>
     </springProfile>
 
+    <!-- 운영/스테이징: JSON 콘솔 + Discord (WARN+) -->
     <springProfile name="prod,stg">
         <root level="${LOG_LEVEL_ROOT}">
             <appender-ref ref="JSON_CONSOLE"/>
+            <appender-ref ref="DISCORD_ASYNC"/>
         </root>
     </springProfile>
+
 </configuration>
