@@ -40,7 +40,7 @@ public class SseEmitterRegistry {
         }
 
         if (emitters.size() == 1)
-            userPresenceRepository.setOnline(userNo);
+            userPresenceRepository.refreshPresence(userNo);
 
         // remove() -> removeIfCurrent()
         emitter.onCompletion(() -> removeIfCurrent(userNo, key, emitter));
