@@ -51,6 +51,26 @@ BEGIN
         SELECT 1
         FROM information_schema.tables
         WHERE table_schema = current_schema()
+          AND table_name = 'room_request'
+    ) THEN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM pg_constraint
+            WHERE conname = 'uk_room_request_user_room_direction'
+        ) THEN
+            ALTER TABLE room_request
+                ADD CONSTRAINT uk_room_request_user_room_direction
+                    UNIQUE (user_no, room_no, direction);
+        END IF;
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = current_schema()
           AND table_name = 'chat_room'
     ) THEN
         ALTER TABLE chat_room

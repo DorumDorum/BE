@@ -8,11 +8,13 @@ import com.project.dorumdorum.domain.room.domain.entity.RoomRequest;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRequestRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.ROOM_REQUEST_NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.DUPLICATE_JOIN_REQUEST;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,11 @@ public class RoomRequestService {
                 .additionalMessage(request.additionalMessage())
                 .build();
 
-        return roomRequestRepository.save(entity);
+        try {
+            return roomRequestRepository.save(entity);
+        } catch (DataIntegrityViolationException e) {
+            throw new RestApiException(DUPLICATE_JOIN_REQUEST);
+        }
     }
 
     public Boolean isDuplicateJoinRequest(String userNo, Room room) {
