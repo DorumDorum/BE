@@ -177,6 +177,12 @@ management:
     health:
       show-details: when-authorized
 
+alert:
+  discord:
+    webhook-url: ${DISCORD_WEBHOOK_URL:}
+    error-webhook-url: ${DISCORD_ERROR_WEBHOOK_URL:}
+    info-webhook-url: ${DISCORD_INFO_WEBHOOK_URL:}
+
 rate-limit:
   rules:
     fcm:
