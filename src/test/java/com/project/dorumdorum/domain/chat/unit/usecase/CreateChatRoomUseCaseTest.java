@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,36 @@ class CreateChatRoomUseCaseTest {
 
         verify(chatRoomService, never()).create(any());
         verify(chatRoomMemberService, never()).join(chatRoom, "user-1");
+        verify(chatRoomMemberService).join(chatRoom, "user-2");
+    }
+
+    @Test
+    @DisplayName("채팅방 생성 중 DataIntegrityViolationException 발생 시 재조회하여 처리")
+    void handle_WhenDuplicateOnCreate_RetriesWithExistingRoom() {
+        ChatRoom chatRoom = ChatRoom.builder().roomNo("room-1").build();
+        when(chatRoomService.findByRoomNo("room-1"))
+                .thenReturn(Optional.empty())
+                .thenReturn(Optional.of(chatRoom));
+        when(chatRoomService.create("room-1")).thenThrow(new DataIntegrityViolationException("duplicate"));
+        when(chatRoomMemberService.isMember(chatRoom, "user-1")).thenReturn(false);
+
+        useCase.handle(new RoomConfirmedEvent("room-1", List.of("user-1")));
+
+        verify(chatRoomMemberService).join(chatRoom, "user-1");
+    }
+
+    @Test
+    @DisplayName("멤버 입장 중 DataIntegrityViolationException 발생 시 해당 멤버만 스킵하고 나머지 계속 진행")
+    void handle_WhenDuplicateOnJoin_SkipsAndContinues() {
+        ChatRoom chatRoom = ChatRoom.builder().roomNo("room-1").build();
+        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
+        when(chatRoomMemberService.isMember(chatRoom, "user-1")).thenReturn(false);
+        when(chatRoomMemberService.isMember(chatRoom, "user-2")).thenReturn(false);
+        doThrow(new DataIntegrityViolationException("duplicate")).when(chatRoomMemberService).join(chatRoom, "user-1");
+
+        useCase.handle(new RoomConfirmedEvent("room-1", List.of("user-1", "user-2")));
+
+        verify(chatRoomMemberService).join(chatRoom, "user-1");
         verify(chatRoomMemberService).join(chatRoom, "user-2");
     }
 }
