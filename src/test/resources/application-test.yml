@@ -4,7 +4,7 @@ spring:
 
   sql:
     init:
-      mode: never
+      mode: always
   
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
@@ -13,6 +13,7 @@ spring:
     password: test
 
   jpa:
+    defer-datasource-initialization: true
     hibernate:
       ddl-auto: create-drop
     properties:
