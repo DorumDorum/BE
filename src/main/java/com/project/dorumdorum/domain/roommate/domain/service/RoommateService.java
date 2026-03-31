@@ -8,15 +8,12 @@ import com.project.dorumdorum.domain.roommate.domain.entity.Roommate;
 import com.project.dorumdorum.domain.roommate.domain.repository.RoommateRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
-import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.ALREADY_JOINED_USER;
-
 @Service
 @RequiredArgsConstructor
 public class RoommateService {
@@ -31,11 +28,7 @@ public class RoommateService {
                 .roomRole(roomRole)
                 .build();
 
-        try {
-            return roommateRepository.save(entity);
-        } catch (DataIntegrityViolationException e) {
-            throw new RestApiException(ALREADY_JOINED_USER);
-        }
+        return roommateRepository.save(entity);
     }
 
     public Boolean isUserRoommate(String userNo, String roomNo) {

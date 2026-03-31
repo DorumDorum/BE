@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,17 +48,6 @@ class ChatRoomMemberServiceTest {
     @DisplayName("join: 이미 멤버면 RestApiException")
     void join_WhenDuplicate_Throws() {
         when(chatRoomMemberRepository.existsByChatRoomAndUserNo(chatRoom, "user-1")).thenReturn(true);
-
-        assertThatThrownBy(() -> service.join(chatRoom, "user-1"))
-                .isInstanceOf(RestApiException.class);
-    }
-
-    @Test
-    @DisplayName("join: 동시 입장으로 save 중 DataIntegrityViolationException 발생 시 RestApiException으로 변환")
-    void join_WhenSaveThrowsDataIntegrityViolation_ThrowsRestApiException() {
-        when(chatRoomMemberRepository.existsByChatRoomAndUserNo(chatRoom, "user-1")).thenReturn(false);
-        when(chatRoomMemberRepository.save(any(ChatRoomMember.class)))
-                .thenThrow(new DataIntegrityViolationException("UK violation"));
 
         assertThatThrownBy(() -> service.join(chatRoom, "user-1"))
                 .isInstanceOf(RestApiException.class);

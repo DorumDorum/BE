@@ -5,7 +5,6 @@ import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomMember;
 import com.project.dorumdorum.domain.chat.domain.repository.ChatRoomMemberRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,12 +26,7 @@ public class ChatRoomMemberService {
                 .chatRoom(chatRoom)
                 .userNo(userNo)
                 .build();
-        try {
-            return chatRoomMemberRepository.save(member);
-        } catch (DataIntegrityViolationException e) {
-            // 동시 입장 요청으로 UNIQUE 제약 위반 시 graceful 처리
-            throw new RestApiException(ALREADY_CHAT_ROOM_MEMBER);
-        }
+        return chatRoomMemberRepository.save(member);
     }
 
     public ChatRoomMember findByChatRoomAndUserNo(ChatRoom chatRoom, String userNo) {
