@@ -37,12 +37,17 @@ public class DecideApplicationRequestUseCase {
         // 유저 존재 유무 검증
         userService.validateExistsById(userNo);
 
-        // 지원자가 이미 속한 방이 있는지 검증
+        // 원하는 방의 요청이 맞는지 확인
         RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
+        if (roomRequest.getRoom().getRoomNo().equals(roomNo)) {
+            throw new RestApiException(ROOM_REQUEST_NOT_FOUND);
+        }
+
+        // 지원자가 이미 속한 방이 있는지 검증
         if(roommateService.existsByUserNo(roomRequest.getUserNo()))
             throw new RestApiException(ALREADY_JOINED_USER);
 
-        // 방장인지 확인
+        // 요청이 path roomNo에 속한 요청인지 검증한 뒤, 해당 방 기준으로 락과 권한 검증 수행
         Room room = roomService.findByIdForUpdate(roomNo);
         if(!roommateService.isHost(userNo, room))
             throw new RestApiException(NO_PERMISSION_ON_ROOM);
