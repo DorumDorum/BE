@@ -1,12 +1,9 @@
 package com.project.dorumdorum.domain.room.domain.service;
 
 import com.project.dorumdorum.domain.room.application.dto.request.RoomCreateRequest;
-import com.project.dorumdorum.domain.room.application.dto.request.RoomRelation;
-import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
+import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
-import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
-import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepository;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
@@ -41,8 +38,18 @@ public class RoomService {
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
-    public List<FindRoomsResponse> searchByCursor(RoomRelation relation, List<RoomType> types, List<Integer> capacities, List<ResidencePeriod> residencePeriods, RoomSort sort, LocalDateTime cursorCreatedAt, String cursorId, int limitPlusOne) {
-        return roomRepository.findByCursor(relation, types, capacities, residencePeriods, sort, cursorCreatedAt, cursorId, limitPlusOne);
+    public Room findByIdForUpdate(String roomNo) {
+        return roomRepository.findByRoomNoForUpdate(roomNo)
+                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+    }
+
+    public List<FindRoomsResponse> searchByCursor(
+            ChecklistFilterRequest request,
+            LocalDateTime cursorCreatedAt,
+            String cursorId,
+            int limitPlusOne
+    ) {
+        return roomRepository.findByCursor(request, cursorCreatedAt, cursorId, limitPlusOne);
     }
 
     public FindRoomsResponse findMyRoom(String userNo) {

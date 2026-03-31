@@ -12,7 +12,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@Table(name = "notifications")
+@Table(
+        name = "notifications",
+        indexes = {
+                @Index(name = "idx_notification_recipient_deleted_created", columnList = "recipient_no, deleted_at, created_at, notification_no")
+        }
+)
 public class Notification extends BaseEntity {
 
     @Id

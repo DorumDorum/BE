@@ -18,6 +18,12 @@ public class SendVerificationEmailUseCase {
     private final EmailVerificationService emailVerificationService;
     private final SecureRandomGenerator secureRandomGenerator;
 
+    /**
+     * 이메일 인증 코드 발송
+     * - 이미 가입된 이메일인지 확인
+     * - 허용된 대학 이메일 도메인인지 검증
+     * - 인증 코드를 생성해 메일로 발송
+     */
     public void send(String email) {
         if (userService.isAlreadyRegistered(email)) {
             throw new RestApiException(DUPLICATE_EMAIL);

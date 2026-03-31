@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(
+    indexes = {
+        @Index(name = "idx_chat_room_member_user_room", columnList = "user_no, chat_room_no")
+    },
     uniqueConstraints = @UniqueConstraint(
         name = "uk_chat_room_member_room_user",
         columnNames = {"chat_room_no", "user_no"}

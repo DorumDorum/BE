@@ -38,8 +38,8 @@ class RedisUserPresenceRepositoryTest {
     }
 
     @Test
-    @DisplayName("setOnline은 현재 IN_CHATROOM 상태이면 상태를 유지하고 TTL만 갱신한다")
-    void setOnline_PreservesInChatroomPresence() {
+    @DisplayName("refreshPresence는 현재 IN_CHATROOM 상태이면 상태를 유지하고 TTL만 갱신한다")
+    void refreshPresence_PreservesInChatroomPresence() {
         // given
         String userNo = "user-1";
         String key = "notification:presence:" + userNo;
@@ -47,26 +47,36 @@ class RedisUserPresenceRepositoryTest {
         when(valueOperations.get(key)).thenReturn(inChatroom.toRedisValue());
 
         // when
-        assertThatCode(() -> repository.setOnline(userNo)).doesNotThrowAnyException();
+        assertThatCode(() -> repository.refreshPresence(userNo)).doesNotThrowAnyException();
 
         // then
         verify(valueOperations).set(eq(key), eq(inChatroom.toRedisValue()), any(Duration.class));
     }
 
     @Test
-    @DisplayName("setOnline은 IN_CHATROOM이 아닐 때 ONLINE 상태로 설정한다")
-    void setOnline_SetsOnlineWhenNotInChatroom() {
+    @DisplayName("refreshPresence는 OFFLINE일 때 ONLINE 상태로 설정한다")
+    void refreshPresence_SetsOnlineWhenOffline() {
         // given
         String userNo = "user-2";
         String key = "notification:presence:" + userNo;
         when(valueOperations.get(key)).thenReturn(null); // OFFLINE
 
         // when
-        repository.setOnline(userNo);
+        repository.refreshPresence(userNo);
 
         // then
         String expected = UserPresence.online().toRedisValue(); // "ONLINE"
         verify(valueOperations).set(eq(key), eq(expected), any(Duration.class));
     }
-}
 
+    @Test
+    @DisplayName("setOnline은 현재 상태와 무관하게 ONLINE으로 전환한다")
+    void setOnline_SetsOnline() {
+        String userNo = "user-3";
+        String key = "notification:presence:" + userNo;
+
+        repository.setOnline(userNo);
+
+        verify(valueOperations).set(eq(key), eq(UserPresence.online().toRedisValue()), any(Duration.class));
+    }
+}

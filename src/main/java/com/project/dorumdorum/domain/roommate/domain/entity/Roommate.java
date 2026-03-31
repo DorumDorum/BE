@@ -11,6 +11,14 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_roommate_user_no", columnNames = "user_no")
+        },
+        indexes = {
+                @Index(name = "idx_roommate_room_no", columnList = "room_no")
+        }
+)
 public class Roommate extends BaseEntity {
 
     @Id @Tsid

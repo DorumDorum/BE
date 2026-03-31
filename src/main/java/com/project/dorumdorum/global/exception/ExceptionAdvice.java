@@ -4,6 +4,7 @@ import com.project.dorumdorum.global.alert.AlertSeverity;
 import com.project.dorumdorum.global.alert.AlertType;
 import com.project.dorumdorum.global.alert.SystemAlertPublisher;
 import com.project.dorumdorum.global.exception.code.BaseCode;
+import com.project.dorumdorum.global.exception.code.BaseCodeInterface;
 import com.project.dorumdorum.global.exception.code.status.CommonErrorStatus;
 import com.project.dorumdorum.global.logging.LogRedactor;
 import com.project.dorumdorum.global.logging.RequestLogContext;
@@ -11,11 +12,12 @@ import com.project.dorumdorum.global.logging.RequestLogContextResolver;
 import com.project.dorumdorum.global.logging.StructuredLogFactory;
 import com.project.dorumdorum.global.properties.LoggingPolicyProperties;
 import io.swagger.v3.oas.annotations.Hidden;
+import jakarta.validation.ConstraintViolationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.project.dorumdorum.global.exception.code.status.ChatErrorStatus.ALREADY_CHAT_ROOM_MEMBER;
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.ALREADY_JOINED_USER;
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.DUPLICATE_JOIN_REQUEST;
+import static com.project.dorumdorum.global.exception.code.status.UserErrorStatus.DUPLICATE_SIGN_UP_INFO;
 import static net.logstash.logback.argument.StructuredArguments.entries;
 
 @Slf4j
@@ -41,6 +47,15 @@ import static net.logstash.logback.argument.StructuredArguments.entries;
 @RestControllerAdvice(annotations = {RestController.class})
 @RequiredArgsConstructor
 public class ExceptionAdvice extends ResponseEntityExceptionHandler {
+
+    private static final String DUPLICATE_KEY_SQL_STATE = "23505";
+    private static final Map<String, BaseCodeInterface> DATA_INTEGRITY_ERROR_CODES = Map.of(
+            "uk_room_request_user_room_direction", DUPLICATE_JOIN_REQUEST,
+            "uk_roommate_user_no", ALREADY_JOINED_USER,
+            "uk_user_email", DUPLICATE_SIGN_UP_INFO,
+            "uk_user_student_no", DUPLICATE_SIGN_UP_INFO,
+            "uk_chat_room_member_room_user", ALREADY_CHAT_ROOM_MEMBER
+    );
 
     private final RequestLogContextResolver requestLogContextResolver;
     private final StructuredLogFactory structuredLogFactory;
@@ -102,6 +117,17 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(CommonErrorStatus._VALIDATION_ERROR.getCode());
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        BaseCode mappedErrorCode = resolveDataIntegrityErrorCode(e);
+        if (mappedErrorCode != null) {
+            logError(e, mappedErrorCode.getHttpStatus().value());
+            return handleExceptionInternal(mappedErrorCode);
+        }
+
+        return handle500Exception(e);
+    }
+
     /*
      * MethodArgumentTypeMismatchException 발생 시 예외 처리
      * 메서드의 인자 타입이 예상과 다른 경우
@@ -142,6 +168,19 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .status(errorCode.getHttpStatus().value())
                 .body(ErrorResponse.of(errorCode.getCode(), errorCode.getMessage()));
+    }
+
+    private BaseCode resolveDataIntegrityErrorCode(DataIntegrityViolationException e) {
+        Throwable current = e;
+        while (current != null) {
+            if (current instanceof org.hibernate.exception.ConstraintViolationException constraintViolationException
+                    && DUPLICATE_KEY_SQL_STATE.equals(constraintViolationException.getSQLException().getSQLState())) {
+                BaseCodeInterface mapped = DATA_INTEGRITY_ERROR_CODES.get(constraintViolationException.getConstraintName());
+                return mapped != null ? mapped.getCode() : null;
+            }
+            current = current.getCause();
+        }
+        return null;
     }
 
     private void logError(Exception e, int fallbackStatus) {

@@ -16,6 +16,11 @@ public class CreateUserChecklistUseCase {
     private final UserChecklistService userChecklistService;
     private final UserChecklistMapper userChecklistMapper;
 
+    /**
+     * 사용자 체크리스트 생성
+     * - 요청값을 체크리스트 엔티티로 변환
+     * - 저장 후 생성된 체크리스트 번호를 반환
+     */
     public String execute(String userNo, CreateUserChecklistRequest request) {
         UserChecklist checklist = userChecklistMapper.toUserChecklist(userNo, request);
         UserChecklist savedChecklist = userChecklistService.save(checklist);

@@ -23,6 +23,11 @@ public class LoadRoomApplicationsUseCase {
     private final RoomService roomService;
     private final RoommateService roommateService;
 
+    /**
+     * 방 지원자 목록 조회
+     * - 방 정보를 조회하고 요청 사용자가 해당 방 멤버인지 검증
+     * - 해당 방의 지원 요청 목록을 반환
+     */
     public List<RoomRequestApplicationResponse> execute(String userNo, String roomNo) {
         Room room = roomService.findById(roomNo);
 

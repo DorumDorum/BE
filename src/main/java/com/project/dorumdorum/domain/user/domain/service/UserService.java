@@ -28,6 +28,10 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    public boolean isAlreadyRegisteredStudentNo(String studentNo) {
+        return userRepository.existsByStudentNo(studentNo);
+    }
+
     public User save(SignUpRequest request) {
         return userRepository.save(
                 User.builder()

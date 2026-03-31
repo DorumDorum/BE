@@ -20,7 +20,7 @@ public class SseHeartbeatScheduler {
     public void run() {
         for (String userNo : sseEmitterRegistry.getConnectedUsers()) {
             try {
-                userPresenceRepository.setOnline(userNo);
+                userPresenceRepository.refreshPresence(userNo);
                 sseEmitterRegistry.sendHeartbeatToUser(userNo);
             } catch (Exception e) {
                 log.warn("[SSE] heartbeat failed userNo={}", userNo, e);

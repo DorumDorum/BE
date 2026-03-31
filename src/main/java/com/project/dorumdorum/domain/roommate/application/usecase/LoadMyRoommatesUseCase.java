@@ -13,6 +13,11 @@ public class LoadMyRoommatesUseCase {
 
     private final RoommateService roommateService;
 
+    /**
+     * 내 룸메이트 목록 조회
+     * - 사용자가 속한 방 기준 룸메이트 목록을 조회
+     * - 응답 DTO 목록으로 반환
+     */
     public List<MyRoommateResponse> execute(String userNo) {
         return roommateService.findMyRoommates(userNo);
     }

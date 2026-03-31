@@ -17,6 +17,11 @@ public class RoomLikeUseCase {
     private final RoomService roomService;
     private final RoomLikeService roomLikeService;
 
+    /**
+     * 방 찜 등록
+     * - 사용자와 방 존재 여부를 검증
+     * - 해당 방을 찜 목록에 추가
+     */
     public void like(String userNo, String roomNo) {
         userService.validateExistsById(userNo);
         Room room = roomService.findById(roomNo);
@@ -24,6 +29,11 @@ public class RoomLikeUseCase {
         roomLikeService.like(userNo, room);
     }
 
+    /**
+     * 방 찜 해제
+     * - 사용자와 방 존재 여부를 검증
+     * - 해당 방을 찜 목록에서 제거
+     */
     public void unlike(String userNo, String roomNo) {
         userService.validateExistsById(userNo);
         Room room = roomService.findById(roomNo);
@@ -31,4 +41,3 @@ public class RoomLikeUseCase {
         roomLikeService.unlike(userNo, room);
     }
 }
-
