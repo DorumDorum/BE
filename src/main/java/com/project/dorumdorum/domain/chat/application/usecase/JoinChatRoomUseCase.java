@@ -29,10 +29,10 @@ public class JoinChatRoomUseCase {
     private final SimpMessagingTemplate messagingTemplate;
 
     /**
-     * 방장이 룸메이트 승인(RoommateAcceptedEvent) → 채팅방 입장
-     * - 채팅방 없으면 생성 후 방장 + 신규 멤버 입장
-     * - 채팅방 있으면 신규 멤버만 입장 (중복 방지)
-     * - 입장 시스템 메시지 저장
+     * 룸메이트 승인 이벤트 처리
+     * - 그룹 채팅방이 없으면 생성하고 방장을 먼저 입장
+     * - 승인된 사용자를 중복 없이 입장 처리
+     * - 입장 시스템 메시지를 저장하고 실시간 전송
      */
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)

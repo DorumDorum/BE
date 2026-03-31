@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Room Entity Unit Tests")
 class RoomTest {
@@ -76,5 +77,16 @@ class RoomTest {
         assertThat(room.getRoomType()).isEqualTo(RoomType.TYPE_2);
         assertThat(room.getResidencePeriod()).isEqualTo(ResidencePeriod.HALF_YEAR);
         assertThat(room.getTitle()).isEqualTo("new title");
+    }
+
+    @Test
+    @DisplayName("Should validate capacity is not lower than current mate count")
+    void isValidCapacity_WhenLowerThanCurrentMateCount_ReturnsFalse() {
+        Room room = newRoom();
+        room.init();
+        room.plusCurrentMate();
+
+        assertThat(room.isValidCapacity(1)).isFalse();
+        assertThat(room.isValidCapacity(2)).isTrue();
     }
 }

@@ -16,6 +16,11 @@ public class UpdateUserChecklistUseCase {
     private final UserChecklistService userChecklistService;
     private final UserChecklistMapper userChecklistMapper;
 
+    /**
+     * 사용자 체크리스트 수정
+     * - 기존 체크리스트를 조회
+     * - 요청값으로 항목을 갱신한 뒤 저장
+     */
     public void execute(String userNo, UpdateUserChecklistRequest request) {
         UserChecklist checklist = userChecklistService.findByUserNo(userNo);
         userChecklistMapper.updateUserChecklist(request, checklist);

@@ -22,6 +22,12 @@ public class CreateRoomUseCase {
     private final RoomRuleService roomRuleService;
     private final RoomRuleMapper roomRuleMapper;
 
+    /**
+     * 방 생성
+     * - 방 정보를 생성하고 생성자를 방장으로 등록
+     * - 요청의 규칙 정보를 방 규칙으로 저장
+     * - 생성된 방 번호를 반환
+     */
     public String execute(String userNo, RoomCreateRequest request) {
         Room room = roomService.create(userNo, request);
         roommateService.create(userNo, room, RoomRole.HOST);

@@ -56,8 +56,8 @@ class LeaveChatRoomUseCaseTest {
         when(chatRoomMemberService.countByChatRoom(chatRoom)).thenReturn(2L);
         when(chatRoom.getRoomNo()).thenReturn("room-1");
         when(chatRoom.getChatRoomType()).thenReturn(ChatRoomType.GROUP);
-        when(roommateService.isHostOfRoom("u1", "room-1")).thenReturn(false);
-        when(roomService.findById("room-1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("room-1")).thenReturn(room);
+        when(roommateService.isHost("u1", room)).thenReturn(false);
         when(userService.findById("u1")).thenReturn(mockUser);
         when(mockUser.getNickname()).thenReturn("nick1");
         when(chatMessageService.save(any(), eq("SYSTEM"), anyString(), eq(MessageType.SYSTEM), eq(0))).thenReturn(mockMessage);
@@ -83,7 +83,9 @@ class LeaveChatRoomUseCaseTest {
         when(chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, "u1")).thenReturn(member);
         when(chatRoomMemberService.countByChatRoom(chatRoom)).thenReturn(2L);
         when(chatRoom.getRoomNo()).thenReturn("room-1");
-        when(roommateService.isHostOfRoom("u1", "room-1")).thenReturn(true);
+        when(chatRoom.getChatRoomType()).thenReturn(ChatRoomType.GROUP);
+        when(roomService.findByIdForUpdate("room-1")).thenReturn(mock(Room.class));
+        when(roommateService.isHost(eq("u1"), any(Room.class))).thenReturn(true);
 
         assertThatThrownBy(() -> useCase.execute("cr-1", "u1"))
                 .isInstanceOf(RestApiException.class);
@@ -104,7 +106,7 @@ class LeaveChatRoomUseCaseTest {
         when(chatRoomMemberService.countByChatRoom(chatRoom)).thenReturn(1L);
         when(chatRoom.getRoomNo()).thenReturn("room-1");
         when(chatRoom.getChatRoomType()).thenReturn(ChatRoomType.GROUP);
-        when(roomService.findById("room-1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("room-1")).thenReturn(room);
 
         useCase.execute("cr-1", "u1");
 
@@ -130,7 +132,7 @@ class LeaveChatRoomUseCaseTest {
 
         verify(chatRoomMemberService).leave(member);
         verify(roommateService, never()).leaveRoom(any(), any());
-        verify(roomService, never()).findById(any());
+        verify(roomService, never()).findByIdForUpdate(any());
         verify(chatRoomService).delete(chatRoom);
     }
 }

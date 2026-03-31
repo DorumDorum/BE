@@ -11,8 +11,10 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_room_like_user_room", columnNames = {"user_no", "room_no"})
+        },
         indexes = {
-                @Index(name = "uk_room_like_user_room", columnList = "user_no, room_no", unique = true)
         }
 )
 public class RoomLike extends BaseEntity {

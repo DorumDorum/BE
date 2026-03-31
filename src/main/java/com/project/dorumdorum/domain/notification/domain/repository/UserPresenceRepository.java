@@ -6,6 +6,8 @@ public interface UserPresenceRepository {
 
     void setOnline(String userNo);
 
+    void refreshPresence(String userNo);
+
     void setOffline(String userNo);
 
     void setInChatroom(String userNo, String messageRoomNo);

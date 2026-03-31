@@ -15,8 +15,12 @@ public class LoadMyAppliedRoomsUseCase {
 
     private final RoomService roomService;
 
+    /**
+     * 내가 지원한 방 목록 조회
+     * - 사용자가 지원한 방 목록을 조회
+     * - 방 목록 응답 DTO로 반환
+     */
     public List<FindRoomsResponse> execute(String userNo) {
         return roomService.findAppliedRooms(userNo);
     }
 }
-
