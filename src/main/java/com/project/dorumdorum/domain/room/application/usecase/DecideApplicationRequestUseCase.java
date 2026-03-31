@@ -39,7 +39,7 @@ public class DecideApplicationRequestUseCase {
 
         // 원하는 방의 요청이 맞는지 확인
         RoomRequest roomRequest = roomRequestService.findById(roomRequestNo);
-        if (roomRequest.getRoom().getRoomNo().equals(roomNo)) {
+        if (!roomRequest.getRoom().getRoomNo().equals(roomNo)) {
             throw new RestApiException(ROOM_REQUEST_NOT_FOUND);
         }
 
