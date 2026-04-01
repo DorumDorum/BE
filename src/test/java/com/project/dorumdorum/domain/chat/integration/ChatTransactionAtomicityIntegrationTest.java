@@ -19,9 +19,12 @@ import com.project.dorumdorum.domain.roommate.domain.repository.RoommateReposito
 import com.project.dorumdorum.domain.user.domain.entity.Role;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
+import com.project.dorumdorum.testsupport.TestcontainersSupport;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,6 +66,14 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 @DisplayName("채팅 트랜잭션 원자성 통합 테스트 (BEFORE_COMMIT)")
 class ChatTransactionAtomicityIntegrationTest {
+
+    @BeforeAll
+    static void requireDocker() {
+        Assumptions.assumeTrue(
+                TestcontainersSupport.isDockerAvailable(),
+                "Docker is required for ChatTransactionAtomicityIntegrationTest"
+        );
+    }
 
     // ─── Firebase 목 (FileInputStream 오류 방지 — 테스트에서 FCM 사용 안 함) ──
     @MockBean @SuppressWarnings("unused") private FirebaseApp firebaseApp;
