@@ -88,6 +88,13 @@ public class LeaveChatRoomUseCase {
             throw new RestApiException(HOST_CANNOT_LEAVE);
         }
 
+        if (memberCount > 1) {
+            LocalDateTime fromTime = member.getLastReadAt() != null
+                    ? member.getLastReadAt()
+                    : member.getJoinedAt();
+            chatMessageService.decreaseUnreadCount(chatRoom.getChatRoomNo(), fromTime, userNo);
+        }
+
         chatRoomMemberService.leave(member);
 
         if (memberCount == 1) {

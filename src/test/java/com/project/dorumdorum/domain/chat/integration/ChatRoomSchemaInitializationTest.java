@@ -25,7 +25,7 @@ class ChatRoomSchemaInitializationTest {
     @BeforeAll
     static void requireDocker() {
         Assumptions.assumeTrue(
-                TestcontainersSupport.isDockerAvailable(),
+                TestcontainersSupport.requireDockerOrSkip("ChatRoomSchemaInitializationTest"),
                 "Docker is required for ChatRoomSchemaInitializationTest"
         );
     }

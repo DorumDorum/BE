@@ -70,7 +70,7 @@ class ChatTransactionAtomicityIntegrationTest {
     @BeforeAll
     static void requireDocker() {
         Assumptions.assumeTrue(
-                TestcontainersSupport.isDockerAvailable(),
+                TestcontainersSupport.requireDockerOrSkip("ChatTransactionAtomicityIntegrationTest"),
                 "Docker is required for ChatTransactionAtomicityIntegrationTest"
         );
     }

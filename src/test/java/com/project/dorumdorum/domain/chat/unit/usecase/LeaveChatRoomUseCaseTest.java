@@ -221,4 +221,53 @@ class LeaveChatRoomUseCaseTest {
         verify(roomService, never()).findByIdForUpdate(any());
         verify(chatRoomService).delete(chatRoom);
     }
+
+    @Test
+    @DisplayName("DIRECT 채팅방에서 다른 멤버가 있을 때는 unreadCount를 감소시키고 나간다")
+    void execute_WhenDirectChatHasOtherMember_DecreasesUnreadCountBeforeLeave() {
+        ChatRoom chatRoom = mock(ChatRoom.class);
+        ChatRoomMember member = mock(ChatRoomMember.class);
+        User user = mock(User.class);
+        ChatMessage message = mock(ChatMessage.class);
+
+        LocalDateTime lastReadAt = LocalDateTime.of(2026, 5, 1, 10, 0);
+        when(chatRoomService.findByChatRoomNo("cr-1")).thenReturn(chatRoom);
+        when(chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, "u1")).thenReturn(member);
+        when(chatRoomMemberService.countByChatRoom(chatRoom)).thenReturn(2L);
+        when(chatRoom.getChatRoomType()).thenReturn(ChatRoomType.DIRECT);
+        when(chatRoom.getChatRoomNo()).thenReturn("cr-1");
+        when(member.getLastReadAt()).thenReturn(lastReadAt);
+        when(userService.findById("u1")).thenReturn(user);
+        when(user.getNickname()).thenReturn("nick");
+        when(chatMessageService.save(any(), eq("SYSTEM"), anyString(), eq(MessageType.SYSTEM), eq(0))).thenReturn(message);
+        when(message.getMessageNo()).thenReturn("msg-1");
+        when(message.getCreatedAt()).thenReturn(LocalDateTime.now());
+
+        useCase.execute("cr-1", "u1");
+
+        verify(chatMessageService).decreaseUnreadCount("cr-1", lastReadAt, "u1");
+        InOrder inOrder = inOrder(chatMessageService, chatRoomMemberService);
+        inOrder.verify(chatMessageService).decreaseUnreadCount("cr-1", lastReadAt, "u1");
+        inOrder.verify(chatRoomMemberService).leave(member);
+    }
+
+    @Test
+    @DisplayName("DIRECT 채팅방에서 방장은 다른 멤버가 있으면 퇴장할 수 없다")
+    void execute_WhenDirectHostHasOtherMember_ThrowsHostCannotLeave() {
+        ChatRoom chatRoom = mock(ChatRoom.class);
+        ChatRoomMember member = mock(ChatRoomMember.class);
+
+        when(chatRoomService.findByChatRoomNo("cr-1")).thenReturn(chatRoom);
+        when(chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, "u1")).thenReturn(member);
+        when(chatRoomMemberService.countByChatRoom(chatRoom)).thenReturn(2L);
+        when(chatRoom.getChatRoomType()).thenReturn(ChatRoomType.DIRECT);
+        when(chatRoom.getRoomNo()).thenReturn("room-1");
+        when(roommateService.isHostOfRoom("u1", "room-1")).thenReturn(true);
+
+        assertThatThrownBy(() -> useCase.execute("cr-1", "u1"))
+                .isInstanceOf(RestApiException.class);
+
+        verify(chatMessageService, never()).decreaseUnreadCount(any(), any(), any());
+        verify(chatRoomMemberService, never()).leave(any());
+    }
 }
