@@ -26,6 +26,8 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import org.mockito.InOrder;
+
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RoommateKickedEventListener Unit Tests")
 class RoommateKickedEventListenerTest {
@@ -102,6 +104,30 @@ class RoommateKickedEventListenerTest {
         listener.handle(new RoommateKickedEvent("room-1", "user-kicked"));
 
         verify(chatMessageService).save(eq(chatRoom), eq("SYSTEM"), contains("홍길동"), eq(MessageType.SYSTEM), eq(0));
+    }
+
+    @Test
+    @DisplayName("멤버가 존재하면 decreaseUnreadCount가 leave() 이전에 호출된다")
+    void handle_WhenMemberExists_DecreasesUnreadCountBeforeLeave() {
+        ChatRoomMember member = ChatRoomMember.builder().chatRoom(chatRoom).userNo("user-kicked").build();
+        User mockUser = mock(User.class);
+        ChatMessage mockMessage = mock(ChatMessage.class);
+        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
+        when(chatRoomMemberService.isMember(chatRoom, "user-kicked")).thenReturn(true);
+        when(chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, "user-kicked")).thenReturn(member);
+        when(userService.findById("user-kicked")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn("kickedNick");
+        when(chatMessageService.save(any(), eq("SYSTEM"), anyString(), eq(MessageType.SYSTEM), eq(0))).thenReturn(mockMessage);
+        when(mockMessage.getMessageNo()).thenReturn("msg-1");
+        when(mockMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
+
+        listener.handle(new RoommateKickedEvent("room-1", "user-kicked"));
+
+        verify(chatMessageService).decreaseUnreadCount(any(), any(), eq("user-kicked"));
+
+        InOrder inOrder = inOrder(chatMessageService, chatRoomMemberService);
+        inOrder.verify(chatMessageService).decreaseUnreadCount(any(), any(), eq("user-kicked"));
+        inOrder.verify(chatRoomMemberService).leave(member);
     }
 
     @Test

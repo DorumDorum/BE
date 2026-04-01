@@ -20,6 +20,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 import static com.project.dorumdorum.global.exception.code.status.ChatErrorStatus.HOST_CANNOT_LEAVE;
 
 @Service
@@ -59,6 +61,13 @@ public class LeaveChatRoomUseCase {
 
         if (memberCount > 1 && roommateService.isHost(userNo, room)) {
             throw new RestApiException(HOST_CANNOT_LEAVE);
+        }
+
+        if (memberCount > 1) {
+            LocalDateTime fromTime = member.getLastReadAt() != null
+                    ? member.getLastReadAt()
+                    : member.getJoinedAt();
+            chatMessageService.decreaseUnreadCount(chatRoom.getChatRoomNo(), fromTime, userNo);
         }
 
         chatRoomMemberService.leave(member);

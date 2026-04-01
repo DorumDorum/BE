@@ -3,6 +3,7 @@ package com.project.dorumdorum.domain.chat.application.event;
 import com.project.dorumdorum.domain.chat.application.dto.response.ChatMessageResponse;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatMessage;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoom;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomMember;
 import com.project.dorumdorum.domain.chat.domain.entity.MessageType;
 import com.project.dorumdorum.domain.chat.domain.service.ChatMessageService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
@@ -16,6 +17,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @Component
@@ -40,9 +43,12 @@ public class RoommateKickedEventListener {
     public void handle(RoommateKickedEvent event) {
         chatRoomService.findByRoomNo(event.roomNo()).ifPresent(chatRoom -> {
             if (chatRoomMemberService.isMember(chatRoom, event.kickedUserNo())) {
-                chatRoomMemberService.leave(
-                        chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, event.kickedUserNo())
-                );
+                ChatRoomMember member = chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, event.kickedUserNo());
+                LocalDateTime fromTime = member.getLastReadAt() != null
+                        ? member.getLastReadAt()
+                        : member.getJoinedAt();
+                chatMessageService.decreaseUnreadCount(chatRoom.getChatRoomNo(), fromTime, event.kickedUserNo());
+                chatRoomMemberService.leave(member);
                 User kicked = userService.findById(event.kickedUserNo());
                 String displayName = (kicked.getNickname() != null && !kicked.getNickname().isBlank())
                         ? kicked.getNickname() : kicked.getName();
