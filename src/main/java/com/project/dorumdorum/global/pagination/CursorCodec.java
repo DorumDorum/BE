@@ -12,6 +12,12 @@ public final class CursorCodec {
                 .encodeToString(raw.getBytes(StandardCharsets.UTF_8));
     }
 
+    public static String encode(int remaining, LocalDateTime createdAt, String id) {
+        String raw = remaining + "|" + createdAt + "|" + id;
+        return Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(raw.getBytes(StandardCharsets.UTF_8));
+    }
+
     public static DecodedCursor decode(String cursor) {
         if (cursor == null || cursor.isBlank())
             return null;
@@ -24,8 +30,9 @@ public final class CursorCodec {
 
         LocalDateTime createdAt = LocalDateTime.parse(parts[parts.length - 2]);
         String id = parts[parts.length - 1];
+        Integer remaining = parts.length >= 3 ? Integer.parseInt(parts[0]) : null;
 
-        return new DecodedCursor(createdAt, id);
+        return new DecodedCursor(createdAt, id, remaining);
     }
 }
 
