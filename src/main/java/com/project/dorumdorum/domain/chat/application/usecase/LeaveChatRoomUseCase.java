@@ -115,7 +115,7 @@ public class LeaveChatRoomUseCase {
         ChatMessage message = chatMessageService.save(chatRoom, "SYSTEM", content, MessageType.SYSTEM, 0);
         ChatMessageResponse response = new ChatMessageResponse(
                 message.getMessageNo(), chatRoomNo,
-                "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt());
+                "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt(), message.getUnreadCount());
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomNo, response);
     }
 }

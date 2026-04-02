@@ -71,7 +71,8 @@ public class SendGroupChatMessageUseCase {
                 senderNickname,
                 content,
                 MessageType.TEXT.name(),
-                message.getCreatedAt()
+                message.getCreatedAt(),
+                message.getUnreadCount()
         );
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomNo, response);
 

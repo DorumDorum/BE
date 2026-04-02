@@ -1,10 +1,12 @@
 package com.project.dorumdorum.domain.chat.application.usecase;
 
+import com.project.dorumdorum.domain.chat.application.dto.response.ChatReadReceiptResponse;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomMember;
 import com.project.dorumdorum.domain.chat.domain.service.ChatMessageService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -15,6 +17,7 @@ public class MarkChatRoomReadUseCase {
 
     private final ChatRoomMemberService chatRoomMemberService;
     private final ChatMessageService chatMessageService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * 채팅방 읽음 처리
@@ -31,6 +34,12 @@ public class MarkChatRoomReadUseCase {
                 : member.getJoinedAt();
 
         chatMessageService.decreaseUnreadCount(chatRoomNo, fromTime, userNo);
-        chatRoomMemberService.updateLastReadAt(member, LocalDateTime.now());
+        LocalDateTime readAt = LocalDateTime.now();
+        chatRoomMemberService.updateLastReadAt(member, readAt);
+
+        messagingTemplate.convertAndSend(
+                "/topic/chat-room/" + chatRoomNo + "/read",
+                new ChatReadReceiptResponse(chatRoomNo, userNo, readAt)
+        );
     }
 }

@@ -56,7 +56,7 @@ public class RoommateKickedEventListener {
                 ChatMessage message = chatMessageService.save(chatRoom, "SYSTEM", content, MessageType.SYSTEM, 0);
                 ChatMessageResponse response = new ChatMessageResponse(
                         message.getMessageNo(), chatRoom.getChatRoomNo(),
-                        "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt());
+                        "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt(), message.getUnreadCount());
                 broadcastSafely(chatRoom, response);
             }
         });
