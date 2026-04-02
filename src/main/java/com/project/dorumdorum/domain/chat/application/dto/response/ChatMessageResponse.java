@@ -9,5 +9,6 @@ public record ChatMessageResponse(
         String senderNickname,
         String content,
         String messageType,
-        LocalDateTime sentAt
+        LocalDateTime sentAt,
+        int unreadCount
 ) {}

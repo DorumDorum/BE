@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.chat.unit.usecase;
 
+import com.project.dorumdorum.domain.chat.application.dto.response.ChatReadReceiptResponse;
 import com.project.dorumdorum.domain.chat.application.usecase.MarkChatRoomReadUseCase;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomMember;
 import com.project.dorumdorum.domain.chat.domain.service.ChatMessageService;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
 
@@ -23,6 +25,7 @@ class MarkChatRoomReadUseCaseTest {
 
     @Mock private ChatRoomMemberService chatRoomMemberService;
     @Mock private ChatMessageService chatMessageService;
+    @Mock private SimpMessagingTemplate messagingTemplate;
     @InjectMocks private MarkChatRoomReadUseCase useCase;
 
     @Test
@@ -38,6 +41,7 @@ class MarkChatRoomReadUseCaseTest {
 
         verify(chatMessageService).decreaseUnreadCount("cr-1", lastReadAt, "u1");
         verify(chatRoomMemberService).updateLastReadAt(eq(member), any(LocalDateTime.class));
+        verify(messagingTemplate).convertAndSend(eq("/topic/chat-room/cr-1/read"), any(ChatReadReceiptResponse.class));
     }
 
     @Test
@@ -54,5 +58,6 @@ class MarkChatRoomReadUseCaseTest {
 
         verify(chatMessageService).decreaseUnreadCount("cr-1", joinedAt, "u1");
         verify(chatRoomMemberService).updateLastReadAt(eq(member), any(LocalDateTime.class));
+        verify(messagingTemplate).convertAndSend(eq("/topic/chat-room/cr-1/read"), any(ChatReadReceiptResponse.class));
     }
 }

@@ -20,6 +20,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 import static com.project.dorumdorum.global.exception.code.status.ChatErrorStatus.HOST_CANNOT_LEAVE;
 
 @Service
@@ -61,6 +63,13 @@ public class LeaveChatRoomUseCase {
             throw new RestApiException(HOST_CANNOT_LEAVE);
         }
 
+        if (memberCount > 1) {
+            LocalDateTime fromTime = member.getLastReadAt() != null
+                    ? member.getLastReadAt()
+                    : member.getJoinedAt();
+            chatMessageService.decreaseUnreadCount(chatRoom.getChatRoomNo(), fromTime, userNo);
+        }
+
         chatRoomMemberService.leave(member);
         roommateService.leaveRoom(userNo, chatRoom.getRoomNo());
         room.minusCurrentMate();
@@ -77,6 +86,13 @@ public class LeaveChatRoomUseCase {
     private void leaveDirectChatRoom(ChatRoom chatRoom, ChatRoomMember member, String userNo, long memberCount) {
         if (memberCount > 1 && roommateService.isHostOfRoom(userNo, chatRoom.getRoomNo())) {
             throw new RestApiException(HOST_CANNOT_LEAVE);
+        }
+
+        if (memberCount > 1) {
+            LocalDateTime fromTime = member.getLastReadAt() != null
+                    ? member.getLastReadAt()
+                    : member.getJoinedAt();
+            chatMessageService.decreaseUnreadCount(chatRoom.getChatRoomNo(), fromTime, userNo);
         }
 
         chatRoomMemberService.leave(member);
@@ -99,7 +115,7 @@ public class LeaveChatRoomUseCase {
         ChatMessage message = chatMessageService.save(chatRoom, "SYSTEM", content, MessageType.SYSTEM, 0);
         ChatMessageResponse response = new ChatMessageResponse(
                 message.getMessageNo(), chatRoomNo,
-                "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt());
+                "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt(), message.getUnreadCount());
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomNo, response);
     }
 }
