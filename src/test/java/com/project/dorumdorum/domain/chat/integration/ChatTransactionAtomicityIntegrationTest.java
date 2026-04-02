@@ -32,8 +32,8 @@ import org.mockito.Mockito;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
@@ -76,8 +76,8 @@ class ChatTransactionAtomicityIntegrationTest {
     }
 
     // ─── Firebase 목 (FileInputStream 오류 방지 — 테스트에서 FCM 사용 안 함) ──
-    @MockBean @SuppressWarnings("unused") private FirebaseApp firebaseApp;
-    @MockBean @SuppressWarnings("unused") private FirebaseMessaging firebaseMessaging;
+    @MockitoBean @SuppressWarnings("unused") private FirebaseApp firebaseApp;
+    @MockitoBean @SuppressWarnings("unused") private FirebaseMessaging firebaseMessaging;
 
     // ─── UseCase ──────────────────────────────────────────────────────────────
     @Autowired private KickRoommateUseCase kickRoommateUseCase;
@@ -89,12 +89,12 @@ class ChatTransactionAtomicityIntegrationTest {
     @Autowired private ChatRoomMemberRepository chatRoomMemberRepository;
 
     // ─── External Services (Mocking to isolate behavior) ─────────────────────
-    @MockBean private SimpMessagingTemplate messagingTemplate;
+    @MockitoBean private SimpMessagingTemplate messagingTemplate;
 
     // ─── SpyBean (특정 메서드만 실패 강제 또는 외부 의존 우회) ─────────────
-    @SpyBean private ChatRoomMemberService chatRoomMemberService;
-    @SpyBean private UserService userService;
-    @SpyBean private ChatMessageService chatMessageService;
+    @MockitoSpyBean private ChatRoomMemberService chatRoomMemberService;
+    @MockitoSpyBean private UserService userService;
+    @MockitoSpyBean private ChatMessageService chatMessageService;
 
     // ─── 테스트 픽스처 ────────────────────────────────────────────────────────
     private Room room;
