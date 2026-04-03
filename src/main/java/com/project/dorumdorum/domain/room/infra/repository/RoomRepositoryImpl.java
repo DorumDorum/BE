@@ -1,20 +1,25 @@
 package com.project.dorumdorum.domain.room.infra.repository;
 
-import com.project.dorumdorum.domain.checklist.domain.entity.QRoomRule;
 import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.domain.entity.Direction;
+import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.repository.RoomQueryRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.project.dorumdorum.domain.room.domain.entity.QRoom.room;
@@ -29,15 +34,20 @@ import static com.querydsl.core.types.Projections.constructor;
 public class RoomRepositoryImpl implements RoomQueryRepository {
 
     private final JPAQueryFactory query;
-    private static final QRoomRule roomRule = QRoomRule.roomRule;
+    private final EntityManager entityManager;
 
     @Override
     public List<FindRoomsResponse> findByCursor(
             ChecklistFilterRequest request,
             LocalDateTime cursorCreatedAt,
             String cursorId,
+            Integer cursorRemaining,
             int limitPlusOne
     ) {
+        if (hasChecklistFilters(request)) {
+            return findByCursorWithLateral(request, cursorCreatedAt, cursorId, cursorRemaining, limitPlusOne);
+        }
+
         JPAQuery<FindRoomsResponse> q = query
                 .select(
                         constructor(FindRoomsResponse.class,
@@ -49,42 +59,20 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.title,
                                 user.nickname,
                                 room.roomStatus,
-                                room.residencePeriod.stringValue()
+                                room.residencePeriod.stringValue(),
+                                room.remaining
                         )
                 )
                 .from(room)
-                .leftJoin(roomRule).on(roomRule.room.eq(room))
                 .leftJoin(user).on(user.userNo.eq(room.hostUserNo))
                 .where(
                         room.roomStatus.eq(RoomStatus.CONFIRM_PENDING),
                         eqRoomType(request),
                         eqResidencePeriod(request),
                         eqCapacity(request),
-                        eqBedtime(request),
-                        eqWakeUp(request),
-                        eqReturnHome(request),
-                        eqReturnHomeTime(request),
-                        eqCleaning(request),
-                        eqPhoneCall(request),
-                        eqSleepLight(request),
-                        eqSleepHabit(request),
-                        eqSnoring(request),
-                        eqShowerTime(request),
-                        eqEating(request),
-                        eqLightsOut(request),
-                        eqLightsOutTime(request),
-                        eqHomeVisit(request),
-                        eqSmoking(request),
-                        eqRefrigerator(request),
-                        eqHairDryer(request),
-                        eqAlarm(request),
-                        eqEarphone(request),
-                        eqKeyskin(request),
-                        eqHeat(request),
-                        eqCold(request),
-                        eqStudy(request),
-                        eqTrashCan(request),
-                        cursorPredicate(cursorCreatedAt, cursorId)
+                        request.sortType() == ChecklistFilterRequest.SortType.REMAINING
+                                ? remainingCursorPredicate(cursorRemaining, cursorCreatedAt, cursorId)
+                                : cursorPredicate(cursorCreatedAt, cursorId)
                 );
 
         if (request.sortType() == ChecklistFilterRequest.SortType.REMAINING) {
@@ -94,6 +82,89 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
         }
 
         return q.limit(limitPlusOne).fetch();
+    }
+
+    private List<FindRoomsResponse> findByCursorWithLateral(
+            ChecklistFilterRequest request,
+            LocalDateTime cursorCreatedAt,
+            String cursorId,
+            Integer cursorRemaining,
+            int limitPlusOne
+    ) {
+        StringBuilder sql = new StringBuilder("""
+                SELECT
+                    r.room_no,
+                    r.room_type,
+                    r.capacity,
+                    r.current_mate_count,
+                    r.created_at,
+                    r.title,
+                    u.nickname,
+                    r.room_status,
+                    r.residence_period::text,
+                    r.remaining
+                FROM room r
+                JOIN LATERAL (
+                    SELECT 1
+                    FROM room_rule rr
+                    WHERE rr.room_no = r.room_no
+                """);
+
+        Map<String, Object> params = new LinkedHashMap<>();
+
+        appendCondition(sql, params, "rr.bedtime", "bedtime", request.bedtime());
+        appendCondition(sql, params, "rr.wake_up", "wakeUp", request.wakeUp());
+        appendCondition(sql, params, "rr.return_home", "returnHome", enumName(request.returnHome()));
+        appendCondition(sql, params, "rr.return_home_time", "returnHomeTime", request.returnHomeTime());
+        appendCondition(sql, params, "rr.cleaning", "cleaning", enumName(request.cleaning()));
+        appendCondition(sql, params, "rr.phone_call", "phoneCall", enumName(request.phoneCall()));
+        appendCondition(sql, params, "rr.sleep_light", "sleepLight", enumName(request.sleepLight()));
+        appendCondition(sql, params, "rr.sleep_habit", "sleepHabit", enumName(request.sleepHabit()));
+        appendCondition(sql, params, "rr.snoring", "snoring", enumName(request.snoring()));
+        appendCondition(sql, params, "rr.shower_time", "showerTime", enumName(request.showerTime()));
+        appendCondition(sql, params, "rr.eating", "eating", enumName(request.eating()));
+        appendCondition(sql, params, "rr.lights_out", "lightsOut", enumName(request.lightsOut()));
+        appendCondition(sql, params, "rr.lights_out_time", "lightsOutTime", request.lightsOutTime());
+        appendCondition(sql, params, "rr.home_visit", "homeVisit", enumName(request.homeVisit()));
+        appendCondition(sql, params, "rr.smoking", "smoking", enumName(request.smoking()));
+        appendCondition(sql, params, "rr.refrigerator", "refrigerator", enumName(request.refrigerator()));
+        appendCondition(sql, params, "rr.hair_dryer", "hairDryer", request.hairDryer());
+        appendCondition(sql, params, "rr.alarm", "alarm", enumName(request.alarm()));
+        appendCondition(sql, params, "rr.earphone", "earphone", enumName(request.earphone()));
+        appendCondition(sql, params, "rr.keyskin", "keyskin", enumName(request.keyskin()));
+        appendCondition(sql, params, "rr.heat", "heat", enumName(request.heat()));
+        appendCondition(sql, params, "rr.cold", "cold", enumName(request.cold()));
+        appendCondition(sql, params, "rr.study", "study", enumName(request.study()));
+        appendCondition(sql, params, "rr.trash_can", "trashCan", enumName(request.trashCan()));
+
+        sql.append("""
+                        LIMIT 1
+                    ) rule_match ON TRUE
+                LEFT JOIN users u
+                    ON u.user_no = r.host_user_no
+                WHERE r.room_status = :roomStatus
+                """);
+        params.put("roomStatus", RoomStatus.CONFIRM_PENDING.name());
+
+        appendCondition(sql, params, "r.room_type", "roomType", enumName(request.roomType()));
+        appendCondition(sql, params, "r.residence_period", "residencePeriod", enumName(request.residencePeriod()));
+        appendCondition(sql, params, "r.capacity", "capacity", request.capacity());
+        appendCursorCondition(sql, params, request.sortType(), cursorCreatedAt, cursorId, cursorRemaining);
+
+        sql.append("\n                ORDER BY ");
+        appendOrderBy(sql, "r", request.sortType());
+        sql.append("\n                LIMIT :limitPlusOne");
+        params.put("limitPlusOne", limitPlusOne);
+
+        Query nativeQuery = entityManager.createNativeQuery(sql.toString());
+        params.forEach(nativeQuery::setParameter);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = nativeQuery.getResultList();
+
+        return rows.stream()
+                .map(this::toFindRoomsResponse)
+                .toList();
     }
 
     @Override
@@ -109,7 +180,8 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.title,
                                 user.nickname,
                                 room.roomStatus,
-                                room.residencePeriod.stringValue()
+                                room.residencePeriod.stringValue(),
+                                room.remaining
                         )
                 )
                 .from(room)
@@ -139,7 +211,8 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.title,
                                 user.nickname,
                                 room.roomStatus,
-                                room.residencePeriod.stringValue()
+                                room.residencePeriod.stringValue(),
+                                room.remaining
                         )
                 )
                 .from(roomLike)
@@ -166,7 +239,8 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.title,
                                 user.nickname,
                                 room.roomStatus,
-                                room.residencePeriod.stringValue()
+                                room.residencePeriod.stringValue(),
+                                room.remaining
                         )
                 )
                 .from(roomRequest)
@@ -181,11 +255,17 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                 .fetch();
     }
 
-    /** 커서는 항상 (createdAt, pk). 정렬은 sort 파라미터로 ORDER BY에서만 적용 */
     private BooleanExpression cursorPredicate(LocalDateTime cursorCreatedAt, String cursorId) {
         if (cursorCreatedAt == null || cursorId == null) return null;
         return room.createdAt.lt(cursorCreatedAt)
                 .or(room.createdAt.eq(cursorCreatedAt).and(room.roomNo.lt(cursorId)));
+    }
+
+    private BooleanExpression remainingCursorPredicate(Integer cursorRemaining, LocalDateTime cursorCreatedAt, String cursorId) {
+        if (cursorRemaining == null || cursorCreatedAt == null || cursorId == null) return null;
+        return room.remaining.gt(cursorRemaining)
+                .or(room.remaining.eq(cursorRemaining).and(room.createdAt.lt(cursorCreatedAt)))
+                .or(room.remaining.eq(cursorRemaining).and(room.createdAt.eq(cursorCreatedAt)).and(room.roomNo.lt(cursorId)));
     }
 
     private BooleanExpression eqRoomType(ChecklistFilterRequest request) {
@@ -200,100 +280,144 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
         return request.capacity() == null ? null : room.capacity.eq(request.capacity());
     }
 
-    private BooleanExpression eqBedtime(ChecklistFilterRequest request) {
-        return isBlank(request.bedtime()) ? null : roomRule.bedtime.eq(request.bedtime());
+    private boolean hasChecklistFilters(ChecklistFilterRequest request) {
+        return !isBlank(request.bedtime())
+                || !isBlank(request.wakeUp())
+                || request.returnHome() != null
+                || !isBlank(request.returnHomeTime())
+                || request.cleaning() != null
+                || request.phoneCall() != null
+                || request.sleepLight() != null
+                || request.sleepHabit() != null
+                || request.snoring() != null
+                || request.showerTime() != null
+                || request.eating() != null
+                || request.lightsOut() != null
+                || !isBlank(request.lightsOutTime())
+                || request.homeVisit() != null
+                || request.smoking() != null
+                || request.refrigerator() != null
+                || !isBlank(request.hairDryer())
+                || request.alarm() != null
+                || request.earphone() != null
+                || request.keyskin() != null
+                || request.heat() != null
+                || request.cold() != null
+                || request.study() != null
+                || request.trashCan() != null;
     }
 
-    private BooleanExpression eqWakeUp(ChecklistFilterRequest request) {
-        return isBlank(request.wakeUp()) ? null : roomRule.wakeUp.eq(request.wakeUp());
+    private void appendCondition(
+            StringBuilder sql,
+            Map<String, Object> params,
+            String column,
+            String parameterName,
+            Object value
+    ) {
+        if (value == null || (value instanceof String stringValue && isBlank(stringValue))) {
+            return;
+        }
+
+        sql.append("\n          AND ").append(column).append(" = :").append(parameterName);
+        params.put(parameterName, value);
     }
 
-    private BooleanExpression eqReturnHome(ChecklistFilterRequest request) {
-        return request.returnHome() == null ? null : roomRule.returnHome.eq(request.returnHome());
+    private void appendCursorCondition(
+            StringBuilder sql,
+            Map<String, Object> params,
+            ChecklistFilterRequest.SortType sortType,
+            LocalDateTime cursorCreatedAt,
+            String cursorId,
+            Integer cursorRemaining
+    ) {
+        if (sortType == ChecklistFilterRequest.SortType.REMAINING) {
+            if (cursorRemaining == null || cursorCreatedAt == null || cursorId == null) {
+                return;
+            }
+
+            sql.append("""
+                    
+                      AND (
+                          r.remaining > :cursorRemaining
+                          OR (r.remaining = :cursorRemaining AND r.created_at < :cursorCreatedAt)
+                          OR (r.remaining = :cursorRemaining AND r.created_at = :cursorCreatedAt AND r.room_no < :cursorId)
+                      )
+                    """);
+            params.put("cursorRemaining", cursorRemaining);
+            params.put("cursorCreatedAt", cursorCreatedAt);
+            params.put("cursorId", cursorId);
+            return;
+        }
+
+        if (cursorCreatedAt == null || cursorId == null) {
+            return;
+        }
+
+        sql.append("""
+                
+                  AND (
+                      r.created_at < :cursorCreatedAt
+                      OR (r.created_at = :cursorCreatedAt AND r.room_no < :cursorId)
+                  )
+                """);
+        params.put("cursorCreatedAt", cursorCreatedAt);
+        params.put("cursorId", cursorId);
     }
 
-    private BooleanExpression eqReturnHomeTime(ChecklistFilterRequest request) {
-        return isBlank(request.returnHomeTime()) ? null : roomRule.returnHomeTime.eq(request.returnHomeTime());
+    private void appendOrderBy(StringBuilder sql, String alias, ChecklistFilterRequest.SortType sortType) {
+        if (sortType == ChecklistFilterRequest.SortType.REMAINING) {
+            sql.append(alias).append(".remaining ASC, ")
+                    .append(alias).append(".created_at DESC, ")
+                    .append(alias).append(".room_no DESC");
+            return;
+        }
+
+        sql.append(alias).append(".created_at DESC, ")
+                .append(alias).append(".room_no DESC");
     }
 
-    private BooleanExpression eqCleaning(ChecklistFilterRequest request) {
-        return request.cleaning() == null ? null : roomRule.cleaning.eq(request.cleaning());
+    private FindRoomsResponse toFindRoomsResponse(Object[] row) {
+        return new FindRoomsResponse(
+                stringValue(row[0]),
+                enumValue(RoomType.class, row[1]),
+                intValue(row[2]),
+                intValue(row[3]),
+                localDateTimeValue(row[4]),
+                stringValue(row[5]),
+                stringValue(row[6]),
+                enumValue(RoomStatus.class, row[7]),
+                stringValue(row[8]),
+                intValue(row[9])
+        );
     }
 
-    private BooleanExpression eqPhoneCall(ChecklistFilterRequest request) {
-        return request.phoneCall() == null ? null : roomRule.phoneCall.eq(request.phoneCall());
+    private <T extends Enum<T>> T enumValue(Class<T> enumType, Object value) {
+        return value == null ? null : Enum.valueOf(enumType, value.toString());
     }
 
-    private BooleanExpression eqSleepLight(ChecklistFilterRequest request) {
-        return request.sleepLight() == null ? null : roomRule.sleepLight.eq(request.sleepLight());
+    private String enumName(Enum<?> value) {
+        return value == null ? null : value.name();
     }
 
-    private BooleanExpression eqSleepHabit(ChecklistFilterRequest request) {
-        return request.sleepHabit() == null ? null : roomRule.sleepHabit.eq(request.sleepHabit());
+    private String stringValue(Object value) {
+        return value == null ? null : value.toString();
     }
 
-    private BooleanExpression eqSnoring(ChecklistFilterRequest request) {
-        return request.snoring() == null ? null : roomRule.snoring.eq(request.snoring());
+    private Integer intValue(Object value) {
+        return value == null ? null : ((Number) value).intValue();
     }
 
-    private BooleanExpression eqShowerTime(ChecklistFilterRequest request) {
-        return request.showerTime() == null ? null : roomRule.showerTime.eq(request.showerTime());
-    }
-
-    private BooleanExpression eqEating(ChecklistFilterRequest request) {
-        return request.eating() == null ? null : roomRule.eating.eq(request.eating());
-    }
-
-    private BooleanExpression eqLightsOut(ChecklistFilterRequest request) {
-        return request.lightsOut() == null ? null : roomRule.lightsOut.eq(request.lightsOut());
-    }
-
-    private BooleanExpression eqLightsOutTime(ChecklistFilterRequest request) {
-        return isBlank(request.lightsOutTime()) ? null : roomRule.lightsOutTime.eq(request.lightsOutTime());
-    }
-
-    private BooleanExpression eqHomeVisit(ChecklistFilterRequest request) {
-        return request.homeVisit() == null ? null : roomRule.homeVisit.eq(request.homeVisit());
-    }
-
-    private BooleanExpression eqSmoking(ChecklistFilterRequest request) {
-        return request.smoking() == null ? null : roomRule.smoking.eq(request.smoking());
-    }
-
-    private BooleanExpression eqRefrigerator(ChecklistFilterRequest request) {
-        return request.refrigerator() == null ? null : roomRule.refrigerator.eq(request.refrigerator());
-    }
-
-    private BooleanExpression eqHairDryer(ChecklistFilterRequest request) {
-        return isBlank(request.hairDryer()) ? null : roomRule.hairDryer.eq(request.hairDryer());
-    }
-
-    private BooleanExpression eqAlarm(ChecklistFilterRequest request) {
-        return request.alarm() == null ? null : roomRule.alarm.eq(request.alarm());
-    }
-
-    private BooleanExpression eqEarphone(ChecklistFilterRequest request) {
-        return request.earphone() == null ? null : roomRule.earphone.eq(request.earphone());
-    }
-
-    private BooleanExpression eqKeyskin(ChecklistFilterRequest request) {
-        return request.keyskin() == null ? null : roomRule.keyskin.eq(request.keyskin());
-    }
-
-    private BooleanExpression eqHeat(ChecklistFilterRequest request) {
-        return request.heat() == null ? null : roomRule.heat.eq(request.heat());
-    }
-
-    private BooleanExpression eqCold(ChecklistFilterRequest request) {
-        return request.cold() == null ? null : roomRule.cold.eq(request.cold());
-    }
-
-    private BooleanExpression eqStudy(ChecklistFilterRequest request) {
-        return request.study() == null ? null : roomRule.study.eq(request.study());
-    }
-
-    private BooleanExpression eqTrashCan(ChecklistFilterRequest request) {
-        return request.trashCan() == null ? null : roomRule.trashCan.eq(request.trashCan());
+    private LocalDateTime localDateTimeValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof LocalDateTime localDateTime) {
+            return localDateTime;
+        }
+        if (value instanceof Timestamp timestamp) {
+            return timestamp.toLocalDateTime();
+        }
+        return LocalDateTime.parse(value.toString().replace(' ', 'T'));
     }
 
     private boolean isBlank(String value) {

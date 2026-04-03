@@ -13,6 +13,7 @@ public interface RoomQueryRepository {
             ChecklistFilterRequest request,
             LocalDateTime cursorCreatedAt,
             String cursorId,
+            Integer cursorRemaining,
             int limitPlusOne
     );
 

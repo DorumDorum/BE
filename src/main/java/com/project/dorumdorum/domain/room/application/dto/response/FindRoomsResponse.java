@@ -16,5 +16,6 @@ public record FindRoomsResponse(
         String title,
         String hostNickname,
         RoomStatus roomStatus,
-        String residencePeriod // 거주기간 (예: "학기(16주)", "반기(24주)", "계절학기")
+        String residencePeriod, // 거주기간 (예: "학기(16주)", "반기(24주)", "계절학기")
+        Integer remaining
 ) {}

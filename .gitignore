@@ -53,6 +53,7 @@ pinpoint-agent/tools/
 
 ### env ###
 .env
+/analysis/
 
 # macOS artefacts
 .DS_Store

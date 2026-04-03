@@ -34,7 +34,7 @@ class FindRoomsUseCaseTest {
 
     private FindRoomsResponse room(String roomNo, int capacity, int current, LocalDateTime createdAt) {
         return new FindRoomsResponse(roomNo, RoomType.TYPE_1, capacity, current, createdAt, "title",
-                "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name());
+                "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), capacity - current);
     }
 
     private ChecklistFilterRequest request(ChecklistFilterRequest.SortType sortType, String cursor) {
@@ -54,7 +54,7 @@ class FindRoomsUseCaseTest {
                 .mapToObj(i -> room("r" + i, 2, 1, now.minusMinutes(i)))
                 .toList();
         ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.LATEST, null);
-        when(roomService.searchByCursor(any(), any(), any(), anyInt()))
+        when(roomService.searchByCursor(any(), any(), any(), any(), anyInt()))
                 .thenReturn(responses);
 
         CursorPage<FindRoomsResponse> result = useCase.execute(request);
@@ -62,7 +62,7 @@ class FindRoomsUseCaseTest {
         assertThat(result.items()).hasSize(50);
         assertThat(result.hasNext()).isTrue();
         assertThat(result.nextCursor()).isNotBlank();
-        verify(roomService).searchByCursor(any(), any(), any(), anyInt());
+        verify(roomService).searchByCursor(any(), any(), any(), any(), anyInt());
     }
 
     @Test
@@ -70,7 +70,7 @@ class FindRoomsUseCaseTest {
     void execute_WhenResponsesWithinLimit_ReturnsHasNextFalse() {
         List<FindRoomsResponse> responses = List.of(room("r1", 2, 1, LocalDateTime.now()));
         ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.REMAINING, null);
-        when(roomService.searchByCursor(any(), any(), any(), anyInt()))
+        when(roomService.searchByCursor(any(), any(), any(), any(), anyInt()))
                 .thenReturn(responses);
 
         CursorPage<FindRoomsResponse> result = useCase.execute(request);
@@ -84,7 +84,7 @@ class FindRoomsUseCaseTest {
     @DisplayName("Should return null nextCursor when no response")
     void execute_WhenNoResponse_ReturnsNullCursor() {
         ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.LATEST, null);
-        when(roomService.searchByCursor(any(), any(), any(), anyInt()))
+        when(roomService.searchByCursor(any(), any(), any(), any(), anyInt()))
                 .thenReturn(List.of());
 
         CursorPage<FindRoomsResponse> result = useCase.execute(request);
@@ -100,12 +100,12 @@ class FindRoomsUseCaseTest {
         List<FindRoomsResponse> responses = List.of(room("r1", 2, 1, LocalDateTime.now()));
         String cursor = com.project.dorumdorum.global.pagination.CursorCodec.encode(LocalDateTime.now(), "r1");
         ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.LATEST, cursor);
-        when(roomService.searchByCursor(any(), any(), any(), anyInt()))
+        when(roomService.searchByCursor(any(), any(), any(), any(), anyInt()))
                 .thenReturn(responses);
 
         CursorPage<FindRoomsResponse> result = useCase.execute(request);
 
         assertThat(result.items()).hasSize(1);
-        verify(roomService).searchByCursor(any(), any(), any(), anyInt());
+        verify(roomService).searchByCursor(any(), any(), any(), any(), anyInt());
     }
 }

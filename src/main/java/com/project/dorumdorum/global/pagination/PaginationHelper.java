@@ -14,10 +14,10 @@ public final class PaginationHelper {
     public static CursorQueryParams prepareCursorQuery(String cursor, int limit) {
         int limitPlusOne = limitPlusOne(limit);
         if (cursor == null || cursor.isBlank()) {
-            return new CursorQueryParams(null, null, limitPlusOne);
+            return new CursorQueryParams(null, null, null, limitPlusOne);
         }
         DecodedCursor decoded = CursorCodec.decode(cursor);
-        return new CursorQueryParams(decoded.createdAt(), decoded.pk(), limitPlusOne);
+        return new CursorQueryParams(decoded.createdAt(), decoded.pk(), decoded.remaining(), limitPlusOne);
     }
 
     public static <T> CursorPage<T> buildCursorPage(List<T> results, int limit, Function<T, String> nextCursorEncoder) {

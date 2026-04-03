@@ -47,9 +47,10 @@ public class RoomService {
             ChecklistFilterRequest request,
             LocalDateTime cursorCreatedAt,
             String cursorId,
+            Integer cursorRemaining,
             int limitPlusOne
     ) {
-        return roomRepository.findByCursor(request, cursorCreatedAt, cursorId, limitPlusOne);
+        return roomRepository.findByCursor(request, cursorCreatedAt, cursorId, cursorRemaining, limitPlusOne);
     }
 
     public FindRoomsResponse findMyRoom(String userNo) {
