@@ -1,4 +1,7 @@
 spring:
+  devtools:
+    restart:
+      enabled: false
   datasource:
     username: ${RDB_USERNAME:postgres}
     url: ${RDB_URL:jdbc:postgresql://localhost:5432/dorumdorum}

@@ -2,6 +2,9 @@ package com.project.dorumdorum.domain.chat.integration;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.project.dorumdorum.testsupport.TestcontainersSupport;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 @DisplayName("ChatRoom schema 초기화 테스트")
 class ChatRoomSchemaInitializationTest {
+
+    @BeforeAll
+    static void requireDocker() {
+        Assumptions.assumeTrue(
+                TestcontainersSupport.requireDockerOrSkip("ChatRoomSchemaInitializationTest"),
+                "Docker is required for ChatRoomSchemaInitializationTest"
+        );
+    }
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
