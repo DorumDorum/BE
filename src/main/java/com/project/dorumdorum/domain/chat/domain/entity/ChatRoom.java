@@ -9,7 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -18,11 +17,7 @@ import java.time.LocalDateTime;
 @Table(
         indexes = {
                 @Index(name = "idx_chat_room_last_message_at", columnList = "last_message_at")
-        },
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_chat_room_direct",
-                columnNames = {"room_no", "chat_room_type", "applicant_user_no"}
-        )
+        }
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

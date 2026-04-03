@@ -35,10 +35,11 @@ class DecideApplicationRequestUseCaseTest {
     @DisplayName("Should approve request when host and applicant not joined")
     void approve_WhenValid_ApprovesAndDeletesRequest() {
         Room room = mock(Room.class);
-        RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").userNo("applicant").build();
+        Room requestedRoom = Room.builder().roomNo("r1").build();
+        RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").room(requestedRoom).userNo("applicant").build();
         when(roomRequestService.findById("rq1")).thenReturn(request);
         when(roommateService.existsByUserNo("applicant")).thenReturn(false);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.isHost("host", room)).thenReturn(true);
         when(room.isFull()).thenReturn(false);
 
@@ -54,10 +55,11 @@ class DecideApplicationRequestUseCaseTest {
     @DisplayName("Should throw when room is already full")
     void approve_WhenRoomFull_Throws() {
         Room room = mock(Room.class);
-        RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").userNo("applicant").build();
+        Room requestedRoom = Room.builder().roomNo("r1").build();
+        RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").room(requestedRoom).userNo("applicant").build();
         when(roomRequestService.findById("rq1")).thenReturn(request);
         when(roommateService.existsByUserNo("applicant")).thenReturn(false);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.isHost("host", room)).thenReturn(true);
         when(room.isFull()).thenReturn(true);
 
@@ -71,14 +73,15 @@ class DecideApplicationRequestUseCaseTest {
     @Test
     @DisplayName("Should throw when applicant already joined another room")
     void approve_WhenApplicantAlreadyJoined_Throws() {
-        RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").userNo("applicant").build();
+        Room requestedRoom = Room.builder().roomNo("r1").build();
+        RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").room(requestedRoom).userNo("applicant").build();
         when(roomRequestService.findById("rq1")).thenReturn(request);
         when(roommateService.existsByUserNo("applicant")).thenReturn(true);
 
         assertThatThrownBy(() -> useCase.approve("host", "r1", "rq1"))
                 .isInstanceOf(RestApiException.class);
 
-        verify(roomService, never()).findById(anyString());
+        verify(roomService, never()).findByIdForUpdate(anyString());
         verify(roomRequestService, never()).delete(any(RoomRequest.class));
     }
 
@@ -86,15 +89,31 @@ class DecideApplicationRequestUseCaseTest {
     @DisplayName("Should throw when approver is not host")
     void approve_WhenNotHost_Throws() {
         Room room = Room.builder().roomNo("r1").build();
-        RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").userNo("applicant").build();
+        Room requestedRoom = Room.builder().roomNo("r1").build();
+        RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").room(requestedRoom).userNo("applicant").build();
         when(roomRequestService.findById("rq1")).thenReturn(request);
         when(roommateService.existsByUserNo("applicant")).thenReturn(false);
-        when(roomService.findById("r1")).thenReturn(room);
+        when(roomService.findByIdForUpdate("r1")).thenReturn(room);
         when(roommateService.isHost("host", room)).thenReturn(false);
 
         assertThatThrownBy(() -> useCase.approve("host", "r1", "rq1"))
                 .isInstanceOf(RestApiException.class);
 
+        verify(roomRequestService, never()).delete(any(RoomRequest.class));
+    }
+
+    @Test
+    @DisplayName("Should throw when request does not belong to room")
+    void approve_WhenRoomRequestBelongsToDifferentRoom_Throws() {
+        Room requestedRoom = Room.builder().roomNo("r2").build();
+        RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").room(requestedRoom).userNo("applicant").build();
+        when(roomRequestService.findById("rq1")).thenReturn(request);
+
+        assertThatThrownBy(() -> useCase.approve("host", "r1", "rq1"))
+                .isInstanceOf(RestApiException.class);
+
+        verify(roomService, never()).findByIdForUpdate(anyString());
+        verify(roommateService, never()).create(anyString(), any(Room.class), any(RoomRole.class));
         verify(roomRequestService, never()).delete(any(RoomRequest.class));
     }
 

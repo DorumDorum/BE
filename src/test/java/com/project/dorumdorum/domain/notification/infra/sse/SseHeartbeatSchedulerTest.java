@@ -36,10 +36,9 @@ class SseHeartbeatSchedulerTest {
         scheduler.run();
 
         // then
-        verify(userPresenceRepository).setOnline("user-1");
-        verify(userPresenceRepository).setOnline("user-2");
+        verify(userPresenceRepository).refreshPresence("user-1");
+        verify(userPresenceRepository).refreshPresence("user-2");
         verify(sseEmitterRegistry).sendHeartbeatToUser("user-1");
         verify(sseEmitterRegistry).sendHeartbeatToUser("user-2");
     }
 }
-

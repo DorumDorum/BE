@@ -12,10 +12,11 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_roommate_user_no", columnNames = "user_no")
+        },
         indexes = {
-                @Index(name = "idx_roommate_room_no", columnList = "room_no"),
-                @Index(name = "idx_roommate_user_no", columnList = "user_no"),
-                @Index(name = "uk_roommate_user_room", columnList = "user_no, room_no", unique = true)
+                @Index(name = "idx_roommate_room_no", columnList = "room_no")
         }
 )
 public class Roommate extends BaseEntity {

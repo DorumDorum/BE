@@ -1,5 +1,8 @@
 package com.project.dorumdorum.global.warmer;
 
+import com.project.dorumdorum.global.alert.AlertSeverity;
+import com.project.dorumdorum.global.alert.AlertType;
+import com.project.dorumdorum.global.alert.SystemAlertPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,6 +21,7 @@ public class WarmupScheduler {
 
     private final RequestActivityTrackingFilter requestActivityTrackingFilter;
     private final WarmupService warmupService;
+    private final SystemAlertPublisher systemAlertPublisher;
 
     private final AtomicLong lastWarmupTime = new AtomicLong(0L);
 
@@ -35,8 +39,18 @@ public class WarmupScheduler {
         }
 
         log.info("[Warmup] Service idle for {} ms, running warmup", now - lastRequest);
-        warmupService.warm();
-        lastWarmupTime.set(now);
+        try {
+            warmupService.warm();
+            lastWarmupTime.set(now);
+        } catch (Exception e) {
+            log.error("[Warmup] Warmup 실패", e);
+            systemAlertPublisher.publish(
+                    AlertSeverity.WARN,
+                    AlertType.SCHEDULED_JOB,
+                    "[Warmup] Warmup 작업 실패",
+                    e.getMessage()
+            );
+        }
     }
 
     private boolean isIdle(long now, long lastRequest) {
@@ -47,4 +61,3 @@ public class WarmupScheduler {
         return now - lastWarm >= COOLDOWN.toMillis();
     }
 }
-

@@ -13,8 +13,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(
         name = "users",
-        indexes = {
-                @Index(name = "idx_user_email", columnList = "email")
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_user_email", columnNames = "email"),
+                @UniqueConstraint(name = "uk_user_student_no", columnNames = "student_no")
         }
 )
 @AllArgsConstructor

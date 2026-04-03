@@ -38,13 +38,19 @@ public class RoomService {
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
 
+    public Room findByIdForUpdate(String roomNo) {
+        return roomRepository.findByRoomNoForUpdate(roomNo)
+                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+    }
+
     public List<FindRoomsResponse> searchByCursor(
             ChecklistFilterRequest request,
             LocalDateTime cursorCreatedAt,
             String cursorId,
+            Integer cursorRemaining,
             int limitPlusOne
     ) {
-        return roomRepository.findByCursor(request, cursorCreatedAt, cursorId, limitPlusOne);
+        return roomRepository.findByCursor(request, cursorCreatedAt, cursorId, cursorRemaining, limitPlusOne);
     }
 
     public FindRoomsResponse findMyRoom(String userNo) {

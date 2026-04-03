@@ -33,6 +33,12 @@ public class LoadChatMessagesUseCase {
     private final UserService userService;
     private static final int LIMIT = 30;
 
+    /**
+     * 채팅 메시지 목록 커서 조회
+     * - 요청 사용자의 채팅방 참여 여부와 입장 시점을 확인
+     * - 커서 기준으로 메시지를 조회
+     * - 발신자 표시명을 보강해 다음 커서와 함께 반환
+     */
     @Transactional(readOnly = true)
     public CursorPage<ChatMessageSummary> execute(String chatRoomNo, String userNo, String cursor) {
         ChatRoom chatRoom = chatRoomService.findByChatRoomNo(chatRoomNo);

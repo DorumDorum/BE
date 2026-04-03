@@ -1,0 +1,80 @@
+language: "ko-KR"
+
+tone_instructions: |
+  존댓말을 사용해주세요. 코드 리뷰는 친절하고 건설적인 어조로 작성해주세요.
+  문제점을 지적할 때는 이유와 개선 방향을 함께 제시해주세요.
+
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+  profile: "assertive"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  path_filters:
+    - "!**/Q*.java"
+    - "!**/*MapperImpl.java"
+    - "!**/generated/**"
+    - "!**/.claude/**"
+    - "!**/build/**"
+    - "!**/*.md"
+
+  path_instructions:
+    - path: "BE/src/main/java/**/ui/**"
+      instructions: |
+        - Controller 네이밍: `{동사}{도메인}Controller` (예: `CreateRoomController`)
+        - Controller에 `@Transactional` 금지. 트랜잭션은 UseCase 계층에서 처리.
+        - 응답은 반드시 `BaseResponse.onSuccess(data)` 또는 `BaseResponse.onSuccess()` 사용.
+        - 인증이 필요한 엔드포인트는 `@CurrentUser` 파라미터 존재 여부 확인.
+        - 입력값 검증에 `@Valid` 적용 여부 확인.
+
+    - path: "BE/src/main/java/**/application/usecase/**"
+      instructions: |
+        - UseCase 네이밍: `{동사}{도메인}UseCase` (예: `CreateRoomUseCase`)
+        - 메서드명은 `execute()` 고정. 단, 이벤트 리스너 역할을 겸하는 경우 `handle()` 허용.
+        - 트랜잭션은 UseCase 단위에서 `@Transactional` 적용.
+        - Cross-domain 의존 시 이벤트 발행 방식 사용. 직접 도메인 서비스 호출 지양.
+        - `@TransactionalEventListener(phase = BEFORE_COMMIT)` 사용 시 부모 트랜잭션과 원자성 보장 여부 확인.
+
+    - path: "BE/src/main/java/**/domain/**"
+      instructions: |
+        - Service 네이밍: `{도메인}Service` (예: `RoomService`)
+        - 도메인 레이어는 다른 도메인에 직접 의존하면 안 됨. 이벤트/인터페이스로 분리.
+        - 엔티티 상태 변경은 도메인 메서드로 캡슐화. setter 직접 호출 지양.
+
+    - path: "BE/src/main/java/**/application/dto/**"
+      instructions: |
+        - DTO는 `record` 타입 사용.
+        - 응답 DTO 이름: `{도메인}{동작}Response` (예: `RoomDetailResponse`)
+        - 요청 DTO 이름: `{동작}{도메인}Request` (예: `CreateRoomRequest`)
+
+    - path: "BE/src/main/java/**/infra/**"
+      instructions: |
+        - infra 레이어는 domain 인터페이스 구현체.
+        - domain 레이어의 Repository 인터페이스를 구현할 때는 `Impl` 접미사 사용.
+        - QueryDSL 사용 시 Q클래스는 자동생성이므로 직접 편집 금지.
+
+    - path: "BE/src/main/java/**/global/exception/**"
+      instructions: |
+        - 에러 발생 시 `throw new RestApiException({Domain}ErrorStatus.XXX)` 형식만 사용.
+        - `RuntimeException` 직접 throw 금지.
+        - ErrorStatus enum은 해당 도메인 패키지의 `code/status/` 하위에 위치.
+
+    - path: "BE/src/main/java/**/global/alert/**"
+      instructions: |
+        - Discord 알림은 `SystemAlertPublisher.publish(...)` 통해서만 발행.
+        - CRITICAL: 즉각 대응 필요한 서비스 장애. ERROR: 기능 실패. WARN: 주의 필요. INFO: 참고 정보.
+
+    - path: "BE/src/test/**"
+      instructions: |
+        - 테스트는 성공/실패/경계값 케이스 모두 작성.
+        - UseCase 단위 테스트: `src/test/java/.../unit/usecase/`
+        - Service 단위 테스트: `src/test/java/.../unit/service/`
+        - `@Transactional` 롤백 사용 시 의도 명시.
+        - Mock 남용 지양. 도메인 로직 테스트는 실제 객체 사용 권장.
+
+chat:
+  auto_reply: true

@@ -4,5 +4,6 @@ import java.time.LocalDateTime;
 
 public record DecodedCursor(
         LocalDateTime createdAt,
-        String pk
+        String pk,
+        Integer remaining
 ) {}

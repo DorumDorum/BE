@@ -35,10 +35,9 @@ class SseEmitterRegistryTest {
         SseEmitter emitter = registry.register("user-1", "device-1");
 
         assertThat(emitter).isNotNull();
-        verify(userPresenceRepository).setOnline("user-1");
+        verify(userPresenceRepository).refreshPresence("user-1");
         assertThat(registry.hasConnection("user-1", "device-1")).isTrue();
         assertThat(registry.getConnectedUsers()).contains("user-1");
     }
 
 }
-

@@ -31,6 +31,12 @@ public class SendGroupChatMessageUseCase {
     private final NotificationRequestPublisher notificationRequestPublisher;
     private final UserService userService;
 
+    /**
+     * 그룹 채팅 메시지 전송
+     * - 발신자가 채팅방 멤버인지 검증
+     * - 메시지를 저장하고 채팅방 최근 메시지를 갱신
+     * - 웹소켓으로 메시지를 전송하고 다른 멤버에게 알림을 발행
+     */
     @RateLimited(tag = "chat-message", key = "#senderNo + ':' + #chatRoomNo")
     @Transactional
     public void send(String chatRoomNo, String senderNo, String content) {
@@ -65,7 +71,8 @@ public class SendGroupChatMessageUseCase {
                 senderNickname,
                 content,
                 MessageType.TEXT.name(),
-                message.getCreatedAt()
+                message.getCreatedAt(),
+                message.getUnreadCount()
         );
         messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoomNo, response);
 

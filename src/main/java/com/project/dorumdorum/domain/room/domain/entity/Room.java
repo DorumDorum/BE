@@ -13,9 +13,7 @@ import lombok.*;
 @Table(
         indexes = {
                 @Index(name = "idx_room_status_created", columnList = "room_status, created_at, room_no"),
-                @Index(name = "idx_room_status_remaining_created", columnList = "room_status, remaining, created_at, room_no"),
-                @Index(name = "idx_room_type", columnList = "room_type"),
-                @Index(name = "idx_room_capacity", columnList = "capacity"),
+                @Index(name = "idx_room_status_remaining_created", columnList = "room_status, remaining, created_at DESC, room_no DESC"),
                 @Index(name = "idx_room_residence_period", columnList = "residence_period"),
                 @Index(name = "idx_room_host_user_no", columnList = "host_user_no")
         }
@@ -90,6 +88,14 @@ public class Room extends BaseEntity {
 
     public boolean isPending() {
         return RoomStatus.CONFIRM_PENDING.equals(this.roomStatus);
+    }
+
+    public boolean isCompleted() {
+        return RoomStatus.COMPLETED.equals(this.roomStatus);
+    }
+
+    public boolean isValidCapacity(Integer capacity) {
+        return capacity >= currentMateCount;
     }
 
     public void updateStatus(RoomStatus roomStatus) {

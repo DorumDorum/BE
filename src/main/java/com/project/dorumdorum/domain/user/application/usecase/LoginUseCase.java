@@ -24,6 +24,12 @@ public class LoginUseCase {
     private final TokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
 
+    /**
+     * 로그인 처리
+     * - 이메일로 사용자를 조회하고 비밀번호를 검증
+     * - 액세스 토큰과 리프레시 토큰을 발급
+     * - 리프레시 토큰을 저장한 뒤 응답으로 반환
+     */
     public LoginResponse execute(LoginRequest request) {
         User user = userService.findByEmail(request.email());
 

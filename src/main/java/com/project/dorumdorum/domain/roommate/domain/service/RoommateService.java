@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
-
 @Service
 @RequiredArgsConstructor
 public class RoommateService {
@@ -68,6 +67,7 @@ public class RoommateService {
         Roommate roommate = roommateRepository.findByUserNoAndRoomNo(userNo, roomNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
         roommateRepository.delete(roommate);
+        roommateRepository.flush();
     }
 
     public List<MyRoommateResponse> findMyRoommates(String userNo) {
