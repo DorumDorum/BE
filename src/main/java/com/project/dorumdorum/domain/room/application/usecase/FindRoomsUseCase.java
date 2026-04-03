@@ -9,11 +9,13 @@ import com.project.dorumdorum.global.pagination.CursorQueryParams;
 import com.project.dorumdorum.global.pagination.PaginationHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FindRoomsUseCase {
 
     private final RoomService roomService;
@@ -31,13 +33,16 @@ public class FindRoomsUseCase {
                 request,
                 params.cursorCreatedAt(),
                 params.cursorId(),
+                params.cursorRemaining(),
                 params.limitPlusOne()
         );
 
         return PaginationHelper.buildCursorPage(
                 responses,
                 LIMIT,
-                last -> CursorCodec.encode(last.createdAt(), last.roomNo())
+                last -> request.sortType() == ChecklistFilterRequest.SortType.REMAINING
+                        ? CursorCodec.encode(last.remaining(), last.createdAt(), last.roomNo())
+                        : CursorCodec.encode(last.createdAt(), last.roomNo())
         );
     }
 }

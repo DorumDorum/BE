@@ -16,6 +16,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_device_user_device
 CREATE UNIQUE INDEX IF NOT EXISTS uk_room_request_user_room_direction
     ON room_request (user_no, room_no, direction);
 
+DROP INDEX IF EXISTS idx_room_status_remaining_created;
+
+CREATE INDEX IF NOT EXISTS idx_room_status_remaining_created
+    ON room (room_status, remaining, created_at DESC, room_no DESC);
+
 ALTER TABLE IF EXISTS chat_room
     DROP CONSTRAINT IF EXISTS uk_chat_room_direct;
 
