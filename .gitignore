@@ -53,3 +53,4 @@ pinpoint-agent/tools/
 
 ### env ###
 .env
+/analysis/
