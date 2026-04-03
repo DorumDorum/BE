@@ -60,7 +60,7 @@ class RoomServiceTest {
     void searchByCursor_DelegatesToRepository() {
         List<FindRoomsResponse> expected = List.of(
                 new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, LocalDateTime.now(),
-                        "title", "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name())
+                        "title", "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1)
         );
         ChecklistFilterRequest request = new ChecklistFilterRequest(
                 ChecklistFilterRequest.SortType.LATEST, null, null, null, null,
@@ -68,11 +68,11 @@ class RoomServiceTest {
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null
         );
-        when(roomRepository.findByCursor(any(), any(), any(), anyInt()))
+        when(roomRepository.findByCursor(any(), any(), any(), any(), anyInt()))
                 .thenReturn(expected);
 
         List<FindRoomsResponse> result = service.searchByCursor(
-                request, null, null, 10
+                request, null, null, null, 10
         );
 
         assertThat(result).isEqualTo(expected);

@@ -30,7 +30,7 @@ class LoadMyRoomsUseCaseTest {
     @DisplayName("Should return my room from room service")
     void execute_ReturnsMyRoom() {
         FindRoomsResponse expected = new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, LocalDateTime.now(),
-                "title", "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name());
+                "title", "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1);
         when(roomService.findMyRoom("u1")).thenReturn(expected);
 
         FindRoomsResponse result = useCase.execute("u1");
