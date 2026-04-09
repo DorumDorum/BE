@@ -24,7 +24,7 @@ public class EmailVerificationService {
         return includeEmailDomainProperties.matches(domain);
     }
 
-    @Async
+    @Async("emailExecutor")
     public void sendCode(String email, String code) {
         verificationCodeRepository.save(email, code);
         EmailTemplateHelper.EmailContent template = EmailTemplateHelper.generate(code);

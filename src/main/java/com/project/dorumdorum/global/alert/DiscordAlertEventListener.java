@@ -14,7 +14,7 @@ public class DiscordAlertEventListener {
 
     private final DiscordAlertSender discordAlertSender;
 
-    @Async
+    @Async("discordExecutor")
     @TransactionalEventListener(
             phase = TransactionPhase.AFTER_COMMIT,
             fallbackExecution = true
