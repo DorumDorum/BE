@@ -16,6 +16,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_device_user_device
 CREATE UNIQUE INDEX IF NOT EXISTS uk_room_request_user_room_direction
     ON room_request (user_no, room_no, direction);
 
+ALTER TABLE IF EXISTS users
+    ALTER COLUMN gender SET NOT NULL;
+
 DROP INDEX IF EXISTS idx_room_status_created;
 DROP INDEX IF EXISTS idx_room_status_remaining_created;
 
