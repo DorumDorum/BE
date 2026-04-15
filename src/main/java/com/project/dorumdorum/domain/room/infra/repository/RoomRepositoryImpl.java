@@ -6,6 +6,7 @@ import com.project.dorumdorum.domain.room.domain.entity.Direction;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.repository.RoomQueryRepository;
+import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -38,6 +39,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
 
     @Override
     public List<FindRoomsResponse> findByCursor(
+            Gender gender,
             ChecklistFilterRequest request,
             LocalDateTime cursorCreatedAt,
             String cursorId,
@@ -45,7 +47,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
             int limitPlusOne
     ) {
         if (hasChecklistFilters(request)) {
-            return findByCursorWithLateral(request, cursorCreatedAt, cursorId, cursorRemaining, limitPlusOne);
+            return findByCursorWithLateral(gender, request, cursorCreatedAt, cursorId, cursorRemaining, limitPlusOne);
         }
 
         JPAQuery<FindRoomsResponse> q = query
@@ -67,6 +69,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                 .leftJoin(user).on(user.userNo.eq(room.hostUserNo))
                 .where(
                         room.roomStatus.eq(RoomStatus.CONFIRM_PENDING),
+                        room.gender.eq(gender),
                         eqRoomType(request),
                         eqResidencePeriod(request),
                         eqCapacity(request),
@@ -85,6 +88,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
     }
 
     private List<FindRoomsResponse> findByCursorWithLateral(
+            Gender gender,
             ChecklistFilterRequest request,
             LocalDateTime cursorCreatedAt,
             String cursorId,
@@ -143,8 +147,10 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                 LEFT JOIN users u
                     ON u.user_no = r.host_user_no
                 WHERE r.room_status = :roomStatus
+                  AND r.gender = :gender
                 """);
         params.put("roomStatus", RoomStatus.CONFIRM_PENDING.name());
+        params.put("gender", gender.name());
 
         appendCondition(sql, params, "r.room_type", "roomType", enumName(request.roomType()));
         appendCondition(sql, params, "r.residence_period", "residencePeriod", enumName(request.residencePeriod()));

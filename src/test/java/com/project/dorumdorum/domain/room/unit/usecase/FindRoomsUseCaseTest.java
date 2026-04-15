@@ -1,14 +1,17 @@
 package com.project.dorumdorum.domain.room.unit.usecase;
 
 import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
-import com.project.dorumdorum.domain.room.application.dto.request.RoomSort;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.application.usecase.FindRoomsUseCase;
 import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
+import com.project.dorumdorum.domain.user.domain.entity.Gender;
+import com.project.dorumdorum.domain.user.domain.entity.User;
+import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.pagination.CursorPage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,8 +32,17 @@ import static org.mockito.Mockito.when;
 @DisplayName("FindRoomsUseCase Unit Tests")
 class FindRoomsUseCaseTest {
 
+    @Mock private UserService userService;
     @Mock private RoomService roomService;
     @InjectMocks private FindRoomsUseCase useCase;
+
+    private static final String USER_NO = "u1";
+    private static final User MALE_USER = User.builder().userNo(USER_NO).gender(Gender.MALE).build();
+
+    @BeforeEach
+    void setUp() {
+        when(userService.findById(USER_NO)).thenReturn(MALE_USER);
+    }
 
     private FindRoomsResponse room(String roomNo, int capacity, int current, LocalDateTime createdAt) {
         return new FindRoomsResponse(roomNo, RoomType.TYPE_1, capacity, current, createdAt, "title",
@@ -54,15 +66,15 @@ class FindRoomsUseCaseTest {
                 .mapToObj(i -> room("r" + i, 2, 1, now.minusMinutes(i)))
                 .toList();
         ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.LATEST, null);
-        when(roomService.searchByCursor(any(), any(), any(), any(), anyInt()))
+        when(roomService.searchByCursor(any(), any(), any(), any(), any(), anyInt()))
                 .thenReturn(responses);
 
-        CursorPage<FindRoomsResponse> result = useCase.execute(request);
+        CursorPage<FindRoomsResponse> result = useCase.execute(USER_NO, request);
 
         assertThat(result.items()).hasSize(50);
         assertThat(result.hasNext()).isTrue();
         assertThat(result.nextCursor()).isNotBlank();
-        verify(roomService).searchByCursor(any(), any(), any(), any(), anyInt());
+        verify(roomService).searchByCursor(any(), any(), any(), any(), any(), anyInt());
     }
 
     @Test
@@ -70,10 +82,10 @@ class FindRoomsUseCaseTest {
     void execute_WhenResponsesWithinLimit_ReturnsHasNextFalse() {
         List<FindRoomsResponse> responses = List.of(room("r1", 2, 1, LocalDateTime.now()));
         ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.REMAINING, null);
-        when(roomService.searchByCursor(any(), any(), any(), any(), anyInt()))
+        when(roomService.searchByCursor(any(), any(), any(), any(), any(), anyInt()))
                 .thenReturn(responses);
 
-        CursorPage<FindRoomsResponse> result = useCase.execute(request);
+        CursorPage<FindRoomsResponse> result = useCase.execute(USER_NO, request);
 
         assertThat(result.items()).hasSize(1);
         assertThat(result.hasNext()).isFalse();
@@ -84,10 +96,10 @@ class FindRoomsUseCaseTest {
     @DisplayName("Should return null nextCursor when no response")
     void execute_WhenNoResponse_ReturnsNullCursor() {
         ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.LATEST, null);
-        when(roomService.searchByCursor(any(), any(), any(), any(), anyInt()))
+        when(roomService.searchByCursor(any(), any(), any(), any(), any(), anyInt()))
                 .thenReturn(List.of());
 
-        CursorPage<FindRoomsResponse> result = useCase.execute(request);
+        CursorPage<FindRoomsResponse> result = useCase.execute(USER_NO, request);
 
         assertThat(result.items()).isEmpty();
         assertThat(result.nextCursor()).isNull();
@@ -100,12 +112,12 @@ class FindRoomsUseCaseTest {
         List<FindRoomsResponse> responses = List.of(room("r1", 2, 1, LocalDateTime.now()));
         String cursor = com.project.dorumdorum.global.pagination.CursorCodec.encode(LocalDateTime.now(), "r1");
         ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.LATEST, cursor);
-        when(roomService.searchByCursor(any(), any(), any(), any(), anyInt()))
+        when(roomService.searchByCursor(any(), any(), any(), any(), any(), anyInt()))
                 .thenReturn(responses);
 
-        CursorPage<FindRoomsResponse> result = useCase.execute(request);
+        CursorPage<FindRoomsResponse> result = useCase.execute(USER_NO, request);
 
         assertThat(result.items()).hasSize(1);
-        verify(roomService).searchByCursor(any(), any(), any(), any(), anyInt());
+        verify(roomService).searchByCursor(any(), any(), any(), any(), any(), anyInt());
     }
 }

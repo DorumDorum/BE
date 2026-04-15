@@ -9,6 +9,7 @@ import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.repository.RoomRepository;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
+import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.project.dorumdorum.global.exception.RestApiException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,13 +37,13 @@ class RoomServiceTest {
     @InjectMocks private RoomService service;
 
     @Test
-    @DisplayName("Should create and save room from request")
+    @DisplayName("Should create and save room with gender from request")
     void create_SavesRoom() {
         RoomCreateRequest request = new RoomCreateRequest(RoomType.TYPE_1, 2, ResidencePeriod.SEMESTER, "title", null);
-        Room saved = Room.builder().roomNo("r1").hostUserNo("u1").build();
+        Room saved = Room.builder().roomNo("r1").hostUserNo("u1").gender(Gender.MALE).build();
         when(roomRepository.save(any(Room.class))).thenReturn(saved);
 
-        Room result = service.create("u1", request);
+        Room result = service.create("u1", Gender.MALE, request);
 
         assertThat(result).isEqualTo(saved);
         verify(roomRepository).save(any(Room.class));
@@ -56,7 +57,7 @@ class RoomServiceTest {
     }
 
     @Test
-    @DisplayName("Should delegate cursor search to repository")
+    @DisplayName("Should delegate cursor search to repository with gender filter")
     void searchByCursor_DelegatesToRepository() {
         List<FindRoomsResponse> expected = List.of(
                 new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, LocalDateTime.now(),
@@ -68,11 +69,11 @@ class RoomServiceTest {
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null
         );
-        when(roomRepository.findByCursor(any(), any(), any(), any(), anyInt()))
+        when(roomRepository.findByCursor(any(Gender.class), any(), any(), any(), any(), anyInt()))
                 .thenReturn(expected);
 
         List<FindRoomsResponse> result = service.searchByCursor(
-                request, null, null, null, 10
+                Gender.MALE, request, null, null, null, 10
         );
 
         assertThat(result).isEqualTo(expected);

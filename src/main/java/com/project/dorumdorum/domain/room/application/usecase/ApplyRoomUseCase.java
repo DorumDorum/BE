@@ -7,6 +7,7 @@ import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.room.domain.service.RoomRequestService;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
+import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +35,12 @@ public class ApplyRoomUseCase {
      * - 지원 요청을 생성하고 1:1 채팅방 생성 이벤트를 발행
      */
     public String execute(String userNo, String roomNo, JoinRoomRequest request) {
-        userService.validateExistsById(userNo);
-
+        User applicant = userService.findById(userNo);
         Room room = roomService.findById(roomNo);
 
+        if (!applicant.getGender().equals(room.getGender())) {
+            throw new RestApiException(GENDER_MISMATCH);
+        }
         if (roommateService.isUserRoommate(userNo, roomNo)) {
             throw new RestApiException(CANNOT_APPLY_TO_OWN_ROOM);
         }
