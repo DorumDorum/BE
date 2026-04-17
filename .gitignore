@@ -57,3 +57,5 @@ pinpoint-agent/tools/
 
 # macOS artefacts
 .DS_Store
+
+docs/

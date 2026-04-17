@@ -26,6 +26,8 @@ class FindRoomsControllerTest {
     @Mock private FindRoomsUseCase useCase;
     @InjectMocks private FindRoomsController controller;
 
+    private static final String USER_NO = "u1";
+
     @Test
     void loadAll_ReturnsUseCaseResult() {
         ChecklistFilterRequest request = new ChecklistFilterRequest(
@@ -35,12 +37,12 @@ class FindRoomsControllerTest {
                 null, null, null, null
         );
         CursorPage<FindRoomsResponse> page = new CursorPage<>(List.of(), null, false);
-        when(useCase.execute(request)).thenReturn(page);
+        when(useCase.execute(USER_NO, request)).thenReturn(page);
 
         ResponseEntity<CursorPage<FindRoomsResponse>> response =
-                controller.loadAll(request);
+                controller.loadAll(USER_NO, request);
 
-        verify(useCase).execute(request);
+        verify(useCase).execute(USER_NO, request);
         assertThat(response.getBody()).isEqualTo(page);
     }
 }

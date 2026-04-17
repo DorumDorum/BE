@@ -4,6 +4,7 @@ import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilte
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.application.usecase.FindRoomsUseCase;
 import com.project.dorumdorum.domain.room.ui.spec.FindRoomsApiSpec;
+import com.project.dorumdorum.global.annotation.CurrentUser;
 import org.springframework.http.ResponseEntity;
 import com.project.dorumdorum.global.pagination.CursorPage;
 import jakarta.validation.Valid;
@@ -19,8 +20,9 @@ public class FindRoomsController implements FindRoomsApiSpec {
 
     @Override
     public ResponseEntity<CursorPage<FindRoomsResponse>> loadAll(
+            @CurrentUser String userNo,
             @Valid @RequestBody ChecklistFilterRequest request
     ) {
-        return ResponseEntity.ok(findRoomsUseCase.execute(request));
+        return ResponseEntity.ok(findRoomsUseCase.execute(userNo, request));
     }
 }

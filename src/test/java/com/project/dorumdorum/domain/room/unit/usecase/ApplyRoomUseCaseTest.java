@@ -8,6 +8,8 @@ import com.project.dorumdorum.domain.room.domain.entity.RoomRequest;
 import com.project.dorumdorum.domain.room.domain.service.RoomRequestService;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.domain.roommate.domain.service.RoommateService;
+import com.project.dorumdorum.domain.user.domain.entity.Gender;
+import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.domain.room.application.event.RoomApplicationSubmittedEvent;
 import com.project.dorumdorum.global.exception.RestApiException;
@@ -37,12 +39,21 @@ class ApplyRoomUseCaseTest {
 
     @InjectMocks private ApplyRoomUseCase useCase;
 
+    private User maleUser(String userNo) {
+        return User.builder().userNo(userNo).gender(Gender.MALE).build();
+    }
+
+    private Room maleRoom(String roomNo, String hostUserNo) {
+        return Room.builder().roomNo(roomNo).hostUserNo(hostUserNo).gender(Gender.MALE).build();
+    }
+
     @Test
     @DisplayName("Should create join request when validations pass")
     void execute_WithValidState_CreatesJoinRequest() {
         String userNo = "u1";
         String roomNo = "r1";
-        Room room = Room.builder().roomNo(roomNo).hostUserNo("host-1").build();
+        User applicant = maleUser(userNo);
+        Room room = maleRoom(roomNo, "host-1");
         JoinRoomRequest request = new JoinRoomRequest("intro", "msg");
         RoomRequest createdRequest = RoomRequest.builder()
                 .roomRequestNo("req-1")
@@ -53,6 +64,7 @@ class ApplyRoomUseCaseTest {
                 .additionalMessage(request.additionalMessage())
                 .build();
 
+        when(userService.findById(userNo)).thenReturn(applicant);
         when(roomService.findById(roomNo)).thenReturn(room);
         when(roommateService.isUserRoommate(userNo, roomNo)).thenReturn(false);
         when(roommateService.existsByUserNo(userNo)).thenReturn(false);
@@ -61,7 +73,7 @@ class ApplyRoomUseCaseTest {
 
         String requestNo = useCase.execute(userNo, roomNo, request);
 
-        verify(userService).validateExistsById(userNo);
+        verify(userService).findById(userNo);
         verify(roomRequestService).create(userNo, room, request, Direction.USER_TO_ROOM);
         assertThat(requestNo).isEqualTo("req-1");
 
@@ -75,11 +87,30 @@ class ApplyRoomUseCaseTest {
     }
 
     @Test
+    @DisplayName("Should throw GENDER_MISMATCH when applicant gender differs from room gender")
+    void execute_WhenGenderMismatch_Throws() {
+        String userNo = "u1";
+        String roomNo = "r1";
+        User femaleApplicant = User.builder().userNo(userNo).gender(Gender.FEMALE).build();
+        Room maleRoom = Room.builder().roomNo(roomNo).gender(Gender.MALE).build();
+
+        when(userService.findById(userNo)).thenReturn(femaleApplicant);
+        when(roomService.findById(roomNo)).thenReturn(maleRoom);
+
+        assertThatThrownBy(() -> useCase.execute(userNo, roomNo, new JoinRoomRequest("intro", null)))
+                .isInstanceOf(RestApiException.class);
+
+        verify(roommateService, never()).isUserRoommate(anyString(), anyString());
+        verify(roomRequestService, never()).create(anyString(), any(), any(), eq(Direction.USER_TO_ROOM));
+    }
+
+    @Test
     @DisplayName("Should throw when user already belongs to the room")
     void execute_WhenAlreadyRoommate_Throws() {
         String userNo = "u1";
         String roomNo = "r1";
-        when(roomService.findById(roomNo)).thenReturn(Room.builder().roomNo(roomNo).build());
+        when(userService.findById(userNo)).thenReturn(maleUser(userNo));
+        when(roomService.findById(roomNo)).thenReturn(maleRoom(roomNo, "host-1"));
         when(roommateService.isUserRoommate(userNo, roomNo)).thenReturn(true);
 
         assertThatThrownBy(() -> useCase.execute(userNo, roomNo, new JoinRoomRequest("intro", null)))
@@ -93,8 +124,8 @@ class ApplyRoomUseCaseTest {
     void execute_WhenAlreadyJoined_Throws() {
         String userNo = "u1";
         String roomNo = "r1";
-        Room room = Room.builder().roomNo(roomNo).build();
-        when(roomService.findById(roomNo)).thenReturn(room);
+        when(userService.findById(userNo)).thenReturn(maleUser(userNo));
+        when(roomService.findById(roomNo)).thenReturn(maleRoom(roomNo, "host-1"));
         when(roommateService.isUserRoommate(userNo, roomNo)).thenReturn(false);
         when(roommateService.existsByUserNo(userNo)).thenReturn(true);
 
@@ -107,7 +138,8 @@ class ApplyRoomUseCaseTest {
     void execute_WhenDuplicateRequest_Throws() {
         String userNo = "u1";
         String roomNo = "r1";
-        Room room = Room.builder().roomNo(roomNo).build();
+        Room room = maleRoom(roomNo, "host-1");
+        when(userService.findById(userNo)).thenReturn(maleUser(userNo));
         when(roomService.findById(roomNo)).thenReturn(room);
         when(roommateService.isUserRoommate(userNo, roomNo)).thenReturn(false);
         when(roommateService.existsByUserNo(userNo)).thenReturn(false);
@@ -122,7 +154,8 @@ class ApplyRoomUseCaseTest {
     void execute_WhenValidationFails_NoEventPublished() {
         String userNo = "u1";
         String roomNo = "r1";
-        when(roomService.findById(roomNo)).thenReturn(Room.builder().roomNo(roomNo).build());
+        when(userService.findById(userNo)).thenReturn(maleUser(userNo));
+        when(roomService.findById(roomNo)).thenReturn(maleRoom(roomNo, "host-1"));
         when(roommateService.isUserRoommate(userNo, roomNo)).thenReturn(true);
 
         assertThatThrownBy(() -> useCase.execute(userNo, roomNo, new JoinRoomRequest("intro", null)))
