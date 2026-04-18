@@ -2,6 +2,7 @@ package com.project.dorumdorum.global.config;
 
 import com.project.dorumdorum.global.security.ChatRoomAuthorizationInterceptor;
 import com.project.dorumdorum.global.security.JwtHandshakeInterceptor;
+import com.project.dorumdorum.global.security.JwtPrincipalHandshakeHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -16,11 +17,13 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
+    private final JwtPrincipalHandshakeHandler jwtPrincipalHandshakeHandler;
     private final ChatRoomAuthorizationInterceptor chatRoomAuthorizationInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
+                .setHandshakeHandler(jwtPrincipalHandshakeHandler)
                 .addInterceptors(jwtHandshakeInterceptor)
                 .setAllowedOriginPatterns("*")
                 .withSockJS(); // HTTP long-polling으로 폴백 시 HTTP 요청으로 처리됌 -> 연결 수 제한 로직 별도 고려 필요
