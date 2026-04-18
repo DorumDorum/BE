@@ -55,7 +55,7 @@ public class RoomDeletedEventListener {
 
         chatMessageService.deleteAllByChatRoom(chatRoom.getChatRoomNo());
         chatRoomMemberService.deleteAllByChatRoom(chatRoom);
-        chatRoomService.delete(chatRoom);
+        chatRoomService.deleteByChatRoomNo(chatRoom.getChatRoomNo());
     }
 
     private void broadcastDeletionSafely(ChatRoom chatRoom, NotificationMessage notification) {

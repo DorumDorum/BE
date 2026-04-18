@@ -49,7 +49,7 @@ class RoomDeletedEventListenerTest {
         InOrder inOrder = inOrder(chatMessageService, chatRoomMemberService, chatRoomService);
         inOrder.verify(chatMessageService).deleteAllByChatRoom("cr-1");
         inOrder.verify(chatRoomMemberService).deleteAllByChatRoom(groupRoom);
-        inOrder.verify(chatRoomService).delete(groupRoom);
+        inOrder.verify(chatRoomService).deleteByChatRoomNo("cr-1");
     }
 
     @Test
@@ -110,7 +110,7 @@ class RoomDeletedEventListenerTest {
 
         verify(chatMessageService).deleteAllByChatRoom("cr-1");
         verify(chatRoomMemberService).deleteAllByChatRoom(groupRoom);
-        verify(chatRoomService).delete(groupRoom);
+        verify(chatRoomService).deleteByChatRoomNo("cr-1");
     }
 
     @Test
@@ -129,7 +129,7 @@ class RoomDeletedEventListenerTest {
 
         verify(chatMessageService).deleteAllByChatRoom("cr-2");
         verify(chatRoomMemberService).deleteAllByChatRoom(directRoom);
-        verify(chatRoomService).delete(directRoom);
+        verify(chatRoomService).deleteByChatRoomNo("cr-2");
     }
 
     @Test
@@ -148,8 +148,8 @@ class RoomDeletedEventListenerTest {
 
         listener.handle(new RoomDeletedEvent("r1"));
 
-        verify(chatRoomService).delete(groupRoom);
-        verify(chatRoomService).delete(directRoom);
+        verify(chatRoomService).deleteByChatRoomNo("cr-1");
+        verify(chatRoomService).deleteByChatRoomNo("cr-2");
         verify(messagingTemplate).convertAndSendToUser(eq("applicant-1"), eq("/queue/notification"), any());
     }
 }
