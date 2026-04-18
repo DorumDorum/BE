@@ -86,16 +86,17 @@ class DeleteRoomUseCaseTest {
 
         useCase.execute("host", "r1");
 
+        verify(room).delete();
         verify(roommateService).leaveRoom("host", "r1");
+        verify(roomService).flush();
         verify(roomRequestService).deleteAllByRoom(room);
         verify(roomRuleService).deleteByRoomNo("r1");
         verify(roomLikeRepository).deleteAllByRoom(room);
-        verify(room).delete();
         verify(eventPublisher).publishEvent(new RoomDeletedEvent("r1"));
     }
 
     @Test
-    @DisplayName("cascade 삭제는 룸메이트 → 요청 → 규칙 → 좋아요 → 방 소프트 삭제 순서로 수행")
+    @DisplayName("cascade 삭제는 방 소프트 삭제 → 룸메이트 제거 → flush → 요청/규칙/좋아요 삭제 순서로 수행")
     void execute_CascadeDeletesInOrder() {
         Room room = mock(Room.class);
         when(roomService.findByIdForUpdate("r1")).thenReturn(room);
@@ -105,12 +106,13 @@ class DeleteRoomUseCaseTest {
 
         useCase.execute("host", "r1");
 
-        InOrder inOrder = inOrder(roommateService, roomRequestService, roomRuleService, roomLikeRepository, room, eventPublisher);
+        InOrder inOrder = inOrder(room, roommateService, roomService, roomRequestService, roomRuleService, roomLikeRepository, eventPublisher);
+        inOrder.verify(room).delete();
         inOrder.verify(roommateService).leaveRoom("host", "r1");
+        inOrder.verify(roomService).flush();
         inOrder.verify(roomRequestService).deleteAllByRoom(room);
         inOrder.verify(roomRuleService).deleteByRoomNo("r1");
         inOrder.verify(roomLikeRepository).deleteAllByRoom(room);
-        inOrder.verify(room).delete();
         inOrder.verify(eventPublisher).publishEvent(new RoomDeletedEvent("r1"));
     }
 }

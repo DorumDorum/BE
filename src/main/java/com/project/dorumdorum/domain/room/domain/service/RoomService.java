@@ -61,6 +61,10 @@ public class RoomService {
                 .orElseThrow(() -> new RestApiException(ROOM_NOT_FOUND));
     }
 
+    public void flush() {
+        roomRepository.flush();
+    }
+
     public List<FindRoomsResponse> findLikedRooms(String userNo) {
         return roomRepository.findLikedRooms(userNo);
     }

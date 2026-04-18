@@ -51,11 +51,13 @@ public class DeleteRoomUseCase {
             throw new RestApiException(ROOM_HAS_MEMBERS);
         }
 
+        room.delete();
         roommateService.leaveRoom(requesterNo, roomNo);
+        roomService.flush();
+
         roomRequestService.deleteAllByRoom(room);
         roomRuleService.deleteByRoomNo(roomNo);
         roomLikeRepository.deleteAllByRoom(room);
-        room.delete();
 
         eventPublisher.publishEvent(new RoomDeletedEvent(roomNo));
     }
