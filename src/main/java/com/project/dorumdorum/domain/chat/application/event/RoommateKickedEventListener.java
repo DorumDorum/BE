@@ -42,27 +42,29 @@ public class RoommateKickedEventListener {
      */
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handle(RoommateKickedEvent event) {
-        chatRoomService.findByRoomNo(event.roomNo()).ifPresent(chatRoom -> {
-            if (chatRoomMemberService.isMember(chatRoom, event.kickedUserNo())) {
-                ChatRoomMember member = chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, event.kickedUserNo());
-                LocalDateTime fromTime = member.getLastReadAt() != null
-                        ? member.getLastReadAt()
-                        : member.getJoinedAt();
-                chatMessageService.decreaseUnreadCount(chatRoom.getChatRoomNo(), fromTime, event.kickedUserNo());
-                chatRoomMemberService.leave(member);
-                User kicked = userService.findById(event.kickedUserNo());
-                String displayName = (kicked.getNickname() != null && !kicked.getNickname().isBlank())
-                        ? kicked.getNickname() : kicked.getName();
-                String content = displayName + "가 퇴장했습니다.";
-                ChatMessage message = chatMessageService.save(chatRoom, "SYSTEM", content, MessageType.SYSTEM, 0);
-                ChatMessageResponse response = new ChatMessageResponse(
-                        message.getMessageNo(), chatRoom.getChatRoomNo(),
-                        "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt(), message.getUnreadCount());
-                broadcastSafely(chatRoom, response);
-                notifyUserSafely(event.kickedUserNo(),
-                        NotificationMessage.kicked(event.roomNo(), chatRoom.getChatRoomNo()));
-            }
-        });
+        chatRoomService.findByRoomNo(event.roomNo()).ifPresent(chatRoom ->
+                chatRoomMemberService.findOptionalByChatRoomAndUserNo(chatRoom, event.kickedUserNo())
+                        .ifPresent(member -> processKick(chatRoom, member, event))
+        );
+    }
+
+    private void processKick(ChatRoom chatRoom, ChatRoomMember member, RoommateKickedEvent event) {
+        LocalDateTime fromTime = member.getLastReadAt() != null
+                ? member.getLastReadAt()
+                : member.getJoinedAt();
+        chatMessageService.decreaseUnreadCount(chatRoom.getChatRoomNo(), fromTime, event.kickedUserNo());
+        chatRoomMemberService.leave(member);
+        User kicked = userService.findById(event.kickedUserNo());
+        String displayName = (kicked.getNickname() != null && !kicked.getNickname().isBlank())
+                ? kicked.getNickname() : kicked.getName();
+        String content = displayName + "가 퇴장했습니다.";
+        ChatMessage message = chatMessageService.save(chatRoom, "SYSTEM", content, MessageType.SYSTEM, 0);
+        ChatMessageResponse response = new ChatMessageResponse(
+                message.getMessageNo(), chatRoom.getChatRoomNo(),
+                "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt(), message.getUnreadCount());
+        broadcastSafely(chatRoom, response);
+        notifyUserSafely(event.kickedUserNo(),
+                NotificationMessage.kicked(event.roomNo(), chatRoom.getChatRoomNo()));
     }
 
     private void broadcastSafely(ChatRoom chatRoom, ChatMessageResponse response) {
