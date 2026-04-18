@@ -21,7 +21,7 @@ import com.project.dorumdorum.domain.roommate.domain.repository.RoommateReposito
 import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.project.dorumdorum.domain.user.domain.entity.Role;
 import com.project.dorumdorum.domain.user.domain.entity.User;
-import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
+import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.testsupport.TestcontainersSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
@@ -34,14 +34,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
+/**
+ * userNo에 FK 제약이 없으므로 실제 User 엔티티 없이 임의 ID 사용 가능.
+ * RoommateKickedEventListener 내 userService.findById() 호출은 @MockitoSpyBean으로 우회.
+ * '_kick_roommate_' 접두사로 다른 테스트 데이터와 충돌 방지.
+ */
 @SpringBootTest
 @ActiveProfiles("test")
 @DisplayName("KickRoommate 영속성 통합 테스트")
@@ -59,42 +66,32 @@ class KickRoommatePersistenceIntegrationTest {
     @MockitoBean private FirebaseMessaging firebaseMessaging;
     @MockitoBean private SimpMessagingTemplate messagingTemplate;
 
+    @MockitoSpyBean private UserService userService;
+
     @Autowired private KickRoommateUseCase kickRoommateUseCase;
-    @Autowired private UserRepository userRepository;
     @Autowired private RoomRepository roomRepository;
     @Autowired private RoommateRepository roommateRepository;
     @Autowired private ChatRoomRepository chatRoomRepository;
     @Autowired private ChatRoomMemberRepository chatRoomMemberRepository;
     @Autowired private ChatMessageRepository chatMessageRepository;
 
-    private static final String HOST_NO = "kick-host-001";
-    private static final String MEMBER_NO = "kick-member-001";
+    private static final String HOST_NO   = "test_kick_roommate_host_001";
+    private static final String MEMBER_NO = "test_kick_roommate_member_001";
 
     private Room room;
     private ChatRoom chatRoom;
 
     @BeforeEach
     void setUp() {
-        userRepository.save(User.builder()
-                .userNo(HOST_NO)
-                .email("kick-host@gachon.ac.kr")
-                .password("pw")
-                .role(Role.USER)
-                .studentNo("202400101")
-                .name("Host")
-                .nickname("HostNick")
-                .gender(Gender.MALE)
-                .build());
-        userRepository.save(User.builder()
-                .userNo(MEMBER_NO)
-                .email("kick-member@gachon.ac.kr")
+        User fakeUser = User.builder()
+                .nickname("MemberNick")
+                .name("Member")
+                .email("kick-member@test.com")
                 .password("pw")
                 .role(Role.USER)
                 .studentNo("202400102")
-                .name("Member")
-                .nickname("MemberNick")
-                .gender(Gender.MALE)
-                .build());
+                .build();
+        doReturn(fakeUser).when(userService).findById(MEMBER_NO);
 
         room = roomRepository.save(Room.builder()
                 .roomType(RoomType.TYPE_1)
@@ -105,6 +102,7 @@ class KickRoommatePersistenceIntegrationTest {
                 .gender(Gender.MALE)
                 .build());
         room.plusCurrentMate();
+        room = roomRepository.save(room);
 
         roommateRepository.save(Roommate.builder()
                 .room(room)
@@ -148,12 +146,11 @@ class KickRoommatePersistenceIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        chatMessageRepository.deleteAll();
-        chatRoomMemberRepository.deleteAll();
-        chatRoomRepository.deleteAll();
-        roommateRepository.deleteAll();
-        roomRepository.deleteAll();
-        userRepository.deleteAll();
+        chatMessageRepository.deleteAllInBatch();
+        chatRoomMemberRepository.deleteAllInBatch();
+        chatRoomRepository.deleteAllInBatch();
+        roommateRepository.deleteAllInBatch();
+        roomRepository.deleteAllInBatch();
     }
 
     @Test

@@ -25,10 +25,6 @@ import com.project.dorumdorum.domain.roommate.domain.entity.ConfirmStatus;
 import com.project.dorumdorum.domain.roommate.domain.entity.RoomRole;
 import com.project.dorumdorum.domain.roommate.domain.entity.Roommate;
 import com.project.dorumdorum.domain.roommate.domain.repository.RoommateRepository;
-import com.project.dorumdorum.domain.user.domain.entity.Gender;
-import com.project.dorumdorum.domain.user.domain.entity.Role;
-import com.project.dorumdorum.domain.user.domain.entity.User;
-import com.project.dorumdorum.domain.user.domain.repository.UserRepository;
 import com.project.dorumdorum.testsupport.TestcontainersSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
@@ -44,6 +40,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * userNo에 FK 제약이 없으므로 실제 User 엔티티 없이 임의 ID 사용 가능.
+ * '_delete_room_' 접두사로 다른 테스트 데이터와 충돌 방지.
+ */
 @SpringBootTest
 @ActiveProfiles("test")
 @DisplayName("DeleteRoom 영속성 통합 테스트")
@@ -62,7 +62,6 @@ class DeleteRoomPersistenceIntegrationTest {
     @MockitoBean private SimpMessagingTemplate messagingTemplate;
 
     @Autowired private DeleteRoomUseCase deleteRoomUseCase;
-    @Autowired private UserRepository userRepository;
     @Autowired private RoomRepository roomRepository;
     @Autowired private RoommateRepository roommateRepository;
     @Autowired private RoomRequestRepository roomRequestRepository;
@@ -71,41 +70,20 @@ class DeleteRoomPersistenceIntegrationTest {
     @Autowired private ChatRoomMemberRepository chatRoomMemberRepository;
     @Autowired private ChatMessageRepository chatMessageRepository;
 
-    private static final String HOST_NO = "delete-host-001";
-    private static final String APPLICANT_NO = "delete-applicant-001";
+    private static final String HOST_NO      = "test_delete_room_host_001";
+    private static final String APPLICANT_NO = "test_delete_room_applicant_001";
 
     private Room room;
 
     @BeforeEach
     void setUp() {
-        userRepository.save(User.builder()
-                .userNo(HOST_NO)
-                .email("delete-host@gachon.ac.kr")
-                .password("pw")
-                .role(Role.USER)
-                .studentNo("202400201")
-                .name("DeleteHost")
-                .nickname("DeleteHostNick")
-                .gender(Gender.MALE)
-                .build());
-        userRepository.save(User.builder()
-                .userNo(APPLICANT_NO)
-                .email("delete-applicant@gachon.ac.kr")
-                .password("pw")
-                .role(Role.USER)
-                .studentNo("202400202")
-                .name("DeleteApplicant")
-                .nickname("DeleteApplicantNick")
-                .gender(Gender.MALE)
-                .build());
-
         room = roomRepository.save(Room.builder()
                 .roomType(RoomType.TYPE_1)
                 .capacity(2)
                 .title("delete-room")
                 .hostUserNo(HOST_NO)
                 .residencePeriod(ResidencePeriod.SEMESTER)
-                .gender(Gender.MALE)
+                .gender(com.project.dorumdorum.domain.user.domain.entity.Gender.MALE)
                 .build());
 
         roommateRepository.save(Roommate.builder()
@@ -182,14 +160,13 @@ class DeleteRoomPersistenceIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        chatMessageRepository.deleteAll();
-        chatRoomMemberRepository.deleteAll();
-        chatRoomRepository.deleteAll();
-        roomRequestRepository.deleteAll();
-        roomRuleRepository.deleteAll();
-        roommateRepository.deleteAll();
-        roomRepository.deleteAll();
-        userRepository.deleteAll();
+        chatMessageRepository.deleteAllInBatch();
+        chatRoomMemberRepository.deleteAllInBatch();
+        chatRoomRepository.deleteAllInBatch();
+        roomRequestRepository.deleteAllInBatch();
+        roomRuleRepository.deleteAllInBatch();
+        roommateRepository.deleteAllInBatch();
+        roomRepository.deleteAllInBatch();
     }
 
     @Test
