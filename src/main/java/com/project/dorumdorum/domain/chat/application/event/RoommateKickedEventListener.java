@@ -1,6 +1,7 @@
 package com.project.dorumdorum.domain.chat.application.event;
 
 import com.project.dorumdorum.domain.chat.application.dto.response.ChatMessageResponse;
+import com.project.dorumdorum.domain.chat.application.dto.response.NotificationMessage;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatMessage;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoom;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomMember;
@@ -58,6 +59,8 @@ public class RoommateKickedEventListener {
                         message.getMessageNo(), chatRoom.getChatRoomNo(),
                         "SYSTEM", null, content, MessageType.SYSTEM.name(), message.getCreatedAt(), message.getUnreadCount());
                 broadcastSafely(chatRoom, response);
+                notifyUserSafely(event.kickedUserNo(),
+                        NotificationMessage.kicked(event.roomNo(), chatRoom.getChatRoomNo()));
             }
         });
     }
@@ -67,6 +70,14 @@ public class RoommateKickedEventListener {
             messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoom.getChatRoomNo(), response);
         } catch (Exception e) {
             log.warn("[Chat] WebSocket 브로드캐스트 실패. chatRoomNo={}", chatRoom.getChatRoomNo(), e);
+        }
+    }
+
+    private void notifyUserSafely(String userNo, NotificationMessage notification) {
+        try {
+            messagingTemplate.convertAndSendToUser(userNo, "/queue/notification", notification);
+        } catch (Exception e) {
+            log.warn("[Chat] 개인 알림 전송 실패. userNo={}", userNo, e);
         }
     }
 }

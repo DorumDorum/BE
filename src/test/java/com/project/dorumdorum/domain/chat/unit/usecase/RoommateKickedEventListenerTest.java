@@ -151,4 +151,47 @@ class RoommateKickedEventListenerTest {
         verify(chatRoomMemberService).leave(member);
         verify(chatMessageService).save(any(), any(), any(), any(), anyInt());
     }
+
+    @Test
+    @DisplayName("강퇴 처리 후 강퇴된 사용자에게 /queue/notification 개인 알림 전송")
+    void handle_WhenMemberKicked_SendsPersonalNotificationToKickedUser() {
+        ChatRoomMember member = ChatRoomMember.builder().chatRoom(chatRoom).userNo("user-kicked").build();
+        User mockUser = mock(User.class);
+        ChatMessage mockMessage = mock(ChatMessage.class);
+        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
+        when(chatRoomMemberService.isMember(chatRoom, "user-kicked")).thenReturn(true);
+        when(chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, "user-kicked")).thenReturn(member);
+        when(userService.findById("user-kicked")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn("kickedNick");
+        when(chatMessageService.save(any(), eq("SYSTEM"), anyString(), eq(MessageType.SYSTEM), eq(0))).thenReturn(mockMessage);
+        when(mockMessage.getMessageNo()).thenReturn("msg-1");
+        when(mockMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
+
+        listener.handle(new RoommateKickedEvent("room-1", "user-kicked"));
+
+        verify(messagingTemplate).convertAndSendToUser(eq("user-kicked"), eq("/queue/notification"), any());
+    }
+
+    @Test
+    @DisplayName("개인 알림 전송 실패 시 예외를 무시하고 정상 종료")
+    void handle_PersonalNotificationFails_LogsAndContinues() {
+        ChatRoomMember member = ChatRoomMember.builder().chatRoom(chatRoom).userNo("user-kicked").build();
+        User mockUser = mock(User.class);
+        ChatMessage mockMessage = mock(ChatMessage.class);
+        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
+        when(chatRoomMemberService.isMember(chatRoom, "user-kicked")).thenReturn(true);
+        when(chatRoomMemberService.findByChatRoomAndUserNo(chatRoom, "user-kicked")).thenReturn(member);
+        when(userService.findById("user-kicked")).thenReturn(mockUser);
+        when(mockUser.getNickname()).thenReturn("nick");
+        when(chatMessageService.save(any(), any(), any(), any(), anyInt())).thenReturn(mockMessage);
+        when(mockMessage.getMessageNo()).thenReturn("msg-1");
+        when(mockMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
+        doThrow(new RuntimeException("queue error"))
+                .when(messagingTemplate).convertAndSendToUser(any(), any(), any());
+
+        listener.handle(new RoommateKickedEvent("room-1", "user-kicked"));
+
+        verify(chatRoomMemberService).leave(member);
+        verify(chatMessageService).save(any(), any(), any(), any(), anyInt());
+    }
 }
