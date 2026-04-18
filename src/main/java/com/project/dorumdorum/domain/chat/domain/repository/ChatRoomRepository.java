@@ -4,11 +4,13 @@ import com.project.dorumdorum.domain.chat.domain.entity.ChatRoom;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, String>, ChatRoomQueryRepository {
 
     Optional<ChatRoom> findByRoomNoAndChatRoomType(String roomNo, ChatRoomType chatRoomType);
+    List<ChatRoom> findAllByRoomNo(String roomNo);
 
     boolean existsByRoomNo(String roomNo);
 

@@ -67,6 +67,10 @@ public class ChatRoomService {
         chatRoomRepository.delete(chatRoom);
     }
 
+    public List<ChatRoom> findAllByRoomNo(String roomNo) {
+        return chatRoomRepository.findAllByRoomNo(roomNo);
+    }
+
     public List<ChatRoomSummary> findMyChatRooms(String userNo) {
         return chatRoomRepository.findMyChatRooms(userNo);
     }

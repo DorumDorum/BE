@@ -65,6 +65,10 @@ public class ChatRoomMemberService {
         chatRoomMemberRepository.delete(member);
     }
 
+    public void deleteAllByChatRoom(ChatRoom chatRoom) {
+        chatRoomMemberRepository.deleteAllByChatRoom(chatRoom);
+    }
+
     public void updateLastReadAt(ChatRoomMember member, LocalDateTime readAt) {
         member.updateLastReadAt(readAt);
         chatRoomMemberRepository.save(member);
