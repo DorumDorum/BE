@@ -25,6 +25,8 @@ public enum RoomErrorStatus implements BaseCodeInterface {
     ROOM_FULL(HttpStatus.BAD_REQUEST, "ROOM014", "방 정원이 가득 찼습니다."),
     INVALID_ROOM_CAPACITY(HttpStatus.BAD_REQUEST, "ROOM015", "현재 인원보다 적은 정원으로 변경할 수 없습니다."),
     GENDER_MISMATCH(HttpStatus.FORBIDDEN, "ROOM016", "성별이 다른 방에는 신청할 수 없습니다."),
+    ROOM_HAS_MEMBERS(HttpStatus.BAD_REQUEST, "ROOM017", "룸메이트가 있는 방은 삭제할 수 없습니다."),
+    CANNOT_DELETE_COMPLETED_ROOM(HttpStatus.BAD_REQUEST, "ROOM018", "확정된 방은 삭제할 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.ROOM_NOT_FOUND;
 import static com.project.dorumdorum.global.exception.code.status.CommonErrorStatus._NOT_FOUND;
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.ROOM_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +42,7 @@ public class RoomService {
 
     public Room findByIdForUpdate(String roomNo) {
         return roomRepository.findByRoomNoForUpdate(roomNo)
-                .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+                .orElseThrow(() -> new RestApiException(ROOM_NOT_FOUND));
     }
 
     public List<FindRoomsResponse> searchByCursor(

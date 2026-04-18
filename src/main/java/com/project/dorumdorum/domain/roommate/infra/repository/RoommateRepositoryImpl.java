@@ -41,8 +41,16 @@ public class RoommateRepositoryImpl implements RoommateQueryRepository {
                         )
                 )
                 .from(roommate)
-                .join(myRoommate).on(myRoommate.room.eq(roommate.room).and(myRoommate.userNo.eq(userNo)))
+                .join(myRoommate).on(
+                        myRoommate.room.eq(roommate.room)
+                                .and(myRoommate.userNo.eq(userNo))
+                                .and(myRoommate.deletedAt.isNull())
+                )
                 .leftJoin(user).on(user.userNo.eq(roommate.userNo))
+                .where(
+                        roommate.deletedAt.isNull(),
+                        roommate.room.deletedAt.isNull()
+                )
                 .fetch();
     }
 }
