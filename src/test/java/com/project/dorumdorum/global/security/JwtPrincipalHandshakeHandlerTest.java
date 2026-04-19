@@ -29,6 +29,16 @@ class JwtPrincipalHandshakeHandlerTest {
         assertThat(principal.getName()).isEqualTo("user-1");
     }
 
+    @Test
+    @DisplayName("handshake attributes에 userNo가 없으면 super.determineUser로 폴백하여 null을 반환한다")
+    void determineUser_WithoutUserNo_FallsBackToSuperReturningNull() {
+        Map<String, Object> attributes = new HashMap<>();
+
+        Principal principal = handshakeHandler.determine(mock(ServerHttpRequest.class), mock(WebSocketHandler.class), attributes);
+
+        assertThat(principal).isNull();
+    }
+
     private static final class ExposedJwtPrincipalHandshakeHandler extends JwtPrincipalHandshakeHandler {
         Principal determine(ServerHttpRequest request, WebSocketHandler handler, Map<String, Object> attributes) {
             return super.determineUser(request, handler, attributes);

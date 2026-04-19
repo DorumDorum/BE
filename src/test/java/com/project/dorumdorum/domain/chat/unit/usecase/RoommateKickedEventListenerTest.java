@@ -1,5 +1,8 @@
 package com.project.dorumdorum.domain.chat.unit.usecase;
 
+import com.project.dorumdorum.domain.chat.application.dto.response.NotificationMessage;
+import com.project.dorumdorum.domain.chat.application.dto.response.NotificationType;
+import com.project.dorumdorum.domain.chat.application.event.ChatWebSocketNotificationEvent;
 import com.project.dorumdorum.domain.chat.application.event.RoommateKickedEventListener;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatMessage;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoom;
@@ -14,15 +17,17 @@ import com.project.dorumdorum.domain.user.domain.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -34,7 +39,7 @@ class RoommateKickedEventListenerTest {
     @Mock private ChatRoomMemberService chatRoomMemberService;
     @Mock private ChatMessageService chatMessageService;
     @Mock private UserService userService;
-    @Mock private SimpMessagingTemplate messagingTemplate;
+    @Mock private ApplicationEventPublisher eventPublisher;
     @InjectMocks private RoommateKickedEventListener listener;
 
     private final ChatRoom chatRoom = ChatRoom.builder().roomNo("room-1").build();
@@ -84,6 +89,7 @@ class RoommateKickedEventListenerTest {
 
         verify(chatRoomMemberService, never()).leave(any());
         verify(chatMessageService, never()).save(any(), any(), any(), any(), anyInt());
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
@@ -97,6 +103,7 @@ class RoommateKickedEventListenerTest {
 
         verify(chatRoomMemberService, never()).leave(any());
         verify(chatMessageService, never()).save(any(), any(), any(), any(), anyInt());
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
@@ -109,14 +116,14 @@ class RoommateKickedEventListenerTest {
         when(userService.findById("user-kicked")).thenReturn(mockUser);
         when(mockUser.getNickname()).thenReturn(null);
         when(mockUser.getName()).thenReturn("홍길동");
-        when(chatMessageService.save(any(), eq("SYSTEM"), contains("홍길동"), eq(MessageType.SYSTEM), eq(0)))
+        when(chatMessageService.save(any(), eq("SYSTEM"), contains("홍길동님이"), eq(MessageType.SYSTEM), eq(0)))
                 .thenReturn(mockMessage);
         when(mockMessage.getMessageNo()).thenReturn("msg-1");
         when(mockMessage.getCreatedAt()).thenReturn(LocalDateTime.now());
 
         listener.handle(new RoommateKickedEvent("room-1", "user-kicked"));
 
-        verify(chatMessageService).save(eq(chatRoom), eq("SYSTEM"), contains("홍길동"), eq(MessageType.SYSTEM), eq(0));
+        verify(chatMessageService).save(eq(chatRoom), eq("SYSTEM"), contains("홍길동님이"), eq(MessageType.SYSTEM), eq(0));
     }
 
     @Test
@@ -137,26 +144,8 @@ class RoommateKickedEventListenerTest {
     }
 
     @Test
-    @DisplayName("WebSocket 브로드캐스트 실패 시 예외를 무시하고 정상 종료")
-    void handle_WhenWebSocketFails_LogsAndContinues() {
-        givenMember(chatRoom, "user-kicked");
-        User mockUser = mock(User.class);
-        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
-        when(userService.findById("user-kicked")).thenReturn(mockUser);
-        when(mockUser.getNickname()).thenReturn("nick");
-        givenSystemMessage();
-        doThrow(new RuntimeException("WebSocket error"))
-                .when(messagingTemplate).convertAndSend(anyString(), any(Object.class));
-
-        listener.handle(new RoommateKickedEvent("room-1", "user-kicked"));
-
-        verify(chatRoomMemberService).leave(any());
-        verify(chatMessageService).save(any(), any(), any(), any(), anyInt());
-    }
-
-    @Test
-    @DisplayName("강퇴 처리 후 강퇴된 사용자에게 /queue/notification 개인 알림 전송")
-    void handle_WhenMemberKicked_SendsPersonalNotificationToKickedUser() {
+    @DisplayName("강퇴 처리 후 이벤트에 브로드캐스트 + 강퇴 사용자 개인 알림 태스크가 담긴다")
+    void handle_WhenMemberKicked_PublishesEventWithBroadcastAndUserNotification() {
         givenMember(chatRoom, "user-kicked");
         User mockUser = mock(User.class);
         when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
@@ -166,24 +155,17 @@ class RoommateKickedEventListenerTest {
 
         listener.handle(new RoommateKickedEvent("room-1", "user-kicked"));
 
-        verify(messagingTemplate).convertAndSendToUser(eq("user-kicked"), eq("/queue/notification"), any());
-    }
+        ArgumentCaptor<ChatWebSocketNotificationEvent> captor =
+                ArgumentCaptor.forClass(ChatWebSocketNotificationEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        ChatWebSocketNotificationEvent event = captor.getValue();
 
-    @Test
-    @DisplayName("개인 알림 전송 실패 시 예외를 무시하고 정상 종료")
-    void handle_PersonalNotificationFails_LogsAndContinues() {
-        givenMember(chatRoom, "user-kicked");
-        User mockUser = mock(User.class);
-        when(chatRoomService.findByRoomNo("room-1")).thenReturn(Optional.of(chatRoom));
-        when(userService.findById("user-kicked")).thenReturn(mockUser);
-        when(mockUser.getNickname()).thenReturn("nick");
-        givenSystemMessage();
-        doThrow(new RuntimeException("queue error"))
-                .when(messagingTemplate).convertAndSendToUser(any(), any(), any());
+        assertThat(event.broadcasts()).hasSize(1);
+        assertThat(event.userNotifications()).hasSize(1);
+        assertThat(event.userNotifications().get(0).userNo()).isEqualTo("user-kicked");
 
-        listener.handle(new RoommateKickedEvent("room-1", "user-kicked"));
-
-        verify(chatRoomMemberService).leave(any());
-        verify(chatMessageService).save(any(), any(), any(), any(), anyInt());
+        NotificationMessage notification = (NotificationMessage) event.userNotifications().get(0).payload();
+        assertThat(notification.type()).isEqualTo(NotificationType.KICKED_FROM_ROOM);
+        assertThat(notification.roomNo()).isEqualTo("room-1");
     }
 }
