@@ -2,7 +2,7 @@ package com.project.dorumdorum.domain.chat.application.event;
 
 import com.project.dorumdorum.domain.chat.application.dto.response.NotificationMessage;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoom;
-import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomType;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomMember;
 import com.project.dorumdorum.domain.chat.domain.service.ChatMessageService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
@@ -30,24 +30,22 @@ public class RoomDeletedEventListener {
      * 발행: DeleteRoomUseCase (room 도메인 담당자)
      *
      * BEFORE_COMMIT: 부모 트랜잭션(DeleteRoomUseCase)에 참여하여 방 삭제 + 채팅방 삭제를 하나의 트랜잭션으로 처리.
-     * WebSocket 알림 페이로드를 수집한 뒤 ChatWebSocketNotificationEvent로 발행 →
-     * AFTER_COMMIT에서 비동기 재처리(exponential backoff)로 전송.
+     * 채팅방 멤버 전원에게 /queue/notification으로 NotificationMessage 전달.
+     * /topic/chat-room/{chatRoomNo}는 ChatMessageResponse 전용 채널이므로 여기서 사용하지 않음.
      */
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handle(RoomDeletedEvent event) {
         List<ChatRoom> chatRooms = chatRoomService.findAllByRoomNo(event.roomNo());
-
-        List<ChatWebSocketNotificationEvent.BroadcastTask> broadcasts = new ArrayList<>();
         List<ChatWebSocketNotificationEvent.UserNotifyTask> userNotifications = new ArrayList<>();
 
         for (ChatRoom chatRoom : chatRooms) {
             NotificationMessage notification = NotificationMessage.roomDeleted(event.roomNo(), chatRoom.getChatRoomNo());
-            broadcasts.add(new ChatWebSocketNotificationEvent.BroadcastTask(chatRoom.getChatRoomNo(), notification));
 
-            if (ChatRoomType.DIRECT.equals(chatRoom.getChatRoomType())
-                    && chatRoom.getApplicantUserNo() != null) {
+            // 삭제 전 멤버 조회 → 전원에게 /queue/notification 개인 알림
+            List<ChatRoomMember> members = chatRoomMemberService.findByChatRoom(chatRoom);
+            for (ChatRoomMember member : members) {
                 userNotifications.add(new ChatWebSocketNotificationEvent.UserNotifyTask(
-                        chatRoom.getApplicantUserNo(), notification));
+                        member.getUserNo(), notification));
             }
 
             chatMessageService.deleteAllByChatRoom(chatRoom.getChatRoomNo());
@@ -55,8 +53,8 @@ public class RoomDeletedEventListener {
             chatRoomService.deleteByChatRoomNo(chatRoom.getChatRoomNo());
         }
 
-        if (!broadcasts.isEmpty() || !userNotifications.isEmpty()) {
-            eventPublisher.publishEvent(new ChatWebSocketNotificationEvent(broadcasts, userNotifications));
+        if (!userNotifications.isEmpty()) {
+            eventPublisher.publishEvent(new ChatWebSocketNotificationEvent(List.of(), userNotifications));
         }
     }
 }

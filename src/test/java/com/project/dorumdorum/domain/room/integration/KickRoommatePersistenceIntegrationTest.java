@@ -38,6 +38,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.time.LocalDateTime;
 
+import static org.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -165,6 +166,10 @@ class KickRoommatePersistenceIntegrationTest {
         assertThat(persistedRoom.getCurrentMateCount()).isEqualTo(1);
         assertThat(persistedRoom.getRemaining()).isEqualTo(1);
 
-        verify(messagingTemplate).convertAndSendToUser(eq(MEMBER_NO), eq("/queue/notification"), any());
+        await().untilAsserted(() -> {
+            verify(messagingTemplate).convertAndSend(
+                    eq("/topic/chat-room/" + chatRoom.getChatRoomNo()), any(Object.class));
+            verify(messagingTemplate).convertAndSendToUser(eq(MEMBER_NO), eq("/queue/notification"), any());
+        });
     }
 }

@@ -38,7 +38,12 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import static org.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * userNo에 FK 제약이 없으므로 실제 User 엔티티 없이 임의 ID 사용 가능.
@@ -183,5 +188,9 @@ class DeleteRoomPersistenceIntegrationTest {
         assertThat(chatRoomRepository.findAllByRoomNo(room.getRoomNo())).isEmpty();
         assertThat(chatRoomMemberRepository.findAll()).isEmpty();
         assertThat(chatMessageRepository.findAll()).isEmpty();
+
+        await().untilAsserted(() ->
+                verify(messagingTemplate, times(3))
+                        .convertAndSendToUser(any(), eq("/queue/notification"), any()));
     }
 }

@@ -5,6 +5,7 @@ import com.project.dorumdorum.domain.chat.application.dto.response.NotificationT
 import com.project.dorumdorum.domain.chat.application.event.ChatWebSocketNotificationEvent;
 import com.project.dorumdorum.domain.chat.application.event.RoomDeletedEventListener;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoom;
+import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomMember;
 import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomType;
 import com.project.dorumdorum.domain.chat.domain.service.ChatMessageService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
@@ -35,42 +36,18 @@ class RoomDeletedEventListenerTest {
     @Mock private ApplicationEventPublisher eventPublisher;
     @InjectMocks private RoomDeletedEventListener listener;
 
-    @Test
-    @DisplayName("GROUP 채팅방 — 브로드캐스트 이벤트 발행 후 메시지·멤버·채팅방 순서로 삭제")
-    void handle_GroupChatRoom_PublishesEventAndDeletesInOrder() {
-        ChatRoom groupRoom = ChatRoom.builder()
-                .chatRoomNo("cr-1").roomNo("r1")
-                .chatRoomType(ChatRoomType.GROUP)
-                .build();
-        when(chatRoomService.findAllByRoomNo("r1")).thenReturn(List.of(groupRoom));
-
-        listener.handle(new RoomDeletedEvent("r1"));
-
-        // DB 삭제 순서 검증
-        InOrder inOrder = inOrder(chatMessageService, chatRoomMemberService, chatRoomService);
-        inOrder.verify(chatMessageService).deleteAllByChatRoom("cr-1");
-        inOrder.verify(chatRoomMemberService).deleteAllByChatRoom(groupRoom);
-        inOrder.verify(chatRoomService).deleteByChatRoomNo("cr-1");
-
-        // 발행된 이벤트에 GROUP 브로드캐스트 태스크만 있고 개인 알림은 없는지 검증
-        ArgumentCaptor<ChatWebSocketNotificationEvent> captor =
-                ArgumentCaptor.forClass(ChatWebSocketNotificationEvent.class);
-        verify(eventPublisher).publishEvent(captor.capture());
-        ChatWebSocketNotificationEvent event = captor.getValue();
-        assertThat(event.broadcasts()).hasSize(1);
-        assertThat(event.broadcasts().get(0).chatRoomNo()).isEqualTo("cr-1");
-        assertThat(event.userNotifications()).isEmpty();
+    private ChatRoomMember memberOf(ChatRoom chatRoom, String userNo) {
+        return ChatRoomMember.builder().chatRoom(chatRoom).userNo(userNo).build();
     }
 
     @Test
-    @DisplayName("DIRECT 채팅방 — 브로드캐스트 이벤트 + 지원자 개인 알림 태스크 포함")
-    void handle_DirectChatRoom_PublishesEventWithUserNotification() {
-        ChatRoom directRoom = ChatRoom.builder()
-                .chatRoomNo("cr-2").roomNo("r1")
-                .chatRoomType(ChatRoomType.DIRECT)
-                .applicantUserNo("applicant-1")
-                .build();
-        when(chatRoomService.findAllByRoomNo("r1")).thenReturn(List.of(directRoom));
+    @DisplayName("채팅방 멤버 전원에게 /queue/notification 개인 알림이 발행된다")
+    void handle_NotifiesAllMembersViaUserNotification() {
+        ChatRoom room = ChatRoom.builder().chatRoomNo("cr-1").roomNo("r1")
+                .chatRoomType(ChatRoomType.GROUP).build();
+        when(chatRoomService.findAllByRoomNo("r1")).thenReturn(List.of(room));
+        when(chatRoomMemberService.findByChatRoom(room))
+                .thenReturn(List.of(memberOf(room, "user-host")));
 
         listener.handle(new RoomDeletedEvent("r1"));
 
@@ -79,32 +56,50 @@ class RoomDeletedEventListenerTest {
         verify(eventPublisher).publishEvent(captor.capture());
         ChatWebSocketNotificationEvent event = captor.getValue();
 
-        assertThat(event.broadcasts()).hasSize(1);
-        assertThat(event.broadcasts().get(0).chatRoomNo()).isEqualTo("cr-2");
+        assertThat(event.broadcasts()).isEmpty();
         assertThat(event.userNotifications()).hasSize(1);
-        assertThat(event.userNotifications().get(0).userNo()).isEqualTo("applicant-1");
+        assertThat(event.userNotifications().get(0).userNo()).isEqualTo("user-host");
 
         NotificationMessage notification = (NotificationMessage) event.userNotifications().get(0).payload();
         assertThat(notification.type()).isEqualTo(NotificationType.ROOM_DELETED);
         assertThat(notification.roomNo()).isEqualTo("r1");
+        assertThat(notification.chatRoomNo()).isEqualTo("cr-1");
     }
 
     @Test
-    @DisplayName("DIRECT 채팅방에서 applicantUserNo가 null이면 개인 알림 태스크 없음")
-    void handle_DirectChatRoomWithNullApplicant_NoUserNotificationTask() {
-        ChatRoom directRoom = ChatRoom.builder()
-                .chatRoomNo("cr-3").roomNo("r1")
-                .chatRoomType(ChatRoomType.DIRECT)
-                .applicantUserNo(null)
-                .build();
+    @DisplayName("DIRECT 채팅방 — 멤버 전원(host + applicant)에게 개인 알림")
+    void handle_DirectChatRoom_NotifiesBothMembers() {
+        ChatRoom directRoom = ChatRoom.builder().chatRoomNo("cr-2").roomNo("r1")
+                .chatRoomType(ChatRoomType.DIRECT).applicantUserNo("applicant-1").build();
         when(chatRoomService.findAllByRoomNo("r1")).thenReturn(List.of(directRoom));
+        when(chatRoomMemberService.findByChatRoom(directRoom))
+                .thenReturn(List.of(memberOf(directRoom, "user-host"), memberOf(directRoom, "applicant-1")));
 
         listener.handle(new RoomDeletedEvent("r1"));
 
         ArgumentCaptor<ChatWebSocketNotificationEvent> captor =
                 ArgumentCaptor.forClass(ChatWebSocketNotificationEvent.class);
         verify(eventPublisher).publishEvent(captor.capture());
-        assertThat(captor.getValue().userNotifications()).isEmpty();
+        ChatWebSocketNotificationEvent event = captor.getValue();
+
+        assertThat(event.broadcasts()).isEmpty();
+        assertThat(event.userNotifications()).hasSize(2);
+        assertThat(event.userNotifications())
+                .extracting(ChatWebSocketNotificationEvent.UserNotifyTask::userNo)
+                .containsExactlyInAnyOrder("user-host", "applicant-1");
+    }
+
+    @Test
+    @DisplayName("멤버가 없는 채팅방이면 이벤트를 발행하지 않는다")
+    void handle_NoMembers_DoesNotPublishEvent() {
+        ChatRoom room = ChatRoom.builder().chatRoomNo("cr-1").roomNo("r1")
+                .chatRoomType(ChatRoomType.GROUP).build();
+        when(chatRoomService.findAllByRoomNo("r1")).thenReturn(List.of(room));
+        when(chatRoomMemberService.findByChatRoom(room)).thenReturn(List.of());
+
+        listener.handle(new RoomDeletedEvent("r1"));
+
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test
@@ -120,18 +115,34 @@ class RoomDeletedEventListenerTest {
     }
 
     @Test
-    @DisplayName("복수 채팅방(GROUP + DIRECT)이 있으면 이벤트에 모두 포함")
-    void handle_MultipleRooms_EventContainsAllTasks() {
-        ChatRoom groupRoom = ChatRoom.builder()
-                .chatRoomNo("cr-1").roomNo("r1")
-                .chatRoomType(ChatRoomType.GROUP)
-                .build();
-        ChatRoom directRoom = ChatRoom.builder()
-                .chatRoomNo("cr-2").roomNo("r1")
-                .chatRoomType(ChatRoomType.DIRECT)
-                .applicantUserNo("applicant-1")
-                .build();
+    @DisplayName("메시지·멤버·채팅방 순서로 삭제된다")
+    void handle_DeletesInOrder() {
+        ChatRoom room = ChatRoom.builder().chatRoomNo("cr-1").roomNo("r1")
+                .chatRoomType(ChatRoomType.GROUP).build();
+        when(chatRoomService.findAllByRoomNo("r1")).thenReturn(List.of(room));
+        when(chatRoomMemberService.findByChatRoom(room))
+                .thenReturn(List.of(memberOf(room, "user-host")));
+
+        listener.handle(new RoomDeletedEvent("r1"));
+
+        InOrder inOrder = inOrder(chatMessageService, chatRoomMemberService, chatRoomService);
+        inOrder.verify(chatMessageService).deleteAllByChatRoom("cr-1");
+        inOrder.verify(chatRoomMemberService).deleteAllByChatRoom(room);
+        inOrder.verify(chatRoomService).deleteByChatRoomNo("cr-1");
+    }
+
+    @Test
+    @DisplayName("복수 채팅방이 있으면 각 채팅방 멤버 모두 알림 수신")
+    void handle_MultipleRooms_AllMembersNotified() {
+        ChatRoom groupRoom = ChatRoom.builder().chatRoomNo("cr-1").roomNo("r1")
+                .chatRoomType(ChatRoomType.GROUP).build();
+        ChatRoom directRoom = ChatRoom.builder().chatRoomNo("cr-2").roomNo("r1")
+                .chatRoomType(ChatRoomType.DIRECT).build();
         when(chatRoomService.findAllByRoomNo("r1")).thenReturn(List.of(groupRoom, directRoom));
+        when(chatRoomMemberService.findByChatRoom(groupRoom))
+                .thenReturn(List.of(memberOf(groupRoom, "user-host")));
+        when(chatRoomMemberService.findByChatRoom(directRoom))
+                .thenReturn(List.of(memberOf(directRoom, "user-host"), memberOf(directRoom, "applicant-1")));
 
         listener.handle(new RoomDeletedEvent("r1"));
 
@@ -142,8 +153,7 @@ class RoomDeletedEventListenerTest {
                 ArgumentCaptor.forClass(ChatWebSocketNotificationEvent.class);
         verify(eventPublisher).publishEvent(captor.capture());
         ChatWebSocketNotificationEvent event = captor.getValue();
-        assertThat(event.broadcasts()).hasSize(2);
-        assertThat(event.userNotifications()).hasSize(1);
-        assertThat(event.userNotifications().get(0).userNo()).isEqualTo("applicant-1");
+        assertThat(event.broadcasts()).isEmpty();
+        assertThat(event.userNotifications()).hasSize(3);
     }
 }
