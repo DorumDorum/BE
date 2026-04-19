@@ -18,6 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.CANNOT_DELETE_COMPLETED_ROOM;
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.NO_PERMISSION_ON_ROOM;
+import static com.project.dorumdorum.global.exception.code.status.RoomErrorStatus.ROOM_HAS_MEMBERS;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -41,7 +44,9 @@ class DeleteRoomUseCaseTest {
         when(room.isHost("member1")).thenReturn(false);
 
         assertThatThrownBy(() -> useCase.execute("member1", "r1"))
-                .isInstanceOf(RestApiException.class);
+                .isInstanceOf(RestApiException.class)
+                .extracting(e -> ((RestApiException) e).getErrorCode().getCode())
+                .isEqualTo(NO_PERMISSION_ON_ROOM.getCode().getCode());
 
         verify(eventPublisher, never()).publishEvent(any());
     }
@@ -55,7 +60,9 @@ class DeleteRoomUseCaseTest {
         when(room.isCompleted()).thenReturn(true);
 
         assertThatThrownBy(() -> useCase.execute("host", "r1"))
-                .isInstanceOf(RestApiException.class);
+                .isInstanceOf(RestApiException.class)
+                .extracting(e -> ((RestApiException) e).getErrorCode().getCode())
+                .isEqualTo(CANNOT_DELETE_COMPLETED_ROOM.getCode().getCode());
 
         verify(eventPublisher, never()).publishEvent(any());
     }
@@ -70,7 +77,9 @@ class DeleteRoomUseCaseTest {
         when(room.getCurrentMateCount()).thenReturn(2);
 
         assertThatThrownBy(() -> useCase.execute("host", "r1"))
-                .isInstanceOf(RestApiException.class);
+                .isInstanceOf(RestApiException.class)
+                .extracting(e -> ((RestApiException) e).getErrorCode().getCode())
+                .isEqualTo(ROOM_HAS_MEMBERS.getCode().getCode());
 
         verify(eventPublisher, never()).publishEvent(any());
     }

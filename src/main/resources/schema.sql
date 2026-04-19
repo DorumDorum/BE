@@ -37,3 +37,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_chat_room_group
 CREATE UNIQUE INDEX IF NOT EXISTS uk_chat_room_direct
     ON chat_room (room_no, applicant_user_no)
     WHERE chat_room_type = 'DIRECT';
+
+CREATE INDEX IF NOT EXISTS idx_chat_room_room_no
+    ON chat_room (room_no);

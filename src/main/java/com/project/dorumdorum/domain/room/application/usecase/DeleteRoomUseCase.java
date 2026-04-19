@@ -33,7 +33,8 @@ public class DeleteRoomUseCase {
      * 방 삭제
      * - 방장 권한 검증
      * - 방장 외 룸메이트 존재 시 삭제 불가
-     * - RoomRequest, RoomLike cascade 삭제 후 방 소프트 삭제
+     * - 방 소프트 삭제 → 룸메이트 퇴실 처리 → flush(deletedAt DB 반영)
+     * - RoomRequest, RoomRule, RoomLike 연관 데이터 삭제
      * - 채팅방 삭제 이벤트 발행
      */
     public void execute(String requesterNo, String roomNo) {
