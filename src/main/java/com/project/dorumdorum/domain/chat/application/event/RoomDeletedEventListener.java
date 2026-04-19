@@ -8,15 +8,14 @@ import com.project.dorumdorum.domain.chat.domain.service.ChatRoomMemberService;
 import com.project.dorumdorum.domain.chat.domain.service.ChatRoomService;
 import com.project.dorumdorum.domain.room.application.event.RoomDeletedEvent;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RoomDeletedEventListener {
@@ -24,53 +23,40 @@ public class RoomDeletedEventListener {
     private final ChatRoomService chatRoomService;
     private final ChatRoomMemberService chatRoomMemberService;
     private final ChatMessageService chatMessageService;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 방 삭제(RoomDeletedEvent) → GROUP·DIRECT 채팅방 전체 삭제 처리
      * 발행: DeleteRoomUseCase (room 도메인 담당자)
      *
      * BEFORE_COMMIT: 부모 트랜잭션(DeleteRoomUseCase)에 참여하여 방 삭제 + 채팅방 삭제를 하나의 트랜잭션으로 처리.
-     * WebSocket 브로드캐스트는 트랜잭션 외부 작업이므로 실패가 TX에 영향을 주지 않도록 독립 처리.
+     * WebSocket 알림 페이로드를 수집한 뒤 ChatWebSocketNotificationEvent로 발행 →
+     * AFTER_COMMIT에서 비동기 재처리(exponential backoff)로 전송.
      */
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handle(RoomDeletedEvent event) {
         List<ChatRoom> chatRooms = chatRoomService.findAllByRoomNo(event.roomNo());
+
+        List<ChatWebSocketNotificationEvent.BroadcastTask> broadcasts = new ArrayList<>();
+        List<ChatWebSocketNotificationEvent.UserNotifyTask> userNotifications = new ArrayList<>();
+
         for (ChatRoom chatRoom : chatRooms) {
-            notifyAndClean(chatRoom, event.roomNo());
-        }
-    }
+            NotificationMessage notification = NotificationMessage.roomDeleted(event.roomNo(), chatRoom.getChatRoomNo());
+            broadcasts.add(new ChatWebSocketNotificationEvent.BroadcastTask(chatRoom.getChatRoomNo(), notification));
 
-    private void notifyAndClean(ChatRoom chatRoom, String roomNo) {
-        NotificationMessage notification = NotificationMessage.roomDeleted(roomNo, chatRoom.getChatRoomNo());
+            if (ChatRoomType.DIRECT.equals(chatRoom.getChatRoomType())
+                    && chatRoom.getApplicantUserNo() != null) {
+                userNotifications.add(new ChatWebSocketNotificationEvent.UserNotifyTask(
+                        chatRoom.getApplicantUserNo(), notification));
+            }
 
-        // 채팅방 열려 있는 유저에게 브로드캐스트 (/topic/)
-        broadcastDeletionSafely(chatRoom, notification);
-
-        // DIRECT 채팅방은 지원자가 다른 화면에 있어도 받을 수 있도록 개인 큐로 추가 전송 (/queue/)
-        if (ChatRoomType.DIRECT.equals(chatRoom.getChatRoomType())
-                && chatRoom.getApplicantUserNo() != null) {
-            notifyUserSafely(chatRoom.getApplicantUserNo(), notification);
+            chatMessageService.deleteAllByChatRoom(chatRoom.getChatRoomNo());
+            chatRoomMemberService.deleteAllByChatRoom(chatRoom);
+            chatRoomService.deleteByChatRoomNo(chatRoom.getChatRoomNo());
         }
 
-        chatMessageService.deleteAllByChatRoom(chatRoom.getChatRoomNo());
-        chatRoomMemberService.deleteAllByChatRoom(chatRoom);
-        chatRoomService.deleteByChatRoomNo(chatRoom.getChatRoomNo());
-    }
-
-    private void broadcastDeletionSafely(ChatRoom chatRoom, NotificationMessage notification) {
-        try {
-            messagingTemplate.convertAndSend("/topic/chat-room/" + chatRoom.getChatRoomNo(), notification);
-        } catch (Exception e) {
-            log.warn("[Chat] 방 삭제 WebSocket 브로드캐스트 실패. chatRoomNo={}", chatRoom.getChatRoomNo(), e);
-        }
-    }
-
-    private void notifyUserSafely(String userNo, NotificationMessage notification) {
-        try {
-            messagingTemplate.convertAndSendToUser(userNo, "/queue/notification", notification);
-        } catch (Exception e) {
-            log.warn("[Chat] 개인 알림 전송 실패. userNo={}", userNo, e);
+        if (!broadcasts.isEmpty() || !userNotifications.isEmpty()) {
+            eventPublisher.publishEvent(new ChatWebSocketNotificationEvent(broadcasts, userNotifications));
         }
     }
 }
