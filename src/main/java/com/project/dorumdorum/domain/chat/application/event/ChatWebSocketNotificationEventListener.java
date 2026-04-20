@@ -16,9 +16,9 @@ public class ChatWebSocketNotificationEventListener {
     @Async("notificationExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = false)
     public void handle(ChatWebSocketNotificationEvent event) {
-        event.broadcasts().forEach(task ->
-                chatWebSocketSendService.broadcast(task.chatRoomNo(), task.payload()));
         event.userNotifications().forEach(task ->
                 chatWebSocketSendService.notifyUser(task.userNo(), task.payload()));
+        event.broadcasts().forEach(task ->
+                chatWebSocketSendService.broadcast(task.chatRoomNo(), task.payload()));
     }
 }
