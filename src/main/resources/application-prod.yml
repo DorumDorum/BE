@@ -1,4 +1,9 @@
+server:
+  shutdown: graceful
+
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   datasource:
     hikari:
       maximum-pool-size: 16
@@ -44,6 +49,17 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
 
 firebase:
   service-account:
