@@ -41,7 +41,6 @@ public class KickRoommateUseCase {
 
         roommateService.leaveRoom(kickedUserNo, roomNo);
         room.minusCurrentMate();
-        roomService.flush();
 
         eventPublisher.publishEvent(new RoommateKickedEvent(roomNo, kickedUserNo));
     }
