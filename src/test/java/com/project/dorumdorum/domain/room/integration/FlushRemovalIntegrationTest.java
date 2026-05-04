@@ -26,7 +26,10 @@ import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.project.dorumdorum.domain.user.domain.entity.Role;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
+import com.project.dorumdorum.testsupport.TestcontainersSupport;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -55,22 +58,20 @@ import static org.mockito.Mockito.when;
  * 2. DeleteRoomUseCase — room.delete()가 deleteAllByRoom(flushAutomatically=true)를 통해
  *    DB에 반영되고 연관 데이터가 정리되는지
  *
- * @ActiveProfiles("local-db"): 로컬 Docker PostgreSQL(dorumdorum_test DB)에 직접 연결.
- * Testcontainers 없이 실제 DB로 동작을 검증한다.
+ * @ActiveProfiles("test"): Testcontainers PostgreSQL로 실제 DB 동작을 검증한다.
  */
-@SpringBootTest(properties = {
-        "spring.datasource.driver-class-name=org.postgresql.Driver",
-        "spring.datasource.url=jdbc:postgresql://localhost:5432/dorumdorum_test",
-        "spring.datasource.username=dorumdorum",
-        "spring.datasource.password=test1234",
-        "spring.jpa.defer-datasource-initialization=true",
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.sql.init.mode=always",
-        "spring.sql.init.schema-locations=classpath:schema.sql"
-})
+@SpringBootTest
 @ActiveProfiles("test")
 @DisplayName("flush() 제거 후 실제 DB 반영 통합 테스트")
 class FlushRemovalIntegrationTest {
+
+    @BeforeAll
+    static void requireDocker() {
+        Assumptions.assumeTrue(
+                TestcontainersSupport.requireDockerOrSkip("FlushRemovalIntegrationTest"),
+                "Docker is required for FlushRemovalIntegrationTest"
+        );
+    }
 
     @MockitoBean private FirebaseApp firebaseApp;
     @MockitoBean private FirebaseMessaging firebaseMessaging;
