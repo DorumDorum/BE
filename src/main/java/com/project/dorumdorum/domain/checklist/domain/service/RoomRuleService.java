@@ -24,4 +24,8 @@ public class RoomRuleService {
         return roomRuleRepository.findByRoomNo(roomNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
     }
+
+    public void deleteByRoomNo(String roomNo) {
+        roomRuleRepository.deleteByRoomNo(roomNo);
+    }
 }

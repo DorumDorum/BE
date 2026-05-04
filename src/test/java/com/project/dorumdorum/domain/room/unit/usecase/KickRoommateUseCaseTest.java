@@ -41,6 +41,7 @@ class KickRoommateUseCaseTest {
 
         verify(roommateService).leaveRoom("member1", "r1");
         verify(room).minusCurrentMate();
+        verify(roomService).flush();
         verify(eventPublisher).publishEvent(new RoommateKickedEvent("r1", "member1"));
     }
 
@@ -70,6 +71,7 @@ class KickRoommateUseCaseTest {
                 .isInstanceOf(RestApiException.class);
 
         verify(room, never()).minusCurrentMate();
+        verify(roomService, never()).flush();
         verify(eventPublisher, never()).publishEvent(any());
     }
 
@@ -84,6 +86,7 @@ class KickRoommateUseCaseTest {
                 .isInstanceOf(RestApiException.class);
 
         verify(roommateService, never()).leaveRoom(any(), any());
+        verify(roomService, never()).flush();
         verify(eventPublisher, never()).publishEvent(any());
     }
 
@@ -98,6 +101,7 @@ class KickRoommateUseCaseTest {
                 .isInstanceOf(RestApiException.class);
 
         verify(roommateService, never()).leaveRoom(any(), any());
+        verify(roomService, never()).flush();
         verify(eventPublisher, never()).publishEvent(any());
     }
 }

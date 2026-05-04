@@ -123,6 +123,60 @@ public abstract class ChecklistBase {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    public void updateChecklist(
+            String bedtime,
+            String wakeUp,
+            ReturnHomeType returnHome,
+            String returnHomeTime,
+            CleaningType cleaning,
+            PhoneCallType phoneCall,
+            SleepLightType sleepLight,
+            SleepHabitType sleepHabit,
+            SnoringType snoring,
+            ShowerTimeType showerTime,
+            EatingType eating,
+            LightsOutType lightsOut,
+            String lightsOutTime,
+            HomeVisitType homeVisit,
+            SmokingType smoking,
+            RefrigeratorType refrigerator,
+            String hairDryer,
+            AlarmType alarm,
+            EarphoneType earphone,
+            KeyskinType keyskin,
+            HeatType heat,
+            ColdType cold,
+            StudyType study,
+            TrashCanType trashCan,
+            String otherNotes
+    ) {
+        this.bedtime = bedtime;
+        this.wakeUp = wakeUp;
+        this.returnHome = returnHome;
+        this.returnHomeTime = returnHomeTime;
+        this.cleaning = cleaning;
+        this.phoneCall = phoneCall;
+        this.sleepLight = sleepLight;
+        this.sleepHabit = sleepHabit;
+        this.snoring = snoring;
+        this.showerTime = showerTime;
+        this.eating = eating;
+        this.lightsOut = lightsOut;
+        this.lightsOutTime = lightsOutTime;
+        this.homeVisit = homeVisit;
+        this.smoking = smoking;
+        this.refrigerator = refrigerator;
+        this.hairDryer = hairDryer;
+        this.alarm = alarm;
+        this.earphone = earphone;
+        this.keyskin = keyskin;
+        this.heat = heat;
+        this.cold = cold;
+        this.study = study;
+        this.trashCan = trashCan;
+        this.otherNotes = otherNotes;
+    }
+
     public void updateOtherNotes(String otherNotes) {
         this.otherNotes = otherNotes;
     }

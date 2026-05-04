@@ -5,6 +5,7 @@ import com.project.dorumdorum.domain.chat.domain.entity.ChatRoomMember;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -34,4 +35,8 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, 
     long countByChatRoom(ChatRoom chatRoom);
 
     boolean existsByChatRoom_ChatRoomNoAndUserNo(String chatRoomNo, String userNo);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM ChatRoomMember m WHERE m.chatRoom = :chatRoom")
+    void deleteAllByChatRoom(@Param("chatRoom") ChatRoom chatRoom);
 }

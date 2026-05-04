@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface RoomRepository extends JpaRepository<Room, String>, RoomQueryRepository {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select room from Room room where room.roomNo = :roomNo")
+    @Query("select room from Room room where room.roomNo = :roomNo and room.deletedAt is null")
     Optional<Room> findByRoomNoForUpdate(@Param("roomNo") String roomNo);
 
 }

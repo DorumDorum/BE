@@ -69,6 +69,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                 .leftJoin(user).on(user.userNo.eq(room.hostUserNo))
                 .where(
                         room.roomStatus.eq(RoomStatus.CONFIRM_PENDING),
+                        room.deletedAt.isNull(),
                         room.gender.eq(gender),
                         eqRoomType(request),
                         eqResidencePeriod(request),
@@ -147,6 +148,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                 LEFT JOIN users u
                     ON u.user_no = r.host_user_no
                 WHERE r.room_status = :roomStatus
+                  AND r.deleted_at IS NULL
                   AND r.gender = :gender
                 """);
         params.put("roomStatus", RoomStatus.CONFIRM_PENDING.name());
