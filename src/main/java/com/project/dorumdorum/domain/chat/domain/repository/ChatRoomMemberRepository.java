@@ -37,6 +37,6 @@ public interface ChatRoomMemberRepository extends JpaRepository<ChatRoomMember, 
     boolean existsByChatRoom_ChatRoomNoAndUserNo(String chatRoomNo, String userNo);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("DELETE FROM ChatRoomMember m WHERE m.chatRoom = :chatRoom")
+    @Query("UPDATE ChatRoomMember m SET m.deletedAt = CURRENT_TIMESTAMP WHERE m.chatRoom = :chatRoom AND m.deletedAt IS NULL")
     void deleteAllByChatRoom(@Param("chatRoom") ChatRoom chatRoom);
 }

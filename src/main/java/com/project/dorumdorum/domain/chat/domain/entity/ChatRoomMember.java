@@ -4,6 +4,7 @@ import com.project.dorumdorum.global.common.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
@@ -12,14 +13,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@SQLRestriction("deleted_at is null")
 @Table(
     indexes = {
         @Index(name = "idx_chat_room_member_user_room", columnList = "user_no, chat_room_no")
-    },
-    uniqueConstraints = @UniqueConstraint(
-        name = "uk_chat_room_member_room_user",
-        columnNames = {"chat_room_no", "user_no"}
-    )
+    }
 )
 public class ChatRoomMember extends BaseEntity {
 

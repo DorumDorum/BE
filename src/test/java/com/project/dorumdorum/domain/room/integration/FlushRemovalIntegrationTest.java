@@ -32,6 +32,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -90,6 +91,7 @@ class FlushRemovalIntegrationTest {
     @Autowired private RoomRequestRepository roomRequestRepository;
     @Autowired private RoomRuleRepository roomRuleRepository;
     @Autowired private RoomLikeRepository roomLikeRepository;
+    @Autowired private JdbcTemplate jdbcTemplate;
 
     private static final String KICK_HOST_NO   = "flush_test_kick_host_001";
     private static final String KICK_MEMBER_NO = "flush_test_kick_member_001";
@@ -101,6 +103,8 @@ class FlushRemovalIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        truncateTables();
+
         // ── KickRoommateUseCase 픽스처 ────────────────────────────────────────
         kickRoom = roomRepository.save(Room.builder()
                 .roomType(RoomType.TYPE_1).capacity(2).title("kick-flush-test")
@@ -133,14 +137,7 @@ class FlushRemovalIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        chatMessageRepository.deleteAllInBatch();
-        chatRoomMemberRepository.deleteAllInBatch();
-        chatRoomRepository.deleteAllInBatch();
-        roomRequestRepository.deleteAllInBatch();
-        roomRuleRepository.deleteAllInBatch();
-        roomLikeRepository.deleteAllInBatch();
-        roommateRepository.deleteAllInBatch();
-        roomRepository.deleteAllInBatch();
+        truncateTables();
     }
 
     // =========================================================================
@@ -211,5 +208,20 @@ class FlushRemovalIntegrationTest {
         when(fakeMessage.getMessageNo()).thenReturn("fake-flush-msg-001");
         when(fakeMessage.getCreatedAt()).thenReturn(java.time.LocalDateTime.now());
         doReturn(fakeMessage).when(chatMessageService).save(any(), anyString(), anyString(), any(), anyInt());
+    }
+
+    private void truncateTables() {
+        jdbcTemplate.execute("""
+                TRUNCATE TABLE
+                    chat_message,
+                    chat_room_member,
+                    chat_room,
+                    room_request,
+                    room_rule,
+                    room_like,
+                    roommate,
+                    room
+                RESTART IDENTITY CASCADE
+                """);
     }
 }

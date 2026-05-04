@@ -10,10 +10,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 
 @Entity
+@SQLRestriction("deleted_at is null")
 @Table(
         indexes = {
                 @Index(name = "idx_chat_room_last_message_at", columnList = "last_message_at"),

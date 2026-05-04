@@ -42,7 +42,8 @@ public class RoomRequestService {
     }
 
     public void delete(RoomRequest entity) {
-        roomRequestRepository.delete(entity);
+        entity.delete();
+        roomRequestRepository.save(entity);
     }
 
     public List<RoomRequestApplicationResponse> findApplicationsByRoom(Room room) {
@@ -54,7 +55,8 @@ public class RoomRequestService {
                 .findByUserNoAndRoomAndDirection(userNo, room, Direction.USER_TO_ROOM)
                 .orElseThrow(() -> new RestApiException(ROOM_REQUEST_NOT_FOUND));
 
-        roomRequestRepository.delete(request);
+        request.delete();
+        roomRequestRepository.save(request);
     }
 
     public void deleteAllByRoom(Room room) {

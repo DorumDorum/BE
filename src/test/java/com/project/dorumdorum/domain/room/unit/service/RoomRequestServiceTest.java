@@ -62,11 +62,12 @@ class RoomRequestServiceTest {
     }
 
     @Test
-    @DisplayName("Should delete provided request entity")
-    void delete_DeletesEntity() {
+    @DisplayName("Should soft delete provided request entity")
+    void delete_SoftDeletesEntity() {
         RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").build();
         service.delete(request);
-        verify(roomRequestRepository).delete(request);
+        assertThat(request.getDeletedAt()).isNotNull();
+        verify(roomRequestRepository).save(request);
     }
 
     @Test
@@ -87,8 +88,8 @@ class RoomRequestServiceTest {
     }
 
     @Test
-    @DisplayName("Should cancel join request by user and room")
-    void cancelJoinRequest_FindsAndDeletesRequest() {
+    @DisplayName("Should cancel join request by soft deleting request")
+    void cancelJoinRequest_FindsAndSoftDeletesRequest() {
         Room room = Room.builder().roomNo("r1").build();
         RoomRequest request = RoomRequest.builder().roomRequestNo("rq1").build();
         when(roomRequestRepository.findByUserNoAndRoomAndDirection("u1", room, Direction.USER_TO_ROOM))
@@ -96,7 +97,8 @@ class RoomRequestServiceTest {
 
         service.cancelJoinRequest("u1", room);
 
-        verify(roomRequestRepository).delete(request);
+        assertThat(request.getDeletedAt()).isNotNull();
+        verify(roomRequestRepository).save(request);
     }
 
     @Test

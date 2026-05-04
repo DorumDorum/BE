@@ -64,7 +64,8 @@ public class ChatRoomService {
     }
 
     public void delete(ChatRoom chatRoom) {
-        chatRoomRepository.delete(chatRoom);
+        chatRoom.delete();
+        chatRoomRepository.save(chatRoom);
     }
 
     public void deleteByChatRoomNo(String chatRoomNo) {
