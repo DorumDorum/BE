@@ -7,11 +7,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_user_student_no
 ALTER TABLE IF EXISTS room_rule ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
 
 ALTER TABLE IF EXISTS roommate DROP CONSTRAINT IF EXISTS uk_roommate_user_no;
+DROP INDEX IF EXISTS uk_roommate_user_no;
 CREATE UNIQUE INDEX IF NOT EXISTS uk_roommate_user_no
     ON roommate (user_no)
     WHERE deleted_at IS NULL;
 
 ALTER TABLE IF EXISTS room_like DROP CONSTRAINT IF EXISTS uk_room_like_user_room;
+DROP INDEX IF EXISTS uk_room_like_user_room;
 CREATE UNIQUE INDEX IF NOT EXISTS uk_room_like_user_room
     ON room_like (user_no, room_no)
     WHERE deleted_at IS NULL;
