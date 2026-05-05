@@ -22,11 +22,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_device_user_device
     ON devices (user_no, device_id);
 
 ALTER TABLE IF EXISTS room_request DROP CONSTRAINT IF EXISTS uk_room_request_user_room_direction;
+DROP INDEX IF EXISTS uk_room_request_user_room_direction;
 CREATE UNIQUE INDEX IF NOT EXISTS uk_room_request_user_room_direction
     ON room_request (user_no, room_no, direction)
     WHERE deleted_at IS NULL;
 
 ALTER TABLE IF EXISTS chat_room_member DROP CONSTRAINT IF EXISTS uk_chat_room_member_room_user;
+DROP INDEX IF EXISTS uk_chat_room_member_room_user;
 CREATE UNIQUE INDEX IF NOT EXISTS uk_chat_room_member_room_user
     ON chat_room_member (chat_room_no, user_no)
     WHERE deleted_at IS NULL;
