@@ -55,6 +55,12 @@ pinpoint-agent/tools/
 .env
 /analysis/
 
+### JVM profiling artifacts ###
+logs/
+*.jfr
+*.hprof
+gc.log*
+
 # macOS artefacts
 .DS_Store
 

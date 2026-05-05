@@ -3,6 +3,10 @@
 .gradle
 build
 out
+logs
+*.jfr
+*.hprof
+gc.log*
 *.iml
 .idea
 **/.DS_Store

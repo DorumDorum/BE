@@ -46,8 +46,11 @@ services:
       - PINPOINT_APPLICATION_NAME=dorumdorum
       - PINPOINT_AGENT_ID=${PINPOINT_AGENT_ID:-dorumdorum-backend-${HOSTNAME}}
       - PINPOINT_AGENT_NAME=${PINPOINT_AGENT_NAME:-dorumdorum-be}
+      - JFR_RUN_ID=${JFR_RUN_ID:-cloud-load-test}
+      - JAVA_OPTS=${JAVA_OPTS:--XX:StartFlightRecording=name=dorumdorum,settings=profile,disk=true,dumponexit=true,filename=/app/logs/jfr/dorumdorum-${JFR_RUN_ID:-cloud-load-test}.jfr,maxage=30m,maxsize=512m}
     volumes:
       - ./firebase-service-account.json:/app/firebase-service-account.json:ro
+      - ./logs/jfr:/app/logs/jfr
     depends_on:
       postgres:
         condition: service_healthy
