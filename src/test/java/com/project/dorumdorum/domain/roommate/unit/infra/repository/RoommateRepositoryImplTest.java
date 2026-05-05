@@ -51,4 +51,17 @@ class RoommateRepositoryImplTest {
         verify(queryFactory).select(org.mockito.ArgumentMatchers.<Expression<?>>any());
         verify(query).fetch();
     }
+
+    @Test
+    @DisplayName("룸메이트가 없으면 빈 리스트 반환")
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void findMyRoommates_WhenNoResults_ReturnsEmptyList() {
+        when(queryFactory.select(org.mockito.ArgumentMatchers.<Expression<?>>any())).thenReturn(query);
+        when(query.fetch()).thenReturn(List.of());
+
+        RoommateRepositoryImpl repository = new RoommateRepositoryImpl(queryFactory);
+        List<MyRoommateResponse> result = repository.findMyRoommates("u1");
+
+        assertThat(result).isEmpty();
+    }
 }

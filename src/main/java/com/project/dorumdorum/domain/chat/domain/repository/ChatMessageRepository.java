@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, String>, ChatMessageQueryRepository {
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE ChatMessage m SET m.unreadCount = m.unreadCount - 1 " +
            "WHERE m.chatRoom.chatRoomNo = :chatRoomNo " +
            "AND m.createdAt > :fromTime " +

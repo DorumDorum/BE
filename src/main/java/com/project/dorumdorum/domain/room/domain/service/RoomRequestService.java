@@ -56,4 +56,8 @@ public class RoomRequestService {
 
         roomRequestRepository.delete(request);
     }
+
+    public void deleteAllByRoom(Room room) {
+        roomRequestRepository.deleteAllByRoom(room);
+    }
 }

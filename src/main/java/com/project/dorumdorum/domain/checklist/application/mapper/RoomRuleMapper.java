@@ -22,7 +22,39 @@ public interface RoomRuleMapper {
     @Mapping(target = "room", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    void updateRoomRule(UpdateRoomRuleRequest request, @MappingTarget RoomRule roomRule);
+    default void updateRoomRule(UpdateRoomRuleRequest request, @MappingTarget RoomRule roomRule) {
+        if (request == null || roomRule == null) {
+            return;
+        }
+
+        roomRule.updateChecklist(
+                request.bedtime(),
+                request.wakeUp(),
+                request.returnHome(),
+                request.returnHomeTime(),
+                request.cleaning(),
+                request.phoneCall(),
+                request.sleepLight(),
+                request.sleepHabit(),
+                request.snoring(),
+                request.showerTime(),
+                request.eating(),
+                request.lightsOut(),
+                request.lightsOutTime(),
+                request.homeVisit(),
+                request.smoking(),
+                request.refrigerator(),
+                request.hairDryer(),
+                request.alarm(),
+                request.earphone(),
+                request.keyskin(),
+                request.heat(),
+                request.cold(),
+                request.study(),
+                request.trashCan(),
+                request.otherNotes()
+        );
+    }
 
     MyRoomRuleResponse toResponse(RoomRule roomRule);
 }

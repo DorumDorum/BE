@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static com.project.dorumdorum.global.exception.code.status.ChatErrorStatus.*;
 
@@ -32,6 +33,10 @@ public class ChatRoomMemberService {
     public ChatRoomMember findByChatRoomAndUserNo(ChatRoom chatRoom, String userNo) {
         return chatRoomMemberRepository.findByChatRoomAndUserNo(chatRoom, userNo)
                 .orElseThrow(() -> new RestApiException(CHAT_ROOM_MEMBER_NOT_FOUND));
+    }
+
+    public Optional<ChatRoomMember> findOptionalByChatRoomAndUserNo(ChatRoom chatRoom, String userNo) {
+        return chatRoomMemberRepository.findByChatRoomAndUserNo(chatRoom, userNo);
     }
 
     public ChatRoomMember findByChatRoomNoAndUserNoForUpdate(String chatRoomNo, String userNo) {
@@ -63,6 +68,10 @@ public class ChatRoomMemberService {
 
     public void leave(ChatRoomMember member) {
         chatRoomMemberRepository.delete(member);
+    }
+
+    public void deleteAllByChatRoom(ChatRoom chatRoom) {
+        chatRoomMemberRepository.deleteAllByChatRoom(chatRoom);
     }
 
     public void updateLastReadAt(ChatRoomMember member, LocalDateTime readAt) {

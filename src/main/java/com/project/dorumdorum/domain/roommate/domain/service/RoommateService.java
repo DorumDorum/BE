@@ -66,8 +66,8 @@ public class RoommateService {
     public void leaveRoom(String userNo, String roomNo) {
         Roommate roommate = roommateRepository.findByUserNoAndRoomNo(userNo, roomNo)
                 .orElseThrow(() -> new RestApiException(_NOT_FOUND));
+        // uk_roommate_user_no 유니크 제약으로 인해 소프트 삭제 불가 — 하드 삭제 유지
         roommateRepository.delete(roommate);
-        roommateRepository.flush();
     }
 
     public List<MyRoommateResponse> findMyRoommates(String userNo) {

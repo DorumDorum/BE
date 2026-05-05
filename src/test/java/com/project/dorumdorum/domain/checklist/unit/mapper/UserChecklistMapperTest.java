@@ -31,14 +31,34 @@ class UserChecklistMapperTest {
     void updateUserChecklist_UpdatesTarget() {
         UserChecklist target = mapper.toUserChecklist("u1", ChecklistFixtures.createUserChecklistRequest());
         UpdateUserChecklistRequest request = ChecklistFixtures.updateUserChecklistRequest();
-        String bedtimeBefore = target.getBedtime();
-        String notesBefore = target.getOtherNotes();
 
         mapper.updateUserChecklist(request, target);
 
-        // Current MapStruct output generates no-op updater for this entity.
-        assertThat(target.getBedtime()).isEqualTo(bedtimeBefore);
-        assertThat(target.getOtherNotes()).isEqualTo(notesBefore);
+        assertThat(target.getBedtime()).isEqualTo(request.bedtime());
+        assertThat(target.getWakeUp()).isEqualTo(request.wakeUp());
+        assertThat(target.getReturnHome()).isEqualTo(request.returnHome());
+        assertThat(target.getReturnHomeTime()).isEqualTo(request.returnHomeTime());
+        assertThat(target.getCleaning()).isEqualTo(request.cleaning());
+        assertThat(target.getPhoneCall()).isEqualTo(request.phoneCall());
+        assertThat(target.getSleepLight()).isEqualTo(request.sleepLight());
+        assertThat(target.getSleepHabit()).isEqualTo(request.sleepHabit());
+        assertThat(target.getSnoring()).isEqualTo(request.snoring());
+        assertThat(target.getShowerTime()).isEqualTo(request.showerTime());
+        assertThat(target.getEating()).isEqualTo(request.eating());
+        assertThat(target.getLightsOut()).isEqualTo(request.lightsOut());
+        assertThat(target.getLightsOutTime()).isEqualTo(request.lightsOutTime());
+        assertThat(target.getHomeVisit()).isEqualTo(request.homeVisit());
+        assertThat(target.getSmoking()).isEqualTo(request.smoking());
+        assertThat(target.getRefrigerator()).isEqualTo(request.refrigerator());
+        assertThat(target.getHairDryer()).isEqualTo(request.hairDryer());
+        assertThat(target.getAlarm()).isEqualTo(request.alarm());
+        assertThat(target.getEarphone()).isEqualTo(request.earphone());
+        assertThat(target.getKeyskin()).isEqualTo(request.keyskin());
+        assertThat(target.getHeat()).isEqualTo(request.heat());
+        assertThat(target.getCold()).isEqualTo(request.cold());
+        assertThat(target.getStudy()).isEqualTo(request.study());
+        assertThat(target.getTrashCan()).isEqualTo(request.trashCan());
+        assertThat(target.getOtherNotes()).isEqualTo(request.otherNotes());
     }
 
     @Test

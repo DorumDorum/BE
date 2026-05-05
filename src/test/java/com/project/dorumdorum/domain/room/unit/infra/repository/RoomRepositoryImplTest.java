@@ -7,6 +7,7 @@ import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.infra.repository.RoomRepositoryImpl;
+import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -34,6 +35,8 @@ class RoomRepositoryImplTest {
 
     @Mock private JPAQueryFactory queryFactory;
     @Mock private EntityManager entityManager;
+
+    private static final Gender DEFAULT_GENDER = Gender.MALE;
 
     private ChecklistFilterRequest request(ChecklistFilterRequest.SortType sortType) {
         return new ChecklistFilterRequest(
@@ -67,7 +70,7 @@ class RoomRepositoryImplTest {
         );
 
         List<FindRoomsResponse> result = repository.findByCursor(
-                request, cursorCreatedAt, "r1", 1, 51
+                DEFAULT_GENDER, request, cursorCreatedAt, "r1", 1, 51
         );
 
         assertThat(result).isEqualTo(expected);
@@ -89,7 +92,7 @@ class RoomRepositoryImplTest {
         ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.LATEST);
 
         List<FindRoomsResponse> result = repository.findByCursor(
-                request, cursorCreatedAt, "r9", null, 11
+                DEFAULT_GENDER, request, cursorCreatedAt, "r9", null, 11
         );
 
         assertThat(result).isEmpty();
@@ -108,7 +111,7 @@ class RoomRepositoryImplTest {
         ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.LATEST);
 
         List<FindRoomsResponse> result = repository.findByCursor(
-                request, null, null, null, 7
+                DEFAULT_GENDER, request, null, null, null, 7
         );
 
         assertThat(result).isEmpty();
@@ -130,7 +133,7 @@ class RoomRepositoryImplTest {
         ChecklistFilterRequest request = request(null);
 
         List<FindRoomsResponse> result = repository.findByCursor(
-                request, cursorCreatedAt, "r3", null, 5
+                DEFAULT_GENDER, request, cursorCreatedAt, "r3", null, 5
         );
 
         assertThat(result).isEmpty();
@@ -145,34 +148,11 @@ class RoomRepositoryImplTest {
         LocalDateTime createdAt = LocalDateTime.now();
         ChecklistFilterRequest request = new ChecklistFilterRequest(
                 ChecklistFilterRequest.SortType.REMAINING,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
+                null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null,
                 SmokingType.NON_SMOKER,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
+                null, null, null, null, null, null, null, null, null
         );
 
         Object[] row = {
@@ -194,7 +174,7 @@ class RoomRepositoryImplTest {
         rows.add(row);
         when(nativeQuery.getResultList()).thenReturn(rows);
 
-        List<FindRoomsResponse> result = repository.findByCursor(request, createdAt, "r1", 1, 51);
+        List<FindRoomsResponse> result = repository.findByCursor(DEFAULT_GENDER, request, createdAt, "r1", 1, 51);
 
         assertThat(result).containsExactly(
                 new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, createdAt,

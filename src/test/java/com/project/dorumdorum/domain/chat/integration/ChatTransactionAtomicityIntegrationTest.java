@@ -16,6 +16,7 @@ import com.project.dorumdorum.domain.roommate.domain.entity.ConfirmStatus;
 import com.project.dorumdorum.domain.roommate.domain.entity.RoomRole;
 import com.project.dorumdorum.domain.roommate.domain.entity.Roommate;
 import com.project.dorumdorum.domain.roommate.domain.repository.RoommateRepository;
+import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.project.dorumdorum.domain.user.domain.entity.Role;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
@@ -117,6 +118,7 @@ class ChatTransactionAtomicityIntegrationTest {
                         .title("원자성 테스트 방")
                         .hostUserNo(HOST_NO)
                         .residencePeriod(ResidencePeriod.SEMESTER)
+                        .gender(Gender.MALE)
                         .build()
         );
 

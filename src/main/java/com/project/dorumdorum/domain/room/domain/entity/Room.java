@@ -1,5 +1,6 @@
 package com.project.dorumdorum.domain.room.domain.entity;
 
+import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.project.dorumdorum.global.common.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
@@ -12,8 +13,8 @@ import lombok.*;
 @Builder
 @Table(
         indexes = {
-                @Index(name = "idx_room_status_created", columnList = "room_status, created_at, room_no"),
-                @Index(name = "idx_room_status_remaining_created", columnList = "room_status, remaining, created_at DESC, room_no DESC"),
+                @Index(name = "idx_room_status_gender_created", columnList = "room_status, gender, created_at DESC, room_no DESC"),
+                @Index(name = "idx_room_status_gender_remaining_created", columnList = "room_status, gender, remaining ASC, created_at DESC, room_no DESC"),
                 @Index(name = "idx_room_residence_period", columnList = "residence_period"),
                 @Index(name = "idx_room_host_user_no", columnList = "host_user_no")
         }
@@ -48,6 +49,10 @@ public class Room extends BaseEntity {
 
     @Column(nullable = false)
     private String hostUserNo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Gender gender;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
