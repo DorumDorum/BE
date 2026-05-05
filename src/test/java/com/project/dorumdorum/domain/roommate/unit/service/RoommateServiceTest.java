@@ -19,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import org.mockito.ArgumentCaptor;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -197,5 +199,32 @@ class RoommateServiceTest {
         boolean result = roommateService.isHostOfRoom("u1", "room1");
 
         assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("leaveRoom: 룸메이트를 소프트 삭제하고 저장한다")
+    void leaveRoom_SoftDeletesRoommate() {
+        Roommate roommate = Roommate.builder()
+                .roommateNo("rm1")
+                .userNo("u1")
+                .confirmStatus(ConfirmStatus.ACCEPTED)
+                .roomRole(RoomRole.MEMBER)
+                .build();
+        when(roommateRepository.findByUserNoAndRoomNo("u1", "room1")).thenReturn(Optional.of(roommate));
+
+        roommateService.leaveRoom("u1", "room1");
+
+        ArgumentCaptor<Roommate> captor = ArgumentCaptor.forClass(Roommate.class);
+        verify(roommateRepository).save(captor.capture());
+        assertThat(captor.getValue().isDeleted()).isTrue();
+    }
+
+    @Test
+    @DisplayName("leaveRoom: 룸메이트를 찾지 못하면 예외를 던진다")
+    void leaveRoom_WhenNotFound_Throws() {
+        when(roommateRepository.findByUserNoAndRoomNo("u1", "room1")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> roommateService.leaveRoom("u1", "room1"))
+                .isInstanceOf(RestApiException.class);
     }
 }

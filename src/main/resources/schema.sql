@@ -4,12 +4,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_user_email
 CREATE UNIQUE INDEX IF NOT EXISTS uk_user_student_no
     ON users (student_no);
 
-DROP INDEX IF EXISTS uk_roommate_user_no;
+ALTER TABLE IF EXISTS room_rule ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+
+ALTER TABLE IF EXISTS roommate DROP CONSTRAINT IF EXISTS uk_roommate_user_no;
 CREATE UNIQUE INDEX IF NOT EXISTS uk_roommate_user_no
     ON roommate (user_no)
     WHERE deleted_at IS NULL;
 
-DROP INDEX IF EXISTS uk_room_like_user_room;
+ALTER TABLE IF EXISTS room_like DROP CONSTRAINT IF EXISTS uk_room_like_user_room;
 CREATE UNIQUE INDEX IF NOT EXISTS uk_room_like_user_room
     ON room_like (user_no, room_no)
     WHERE deleted_at IS NULL;
@@ -17,12 +19,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_room_like_user_room
 CREATE UNIQUE INDEX IF NOT EXISTS uk_device_user_device
     ON devices (user_no, device_id);
 
-DROP INDEX IF EXISTS uk_room_request_user_room_direction;
+ALTER TABLE IF EXISTS room_request DROP CONSTRAINT IF EXISTS uk_room_request_user_room_direction;
 CREATE UNIQUE INDEX IF NOT EXISTS uk_room_request_user_room_direction
     ON room_request (user_no, room_no, direction)
     WHERE deleted_at IS NULL;
 
-DROP INDEX IF EXISTS uk_chat_room_member_room_user;
+ALTER TABLE IF EXISTS chat_room_member DROP CONSTRAINT IF EXISTS uk_chat_room_member_room_user;
 CREATE UNIQUE INDEX IF NOT EXISTS uk_chat_room_member_room_user
     ON chat_room_member (chat_room_no, user_no)
     WHERE deleted_at IS NULL;
