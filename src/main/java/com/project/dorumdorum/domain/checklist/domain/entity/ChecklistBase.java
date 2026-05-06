@@ -123,6 +123,17 @@ public abstract class ChecklistBase {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
+
+    public void delete() {
+        deletedAt = LocalDateTime.now();
+    }
+
     public void updateChecklist(
             String bedtime,
             String wakeUp,

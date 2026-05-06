@@ -10,11 +10,13 @@ import org.springframework.data.repository.query.Param;
 public interface RoomLikeRepository extends JpaRepository<RoomLike, String> {
 
     boolean existsByUserNoAndRoom(String userNo, Room room);
-    void deleteByUserNoAndRoom(String userNo, Room room);
 
-    // N+1 DELETE 문제 — @Modifying JPQL 벌크 DELETE로 교체
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("DELETE FROM RoomLike l WHERE l.room = :room")
+    @Query("UPDATE RoomLike l SET l.deletedAt = CURRENT_TIMESTAMP WHERE l.userNo = :userNo AND l.room = :room AND l.deletedAt IS NULL")
+    void deleteByUserNoAndRoom(@Param("userNo") String userNo, @Param("room") Room room);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE RoomLike l SET l.deletedAt = CURRENT_TIMESTAMP WHERE l.room = :room AND l.deletedAt IS NULL")
     void deleteAllByRoom(@Param("room") Room room);
 }
 

@@ -24,6 +24,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, String>, Cha
             String roomNo, ChatRoomType chatRoomType, String applicantUserNo);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("DELETE FROM ChatRoom c WHERE c.chatRoomNo = :chatRoomNo")
+    @Query("UPDATE ChatRoom c SET c.deletedAt = CURRENT_TIMESTAMP WHERE c.chatRoomNo = :chatRoomNo AND c.deletedAt IS NULL")
     void deleteByChatRoomNo(@Param("chatRoomNo") String chatRoomNo);
 }
