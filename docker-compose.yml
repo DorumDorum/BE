@@ -46,6 +46,7 @@ services:
       - PINPOINT_APPLICATION_NAME=dorumdorum
       - PINPOINT_AGENT_ID=${PINPOINT_AGENT_ID:-dorumdorum-backend-${HOSTNAME}}
       - PINPOINT_AGENT_NAME=${PINPOINT_AGENT_NAME:-dorumdorum-be}
+      - JAVA_OPTS=-Xms6g -Xmx6g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xlog:gc*:file=/var/log/gc.log:time,uptime,level,tags:filecount=5,filesize=20m
     volumes:
       - ./firebase-service-account.json:/app/firebase-service-account.json:ro
     depends_on:
@@ -58,8 +59,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "4.0"
-          memory: 16G
+          cpus: "2.0"
+          memory: 8G
     restart: unless-stopped
     networks:
       - dorumdorum-net
