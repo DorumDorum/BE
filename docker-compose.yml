@@ -40,15 +40,19 @@ services:
     env_file:
       - ./secrets/.env
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - PINPOINT_COLLECTOR_IP=pinpoint-collector
-      - PINPOINT_APPLICATION_NAME=dorumdorum
-      - PINPOINT_AGENT_ID=${PINPOINT_AGENT_ID:-dorumdorum-backend-${HOSTNAME}}
-      - PINPOINT_AGENT_NAME=${PINPOINT_AGENT_NAME:-dorumdorum-be}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PINPOINT_COLLECTOR_IP: pinpoint-collector
+      PINPOINT_APPLICATION_NAME: dorumdorum
+      PINPOINT_AGENT_ID: ${PINPOINT_AGENT_ID:-dorumdorum-backend-local}
+      PINPOINT_AGENT_NAME: ${PINPOINT_AGENT_NAME:-dorumdorum-be}
+      JAVA_TOOL_OPTIONS: >-
+        ${JAVA_TOOL_OPTIONS:--XX:+UseG1GC -XX:InitialRAMPercentage=50.0 -XX:MaxRAMPercentage=75.0 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/logs/heapdump -XX:+ExitOnOutOfMemoryError -Xlog:gc*,safepoint:file=/app/logs/gc/gc.log:time,uptime,level,tags:filecount=10,filesize=50m}
     volumes:
       - ./secrets/firebase-service-account.json:/app/firebase-service-account.json:ro
       - ./logs/jfr:/app/logs/jfr
+      - ./logs/gc:/app/logs/gc
+      - ./logs/heapdump:/app/logs/heapdump
     depends_on:
       postgres:
         condition: service_healthy
@@ -56,6 +60,8 @@ services:
         condition: service_started
       pinpoint-collector:
         condition: service_started
+    cpus: ${BACKEND_CPU_LIMIT:-4.0}
+    mem_limit: ${BACKEND_MEMORY_LIMIT:-16g}
     deploy:
       resources:
         limits:
@@ -153,9 +159,35 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--web.enable-lifecycle"
+      - "--web.enable-remote-write-receiver"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
+    networks:
+      - dorumdorum-net
+
+  k6:
+    image: ${K6_IMAGE:-grafana/k6:latest}
+    container_name: dorumdorum-k6
+    profiles:
+      - loadtest
+    environment:
+      BASE_URL: ${K6_BASE_URL:-http://backend:8080}
+      K6_OUT: ${K6_OUT:-experimental-prometheus-rw}
+      K6_PROMETHEUS_RW_SERVER_URL: ${K6_PROMETHEUS_RW_SERVER_URL:-http://prometheus:9090/api/v1/write}
+      K6_PROMETHEUS_RW_PUSH_INTERVAL: ${K6_PROMETHEUS_RW_PUSH_INTERVAL:-5s}
+      K6_PROMETHEUS_RW_TREND_STATS: ${K6_PROMETHEUS_RW_TREND_STATS:-p(90),p(95),p(99),min,max,avg}
+      K6_PROMETHEUS_RW_STALE_MARKERS: ${K6_PROMETHEUS_RW_STALE_MARKERS:-true}
+      K6_WEB_DASHBOARD: ${K6_WEB_DASHBOARD:-true}
+      K6_WEB_DASHBOARD_EXPORT: ${K6_WEB_DASHBOARD_EXPORT:-/results/k6-report.html}
+    volumes:
+      - ./load-testing/k6:/scripts:ro
+      - ./load-testing/results:/results
+    working_dir: /scripts
+    entrypoint: ["k6"]
+    depends_on:
+      - backend
+      - prometheus
     networks:
       - dorumdorum-net
 
