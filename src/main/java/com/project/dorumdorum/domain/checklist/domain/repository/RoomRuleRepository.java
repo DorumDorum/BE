@@ -14,6 +14,6 @@ public interface RoomRuleRepository extends JpaRepository<RoomRule, String> {
     Optional<RoomRule> findByRoomNo(@Param("roomNo") String roomNo);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("DELETE FROM RoomRule rr WHERE rr.room.roomNo = :roomNo")
+    @Query("UPDATE RoomRule rr SET rr.deletedAt = CURRENT_TIMESTAMP WHERE rr.room.roomNo = :roomNo AND rr.deletedAt IS NULL")
     void deleteByRoomNo(@Param("roomNo") String roomNo);
 }

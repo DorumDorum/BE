@@ -33,6 +33,7 @@ import org.mockito.Mockito;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.ActiveProfiles;
@@ -88,6 +89,7 @@ class ChatTransactionAtomicityIntegrationTest {
     @Autowired private RoommateRepository roommateRepository;
     @Autowired private ChatRoomRepository chatRoomRepository;
     @Autowired private ChatRoomMemberRepository chatRoomMemberRepository;
+    @Autowired private JdbcTemplate jdbcTemplate;
 
     // ─── External Services (Mocking to isolate behavior) ─────────────────────
     @MockitoBean private SimpMessagingTemplate messagingTemplate;
@@ -110,6 +112,8 @@ class ChatTransactionAtomicityIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        truncateTables();
+
         // 1. Room 저장 (@PrePersist → currentMateCount=1, roomStatus=CONFIRM_PENDING 자동 설정)
         room = roomRepository.save(
                 Room.builder()
@@ -162,11 +166,7 @@ class ChatTransactionAtomicityIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        // FK 순서: ChatRoomMember → ChatRoom → Roommate → Room
-        chatRoomMemberRepository.deleteAll();
-        chatRoomRepository.deleteAll();
-        roommateRepository.deleteAll();
-        roomRepository.deleteAll();
+        truncateTables();
     }
 
     // =========================================================================
@@ -344,5 +344,20 @@ class ChatTransactionAtomicityIntegrationTest {
         doReturn(fakeMessage)
                 .when(chatMessageService)
                 .save(any(), anyString(), anyString(), any(), anyInt());
+    }
+
+    private void truncateTables() {
+        jdbcTemplate.execute("""
+                TRUNCATE TABLE
+                    chat_message,
+                    chat_room_member,
+                    chat_room,
+                    room_request,
+                    room_rule,
+                    room_like,
+                    roommate,
+                    room
+                RESTART IDENTITY CASCADE
+                """);
     }
 }

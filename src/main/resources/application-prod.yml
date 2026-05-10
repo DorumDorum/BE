@@ -1,13 +1,17 @@
 server:
   shutdown: graceful
+  tomcat:
+    threads:
+      max: 100
+      min-spare: 10
 
 spring:
   lifecycle:
     timeout-per-shutdown-phase: 30s
   datasource:
     hikari:
-      maximum-pool-size: 16
-      minimum-idle: 4
+      maximum-pool-size: 8
+      minimum-idle: 2
       connection-timeout: 5000
       validation-timeout: 1000
       idle-timeout: 600000

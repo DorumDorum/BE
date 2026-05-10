@@ -34,6 +34,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -74,6 +75,7 @@ class DeleteRoomPersistenceIntegrationTest {
     @Autowired private ChatRoomRepository chatRoomRepository;
     @Autowired private ChatRoomMemberRepository chatRoomMemberRepository;
     @Autowired private ChatMessageRepository chatMessageRepository;
+    @Autowired private JdbcTemplate jdbcTemplate;
 
     private static final String HOST_NO      = "test_delete_room_host_001";
     private static final String APPLICANT_NO = "test_delete_room_applicant_001";
@@ -82,6 +84,8 @@ class DeleteRoomPersistenceIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        truncateTables();
+
         room = roomRepository.save(Room.builder()
                 .roomType(RoomType.TYPE_1)
                 .capacity(2)
@@ -165,13 +169,7 @@ class DeleteRoomPersistenceIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        chatMessageRepository.deleteAllInBatch();
-        chatRoomMemberRepository.deleteAllInBatch();
-        chatRoomRepository.deleteAllInBatch();
-        roomRequestRepository.deleteAllInBatch();
-        roomRuleRepository.deleteAllInBatch();
-        roommateRepository.deleteAllInBatch();
-        roomRepository.deleteAllInBatch();
+        truncateTables();
     }
 
     @Test
@@ -192,5 +190,20 @@ class DeleteRoomPersistenceIntegrationTest {
         await().untilAsserted(() ->
                 verify(messagingTemplate, times(3))
                         .convertAndSendToUser(any(), eq("/queue/notification"), any()));
+    }
+
+    private void truncateTables() {
+        jdbcTemplate.execute("""
+                TRUNCATE TABLE
+                    chat_message,
+                    chat_room_member,
+                    chat_room,
+                    room_request,
+                    room_rule,
+                    room_like,
+                    roommate,
+                    room
+                RESTART IDENTITY CASCADE
+                """);
     }
 }

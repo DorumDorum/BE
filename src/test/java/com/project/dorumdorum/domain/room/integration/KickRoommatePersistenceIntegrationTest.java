@@ -31,6 +31,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -75,6 +76,7 @@ class KickRoommatePersistenceIntegrationTest {
     @Autowired private ChatRoomRepository chatRoomRepository;
     @Autowired private ChatRoomMemberRepository chatRoomMemberRepository;
     @Autowired private ChatMessageRepository chatMessageRepository;
+    @Autowired private JdbcTemplate jdbcTemplate;
 
     private static final String HOST_NO   = "test_kick_roommate_host_001";
     private static final String MEMBER_NO = "test_kick_roommate_member_001";
@@ -84,6 +86,8 @@ class KickRoommatePersistenceIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        truncateTables();
+
         User fakeUser = User.builder()
                 .nickname("MemberNick")
                 .name("Member")
@@ -147,11 +151,7 @@ class KickRoommatePersistenceIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        chatMessageRepository.deleteAllInBatch();
-        chatRoomMemberRepository.deleteAllInBatch();
-        chatRoomRepository.deleteAllInBatch();
-        roommateRepository.deleteAllInBatch();
-        roomRepository.deleteAllInBatch();
+        truncateTables();
     }
 
     @Test
@@ -171,5 +171,20 @@ class KickRoommatePersistenceIntegrationTest {
                     eq("/topic/chat-room/" + chatRoom.getChatRoomNo()), any(Object.class));
             verify(messagingTemplate).convertAndSendToUser(eq(MEMBER_NO), eq("/queue/notification"), any());
         });
+    }
+
+    private void truncateTables() {
+        jdbcTemplate.execute("""
+                TRUNCATE TABLE
+                    chat_message,
+                    chat_room_member,
+                    chat_room,
+                    room_request,
+                    room_rule,
+                    room_like,
+                    roommate,
+                    room
+                RESTART IDENTITY CASCADE
+                """);
     }
 }

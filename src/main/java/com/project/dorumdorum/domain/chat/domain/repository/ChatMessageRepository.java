@@ -20,7 +20,7 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, String
                             @Param("fromTime") LocalDateTime fromTime,
                             @Param("userNo") String userNo);
 
-    @Modifying(clearAutomatically = true)
-    @Query("DELETE FROM ChatMessage m WHERE m.chatRoom.chatRoomNo = :chatRoomNo")
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE ChatMessage m SET m.deletedAt = CURRENT_TIMESTAMP WHERE m.chatRoom.chatRoomNo = :chatRoomNo AND m.deletedAt IS NULL")
     void deleteByChatRoomNo(@Param("chatRoomNo") String chatRoomNo);
 }

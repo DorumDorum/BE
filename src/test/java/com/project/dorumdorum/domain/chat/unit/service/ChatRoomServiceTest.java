@@ -95,13 +95,14 @@ class ChatRoomServiceTest {
     }
 
     @Test
-    @DisplayName("delete: repository.delete에 위임")
-    void delete_DelegatesToRepository() {
+    @DisplayName("delete: 채팅방을 소프트 삭제하고 저장")
+    void delete_SoftDeletesAndSaves() {
         ChatRoom chatRoom = ChatRoom.builder().roomNo("room-1").build();
 
         service.delete(chatRoom);
 
-        verify(chatRoomRepository).delete(chatRoom);
+        assertThat(chatRoom.getDeletedAt()).isNotNull();
+        verify(chatRoomRepository).save(chatRoom);
     }
 
     @Test

@@ -15,9 +15,8 @@ public interface RoomRequestRepository extends JpaRepository<RoomRequest, String
     boolean existsByUserNoAndRoom(String userNo, Room room);
     Optional<RoomRequest> findByUserNoAndRoomAndDirection(String userNo, Room room, Direction direction);
 
-    // N+1 DELETE 문제 — @Modifying JPQL 벌크 DELETE로 교체
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("DELETE FROM RoomRequest r WHERE r.room = :room")
+    @Query("UPDATE RoomRequest r SET r.deletedAt = CURRENT_TIMESTAMP WHERE r.room = :room AND r.deletedAt IS NULL")
     void deleteAllByRoom(@Param("room") Room room);
 }
 
