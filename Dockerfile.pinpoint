@@ -38,7 +38,7 @@ EXPOSE 8080
 
 # pinpoint-root.config에서 Collector IP 오버라이드 (profiler.transport.grpc.collector.ip)
 # -D 옵션으로 전달
-ENTRYPOINT ["sh", "-c", "DEFAULT_JAVA_OPTS=\"-XX:StartFlightRecording=name=dorumdorum,settings=${JFR_SETTINGS:-profile},disk=true,dumponexit=true,filename=/app/logs/jfr/dorumdorum-${JFR_RUN_ID:-cloud-load-test}.jfr,maxage=${JFR_MAX_AGE:-30m},maxsize=${JFR_MAX_SIZE:-512m}\"; EFFECTIVE_JAVA_OPTS=\"${JAVA_OPTS:-$DEFAULT_JAVA_OPTS}\"; java \
+ENTRYPOINT ["sh", "-c", "DEFAULT_JAVA_OPTS=\"-XX:StartFlightRecording=name=dorumdorum,settings=${JFR_SETTINGS:-profile},disk=true,dumponexit=true,filename=/app/logs/jfr/dorumdorum-${JFR_RUN_ID:-cloud-load-test}.jfr,maxage=${JFR_MAX_AGE:-30m},maxsize=${JFR_MAX_SIZE:-512m}\"; EFFECTIVE_JAVA_OPTS=\"${JAVA_OPTS:-$DEFAULT_JAVA_OPTS}\"; exec java \
   -javaagent:/app/pinpoint-agent/pinpoint-bootstrap-${PINPOINT_VERSION}.jar \
   -Dpinpoint.agentId=${PINPOINT_AGENT_ID} \
   -Dpinpoint.applicationName=${PINPOINT_APPLICATION_NAME} \
