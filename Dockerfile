@@ -15,6 +15,8 @@ WORKDIR /app
 
 COPY --from=builder /app/build/libs/*.jar app.jar
 
+RUN mkdir -p /app/logs/jfr
+
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "DEFAULT_JAVA_OPTS=\"-XX:StartFlightRecording=name=dorumdorum,settings=${JFR_SETTINGS:-profile},disk=true,dumponexit=true,filename=/app/logs/jfr/dorumdorum-${JFR_RUN_ID:-cloud-load-test}.jfr,maxage=${JFR_MAX_AGE:-30m},maxsize=${JFR_MAX_SIZE:-512m}\"; EFFECTIVE_JAVA_OPTS=\"${JAVA_OPTS:-$DEFAULT_JAVA_OPTS}\"; exec java ${EFFECTIVE_JAVA_OPTS} -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod} -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "DEFAULT_JAVA_OPTS=\"-XX:StartFlightRecording=name=dorumdorum,settings=${JFR_SETTINGS:-profile},disk=true,dumponexit=true,filename=/app/logs/jfr/dorumdorum-${JFR_RUN_ID:-cloud-load-test}.jfr,maxage=${JFR_MAX_AGE:-30m},maxsize=${JFR_MAX_SIZE:-512m}\"; EFFECTIVE_JAVA_OPTS=\"${DEFAULT_JAVA_OPTS} ${JAVA_OPTS:-}\"; exec java ${EFFECTIVE_JAVA_OPTS} -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod} -jar /app/app.jar"]

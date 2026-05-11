@@ -50,6 +50,7 @@ services:
     volumes:
       - ./secrets/firebase-service-account.json:/app/firebase-service-account.json:ro
       - gc_logs:/var/log
+      - jfr_logs:/app/logs/jfr
     depends_on:
       postgres:
         condition: service_healthy
@@ -211,6 +212,7 @@ volumes:
   hbase_data:
   zookeeper_data:
   gc_logs:
+  jfr_logs:
 
 networks:
   dorumdorum-net:
