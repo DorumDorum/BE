@@ -6,6 +6,7 @@ secrets
 build
 out
 logs
+load-testing/results/
 *.jfr
 *.hprof
 gc.log*
