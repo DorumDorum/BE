@@ -28,6 +28,8 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
 COPY --from=builder /app/pinpoint-agent /app/pinpoint-agent
 
+RUN mkdir -p /app/logs/jfr
+
 # Pinpoint Agent JVM 옵션 (환경변수로 Collector IP 등 오버라이드 가능)
 ENV PINPOINT_VERSION=2.5.4
 ENV PINPOINT_COLLECTOR_IP=pinpoint-collector
@@ -38,12 +40,12 @@ EXPOSE 8080
 
 # pinpoint-root.config에서 Collector IP 오버라이드 (profiler.transport.grpc.collector.ip)
 # -D 옵션으로 전달
-ENTRYPOINT ["sh", "-c", "java \
+ENTRYPOINT ["sh", "-c", "DEFAULT_JAVA_OPTS=\"-XX:StartFlightRecording=name=dorumdorum,settings=${JFR_SETTINGS:-profile},disk=true,dumponexit=true,filename=/app/logs/jfr/dorumdorum-${JFR_RUN_ID:-cloud-load-test}.jfr,maxage=${JFR_MAX_AGE:-30m},maxsize=${JFR_MAX_SIZE:-512m}\"; EFFECTIVE_JAVA_OPTS=\"${DEFAULT_JAVA_OPTS} ${JAVA_OPTS:-}\"; exec java \
   -javaagent:/app/pinpoint-agent/pinpoint-bootstrap-${PINPOINT_VERSION}.jar \
   -Dpinpoint.agentId=${PINPOINT_AGENT_ID} \
   -Dpinpoint.applicationName=${PINPOINT_APPLICATION_NAME} \
   -Dprofiler.transport.grpc.collector.ip=${PINPOINT_COLLECTOR_IP} \
   -Dpinpoint.container=true \
-  ${JAVA_OPTS} \
+  ${EFFECTIVE_JAVA_OPTS} \
   -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod} \
   -jar /app/app.jar"]
