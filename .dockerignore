@@ -1,8 +1,15 @@
 .git
 .github
 .gradle
+.env
+secrets
 build
 out
+logs
+load-testing/results/
+*.jfr
+*.hprof
+gc.log*
 *.iml
 .idea
 **/.DS_Store

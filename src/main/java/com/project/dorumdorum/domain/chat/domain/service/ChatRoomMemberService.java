@@ -67,7 +67,8 @@ public class ChatRoomMemberService {
     }
 
     public void leave(ChatRoomMember member) {
-        chatRoomMemberRepository.delete(member);
+        member.delete();
+        chatRoomMemberRepository.save(member);
     }
 
     public void deleteAllByChatRoom(ChatRoom chatRoom) {

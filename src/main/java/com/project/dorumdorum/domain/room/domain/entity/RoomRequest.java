@@ -4,16 +4,15 @@ import com.project.dorumdorum.global.common.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@SQLRestriction("deleted_at is null")
 @Table(
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_room_request_user_room_direction", columnNames = {"user_no", "room_no", "direction"})
-        },
         indexes = {
                 @Index(name = "idx_room_request_room_created", columnList = "room_no, created_at")
         }

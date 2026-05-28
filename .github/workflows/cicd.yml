@@ -1,4 +1,7 @@
 # CI/CD에 필요한 GitHub Secrets (Repo Settings > Secrets and variables > Actions)
+# - Docker Hub: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
+# - Server: SERVER_HOST, SERVER_USER, SERVER_SSH_KEY, SERVER_SSH_PORT
+# - GitHub repo/submodule access: GITHUB_TOKEN
 
 name: cicd
 
@@ -40,8 +43,8 @@ jobs:
 
       - name: Run tests
         run: |
-          echo ">>> [CI] Running tests..."
-          ./gradlew test --no-daemon
+          echo ">>> [CI] Running tests without integration tests..."
+          ./gradlew test -PskipIntegrationTests --no-daemon
           echo ">>> [CI] Tests passed"
 
   docker-build-and-push:
@@ -118,18 +121,6 @@ jobs:
           IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/dorumdorum-be:pinpoint
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          FIREBASE_SERVICE_ACCOUNT_B64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
-          RDB_USERNAME: ${{ secrets.RDB_USERNAME }}
-          RDB_URL: ${{ secrets.RDB_URL }}
-          RDB_PASSWORD: ${{ secrets.RDB_PASSWORD }}
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-          JWT_KEY: ${{ secrets.JWT_KEY }}
-          JWT_ACCESS_EXPIRATION: ${{ secrets.JWT_ACCESS_EXPIRATION }}
-          JWT_REFRESH_EXPIRATION: ${{ secrets.JWT_REFRESH_EXPIRATION }}
-          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           CONTAINER_NAME: dorumdorum-be
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_FULL_NAME: ${{ github.repository }}
@@ -138,56 +129,11 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT }}
-          envs: IMAGE,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,FIREBASE_SERVICE_ACCOUNT_B64,RDB_USERNAME,RDB_URL,RDB_PASSWORD,MYSQL_ROOT_PASSWORD,MYSQL_DATABASE,JWT_KEY,JWT_ACCESS_EXPIRATION,JWT_REFRESH_EXPIRATION,SMTP_USERNAME,SMTP_PASSWORD,CONTAINER_NAME,GITHUB_TOKEN,REPO_FULL_NAME,DISCORD_WEBHOOK
+          envs: IMAGE,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,CONTAINER_NAME,GITHUB_TOKEN,REPO_FULL_NAME
           script_stop: true
           script: |
             set -e
-            echo ">>> [Deploy] SSH 연결됨, 환경 변수 정규화 중..."
-
-            RDB_USERNAME="$(printf '%s' "$RDB_USERNAME" | tr -d '\r\n')"
-            RDB_URL="$(printf '%s' "$RDB_URL" | tr -d '\r\n')"
-            RDB_PASSWORD="$(printf '%s' "$RDB_PASSWORD" | tr -d '\r\n')"
-            MYSQL_ROOT_PASSWORD="$(printf '%s' "$MYSQL_ROOT_PASSWORD" | tr -d '\r\n')"
-            MYSQL_DATABASE="$(printf '%s' "$MYSQL_DATABASE" | tr -d '\r\n')"
-            JWT_KEY="$(printf '%s' "$JWT_KEY" | tr -d '\r\n')"
-            JWT_ACCESS_EXPIRATION="$(printf '%s' "$JWT_ACCESS_EXPIRATION" | tr -d '\r\n')"
-            JWT_REFRESH_EXPIRATION="$(printf '%s' "$JWT_REFRESH_EXPIRATION" | tr -d '\r\n')"
-            SMTP_USERNAME="$(printf '%s' "$SMTP_USERNAME" | tr -d '\r\n')"
-            SMTP_PASSWORD="$(printf '%s' "$SMTP_PASSWORD" | tr -d '\r\n')"
-
-            DEPLOY_PATH="${HOME}/dorumdorum"
-            mkdir -p "$DEPLOY_PATH"
-            cd "$DEPLOY_PATH"
-            echo ">>> [Deploy] DEPLOY_PATH=$DEPLOY_PATH"
-
-            # 1) Firebase 서비스 계정 파일 생성 (VM에 저장)
-            printf '%s' "$FIREBASE_SERVICE_ACCOUNT_B64" | base64 -d > firebase-service-account.json
-            chmod 600 firebase-service-account.json
-
-            # 2) 컨테이너에서 참조할 경로를 env로 고정
-            FIREBASE_SERVICE_ACCOUNT_PATH="/app/firebase-service-account.json"
-
-            # 3) .env 생성
-            # Pinpoint Web reads Spring datasource keys directly.
-            printf '%s\n' \
-              "SPRING_PROFILES_ACTIVE=prod" \
-              "RDB_USERNAME=$RDB_USERNAME" \
-              "RDB_URL=$RDB_URL" \
-              "RDB_PASSWORD=$RDB_PASSWORD" \
-              "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" \
-              "MYSQL_DATABASE=$MYSQL_DATABASE" \
-              "SPRING_DATASOURCE_URL=$RDB_URL" \
-              "SPRING_DATASOURCE_USERNAME=$RDB_USERNAME" \
-              "SPRING_DATASOURCE_PASSWORD=$RDB_PASSWORD" \
-              "JWT_KEY=$JWT_KEY" \
-              "JWT_ACCESS_EXPIRATION=$JWT_ACCESS_EXPIRATION" \
-              "JWT_REFRESH_EXPIRATION=$JWT_REFRESH_EXPIRATION" \
-              "SMTP_USERNAME=$SMTP_USERNAME" \
-              "SMTP_PASSWORD=$SMTP_PASSWORD" \
-              "DISCORD_WEBHOOK=$DISCORD_WEBHOOK" \
-              "FIREBASE_SERVICE_ACCOUNT_PATH=$FIREBASE_SERVICE_ACCOUNT_PATH" > .env
-            chmod 600 .env
-            echo ">>> [Deploy] .env, firebase-service-account.json 생성 완료"
+            echo ">>> [Deploy] SSH 연결됨"
 
             docker info >/dev/null 2>&1 || {
               echo "Docker socket permission denied for current deploy user."
@@ -198,8 +144,8 @@ jobs:
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             echo ">>> [Deploy] Docker Hub 로그인 완료"
 
-            echo ">>> [Deploy] MySQL 이미지 pull 중..."
-            docker pull mysql:8.0
+            echo ">>> [Deploy] PostgreSQL 이미지 pull 중..."
+            docker pull postgres:16-alpine
             echo ">>> [Deploy] Redis 이미지 pull 중..."
             docker pull redis:7-alpine
             echo ">>> [Deploy] Backend 이미지 pull 중..."
@@ -215,9 +161,14 @@ jobs:
             echo ">>> [Deploy] COMPOSE_PATH=$COMPOSE_PATH, Git clone 중..."
             rm -rf temp_repo
 
-            # Git에서 production 브랜치로 docker-compose.yml, monitoring 가져오기
+            # Git에서 production 브랜치로 docker-compose.yml, monitoring, secrets submodule 가져오기
             git clone --depth 1 -b production "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO_FULL_NAME}.git" temp_repo
-            echo ">>> [Deploy] Clone 완료, docker-compose.yml · monitoring 복사 중..."
+            (
+              cd temp_repo
+              git -c url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf="https://github.com/" \
+                submodule update --init --recursive --depth 1
+            )
+            echo ">>> [Deploy] Clone 완료, docker-compose.yml · monitoring · secrets 복사 중..."
             
             if [ -f "temp_repo/BE/docker-compose.yml" ]; then
               cp temp_repo/BE/docker-compose.yml .
@@ -248,6 +199,19 @@ jobs:
               mkdir -p monitoring/prometheus monitoring/grafana/provisioning/dashboards/json monitoring/grafana/provisioning/datasources
             fi
 
+            rm -rf secrets
+            if [ -d "temp_repo/BE/secrets" ]; then
+              cp -R temp_repo/BE/secrets .
+              echo ">>> [Deploy] BE/secrets 복사 완료"
+            elif [ -d "temp_repo/secrets" ]; then
+              cp -R temp_repo/secrets .
+              echo ">>> [Deploy] secrets 복사 완료"
+            else
+              echo "ERROR: secrets submodule directory not found in temp_repo/"
+              exit 1
+            fi
+            chmod 600 secrets/.env secrets/firebase-service-account.json
+
             rm -rf temp_repo
             echo ">>> [Deploy] temp_repo 삭제, compose 파일 확인 중..."
 
@@ -257,21 +221,23 @@ jobs:
               ls -la
               exit 1
             fi
-            
-            # .env 파일과 firebase-service-account.json 복사
-            cp "$DEPLOY_PATH/.env" .
-            cp "$DEPLOY_PATH/firebase-service-account.json" .
-            echo ">>> [Deploy] .env, firebase-service-account.json 복사 완료"
+
+            if [ ! -f "secrets/.env" ] || [ ! -f "secrets/firebase-service-account.json" ]; then
+              echo "ERROR: required secret files are missing"
+              ls -la secrets || true
+              exit 1
+            fi
 
             # docker-compose로 모든 서비스 실행
             export BACKEND_IMAGE="$IMAGE"
             export CONTAINER_NAME="$CONTAINER_NAME"
+            COMPOSE="docker compose --env-file secrets/.env -f docker-compose.yml"
             echo ">>> [Deploy] 기존 컨테이너 정리 (down + 이름으로 강제 제거)..."
-            docker compose -f docker-compose.yml down --remove-orphans >/dev/null 2>&1 || true
+            $COMPOSE down --remove-orphans >/dev/null 2>&1 || true
             docker rm -f dorumdorum-redis dorumdorum-be dorumdorum-prometheus dorumdorum-grafana zoo1 pinpoint-hbase pinpoint-collector pinpoint-web 2>/dev/null || true
 
             echo ">>> [Deploy] [1/6] ZooKeeper 기동..."
-            docker compose -f docker-compose.yml up -d zoo1
+            $COMPOSE up -d zoo1
             for i in $(seq 1 30); do
               if docker ps --format '{{.Names}}' | grep -q '^zoo1$'; then
                 echo ">>> [Deploy] ZooKeeper up"
@@ -281,7 +247,7 @@ jobs:
             done
 
             echo ">>> [Deploy] [2/6] HBase 기동..."
-            docker compose -f docker-compose.yml up -d pinpoint-hbase
+            $COMPOSE up -d pinpoint-hbase
             echo ">>> [Deploy] HBase 초기화 대기..."
             HBASE_READY=0
             for i in $(seq 1 300); do
@@ -305,7 +271,7 @@ jobs:
             fi
 
             echo ">>> [Deploy] [3/6] Pinpoint Collector 기동..."
-            docker compose -f docker-compose.yml up -d pinpoint-collector
+            $COMPOSE up -d pinpoint-collector
             COLLECTOR_READY=0
             for i in $(seq 1 60); do
               if docker logs pinpoint-collector 2>&1 | grep -Eq "Started .*CollectorApp|Started CollectorApp"; then
@@ -322,7 +288,7 @@ jobs:
             fi
 
             echo ">>> [Deploy] [4/6] Pinpoint Web 기동..."
-            docker compose -f docker-compose.yml up -d pinpoint-web
+            $COMPOSE up -d pinpoint-web
             WEB_READY=0
             for i in $(seq 1 60); do
               if docker logs pinpoint-web 2>&1 | grep -Eq "Started .*WebApp|Started WebApp|Started .*PinpointWebApplication"; then
@@ -339,10 +305,10 @@ jobs:
             fi
 
             echo ">>> [Deploy] [5/6] Backend 기동..."
-            docker compose -f docker-compose.yml up -d backend
+            $COMPOSE up -d backend
 
             echo ">>> [Deploy] [6/6] Redis/Monitoring 기동..."
-            docker compose -f docker-compose.yml up -d redis prometheus grafana
+            $COMPOSE up -d redis prometheus grafana
 
             echo ">>> [Deploy] 오래된 이미지 정리 중..."
             docker image prune -af --filter "until=168h"

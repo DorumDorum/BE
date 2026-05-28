@@ -121,13 +121,14 @@ class ChatRoomMemberServiceTest {
     }
 
     @Test
-    @DisplayName("leave: repository.delete에 위임")
-    void leave_DelegatesToRepository() {
+    @DisplayName("leave: 멤버를 소프트 삭제하고 저장")
+    void leave_SoftDeletesAndSaves() {
         ChatRoomMember member = ChatRoomMember.builder().chatRoom(chatRoom).userNo("user-1").build();
 
         service.leave(member);
 
-        verify(chatRoomMemberRepository).delete(member);
+        assertThat(member.getDeletedAt()).isNotNull();
+        verify(chatRoomMemberRepository).save(member);
     }
 
     @Test
