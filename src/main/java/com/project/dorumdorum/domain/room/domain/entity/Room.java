@@ -47,6 +47,9 @@ public class Room extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
     @Column(nullable = false)
     private String hostUserNo;
 
@@ -126,5 +129,9 @@ public class Room extends BaseEntity {
 
     public void updateTitle(String title) {
         this.title = title;
+    }
+
+    public void updateNotes(String notes) {
+        this.notes = notes;
     }
 }
