@@ -60,6 +60,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.currentMateCount,
                                 room.createdAt,
                                 room.title,
+                                room.notes,
                                 user.nickname,
                                 user.major,
                                 user.studentNo.substring(2, 4),
@@ -166,6 +167,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                     r.current_mate_count,
                     r.created_at,
                     r.title,
+                    r.notes,
                     u.nickname,
                     u.major,
                     SUBSTRING(u.student_no FROM 3 FOR 2),
@@ -227,6 +229,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.currentMateCount,
                                 room.createdAt,
                                 room.title,
+                                room.notes,
                                 user.nickname,
                                 user.major,
                                 user.studentNo.substring(2, 4),
@@ -260,6 +263,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.currentMateCount,
                                 room.createdAt,
                                 room.title,
+                                room.notes,
                                 user.nickname,
                                 user.major,
                                 user.studentNo.substring(2, 4),
@@ -290,6 +294,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.currentMateCount,
                                 room.createdAt,
                                 room.title,
+                                room.notes,
                                 user.nickname,
                                 user.major,
                                 user.studentNo.substring(2, 4),
@@ -495,9 +500,10 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                 stringValue(row[6]),
                 stringValue(row[7]),
                 stringValue(row[8]),
-                enumValue(RoomStatus.class, row[9]),
-                stringValue(row[10]),
-                intValue(row[11])
+                stringValue(row[9]),
+                enumValue(RoomStatus.class, row[10]),
+                stringValue(row[11]),
+                intValue(row[12])
         );
     }
 
