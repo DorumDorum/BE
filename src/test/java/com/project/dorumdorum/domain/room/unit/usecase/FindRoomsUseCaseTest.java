@@ -1,6 +1,7 @@
 package com.project.dorumdorum.domain.room.unit.usecase;
 
 import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
+import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsPageResponse;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.application.usecase.FindRoomsUseCase;
 import com.project.dorumdorum.domain.room.domain.entity.ResidencePeriod;
@@ -10,7 +11,6 @@ import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.domain.user.domain.entity.Gender;
 import com.project.dorumdorum.domain.user.domain.entity.User;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
-import com.project.dorumdorum.global.pagination.CursorPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +25,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +47,7 @@ class FindRoomsUseCaseTest {
 
     private FindRoomsResponse room(String roomNo, int capacity, int current, LocalDateTime createdAt) {
         return new FindRoomsResponse(roomNo, RoomType.TYPE_1, capacity, current, createdAt, "title",
-                "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), capacity - current);
+                "host", "경영", "22", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), capacity - current);
     }
 
     private ChecklistFilterRequest request(ChecklistFilterRequest.SortType sortType, String cursor) {
@@ -68,12 +69,14 @@ class FindRoomsUseCaseTest {
         ChecklistFilterRequest request = request(ChecklistFilterRequest.SortType.LATEST, null);
         when(roomService.searchByCursor(any(), any(), any(), any(), any(), anyInt()))
                 .thenReturn(responses);
+        when(roomService.countSearchResults(any(), any())).thenReturn(120L);
 
-        CursorPage<FindRoomsResponse> result = useCase.execute(USER_NO, request);
+        FindRoomsPageResponse result = useCase.execute(USER_NO, request);
 
         assertThat(result.items()).hasSize(50);
         assertThat(result.hasNext()).isTrue();
         assertThat(result.nextCursor()).isNotBlank();
+        assertThat(result.totalCount()).isEqualTo(120L);
         verify(roomService).searchByCursor(any(), any(), any(), any(), any(), anyInt());
     }
 
@@ -85,7 +88,7 @@ class FindRoomsUseCaseTest {
         when(roomService.searchByCursor(any(), any(), any(), any(), any(), anyInt()))
                 .thenReturn(responses);
 
-        CursorPage<FindRoomsResponse> result = useCase.execute(USER_NO, request);
+        FindRoomsPageResponse result = useCase.execute(USER_NO, request);
 
         assertThat(result.items()).hasSize(1);
         assertThat(result.hasNext()).isFalse();
@@ -99,7 +102,7 @@ class FindRoomsUseCaseTest {
         when(roomService.searchByCursor(any(), any(), any(), any(), any(), anyInt()))
                 .thenReturn(List.of());
 
-        CursorPage<FindRoomsResponse> result = useCase.execute(USER_NO, request);
+        FindRoomsPageResponse result = useCase.execute(USER_NO, request);
 
         assertThat(result.items()).isEmpty();
         assertThat(result.nextCursor()).isNull();
@@ -115,9 +118,11 @@ class FindRoomsUseCaseTest {
         when(roomService.searchByCursor(any(), any(), any(), any(), any(), anyInt()))
                 .thenReturn(responses);
 
-        CursorPage<FindRoomsResponse> result = useCase.execute(USER_NO, request);
+        FindRoomsPageResponse result = useCase.execute(USER_NO, request);
 
         assertThat(result.items()).hasSize(1);
+        assertThat(result.totalCount()).isNull();
         verify(roomService).searchByCursor(any(), any(), any(), any(), any(), anyInt());
+        verify(roomService, never()).countSearchResults(any(), any());
     }
 }

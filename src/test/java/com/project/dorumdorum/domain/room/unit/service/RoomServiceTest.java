@@ -61,7 +61,7 @@ class RoomServiceTest {
     void searchByCursor_DelegatesToRepository() {
         List<FindRoomsResponse> expected = List.of(
                 new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, LocalDateTime.now(),
-                        "title", "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1)
+                        "title", "host", "경영", "22", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1)
         );
         ChecklistFilterRequest request = new ChecklistFilterRequest(
                 ChecklistFilterRequest.SortType.LATEST, null, null, null, null,
@@ -77,6 +77,23 @@ class RoomServiceTest {
         );
 
         assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("Should delegate filtered room count to repository")
+    void countSearchResults_DelegatesToRepository() {
+        ChecklistFilterRequest request = new ChecklistFilterRequest(
+                ChecklistFilterRequest.SortType.LATEST, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null
+        );
+        when(roomRepository.countByFilter(Gender.MALE, request)).thenReturn(42L);
+
+        long result = service.countSearchResults(Gender.MALE, request);
+
+        assertThat(result).isEqualTo(42L);
+        verify(roomRepository).countByFilter(Gender.MALE, request);
     }
 
     @Test
