@@ -3,6 +3,7 @@ package com.project.dorumdorum.domain.user.unit.usecase;
 import com.project.dorumdorum.domain.user.application.dto.request.SignUpRequest;
 import com.project.dorumdorum.domain.user.application.usecase.SignUpUseCase;
 import com.project.dorumdorum.domain.user.domain.entity.User;
+import com.project.dorumdorum.domain.user.domain.repository.EmailVerifiedRepository;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.domain.user.fixture.RequestFixture;
 import com.project.dorumdorum.domain.user.fixture.UserFixture;
@@ -28,6 +29,8 @@ class SignUpUseCaseTest {
     @Mock
     private UserService userService;
     @Mock
+    private EmailVerifiedRepository emailVerifiedRepository;
+    @Mock
     private DomainEventLogger domainEventLogger;
 
     @InjectMocks
@@ -40,6 +43,7 @@ class SignUpUseCaseTest {
         SignUpRequest request = RequestFixture.createValidSignUpRequest();
         User savedUser = UserFixture.createDefaultUser();
 
+        when(emailVerifiedRepository.existsByEmail(request.email())).thenReturn(true);
         when(userService.isAlreadyRegistered(request.email())).thenReturn(false);
         when(userService.save(request)).thenReturn(savedUser);
 
@@ -70,6 +74,7 @@ class SignUpUseCaseTest {
     void execute_WithAlreadyRegisteredEmail_ThrowsAlreadyRegisteredEmailException() {
         // Arrange
         SignUpRequest request = RequestFixture.createValidSignUpRequest();
+        when(emailVerifiedRepository.existsByEmail(request.email())).thenReturn(true);
         when(userService.isAlreadyRegistered(request.email())).thenReturn(true);
 
         // Act & Assert
@@ -87,6 +92,7 @@ class SignUpUseCaseTest {
         SignUpRequest request = RequestFixture.createValidSignUpRequest();
         User savedUser = UserFixture.createDefaultUser();
 
+        when(emailVerifiedRepository.existsByEmail(request.email())).thenReturn(true);
         when(userService.isAlreadyRegistered(request.email())).thenReturn(false);
         when(userService.save(request)).thenReturn(savedUser);
 

@@ -1,7 +1,7 @@
 package com.project.dorumdorum.domain.user.ui;
 
-import com.project.dorumdorum.domain.user.application.usecase.VerifyEmailUseCase;
-import com.project.dorumdorum.domain.user.ui.spec.VerifyEmailApiSpec;
+import com.project.dorumdorum.domain.user.application.usecase.VerifyPasswordResetCodeUseCase;
+import com.project.dorumdorum.domain.user.ui.spec.VerifyPasswordResetCodeApiSpec;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,16 +12,16 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @RestController
 @RequiredArgsConstructor
-public class VerifyEmailController implements VerifyEmailApiSpec {
+public class VerifyPasswordResetCodeController implements VerifyPasswordResetCodeApiSpec {
 
-    private final VerifyEmailUseCase verifyEmailUseCase;
+    private final VerifyPasswordResetCodeUseCase verifyPasswordResetCodeUseCase;
 
     @Override
-    public ResponseEntity<Void> verifyEmail(
+    public ResponseEntity<Void> verify(
             @NotBlank @RequestParam String email,
             @NotBlank @RequestParam String code
     ) {
-        verifyEmailUseCase.execute(email, code);
+        verifyPasswordResetCodeUseCase.execute(email, code);
         return ResponseEntity.ok().build();
     }
 }

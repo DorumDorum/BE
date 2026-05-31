@@ -34,7 +34,7 @@ class LoadCalendarEventsUseCaseTest {
         List<CalendarEvent> events = List.of(
                 CalendarEvent.builder().eventNo("e1").eventDate(start).title("title").build()
         );
-        List<CalendarEventResponse> responses = List.of(new CalendarEventResponse(start, "title"));
+        List<CalendarEventResponse> responses = List.of(new CalendarEventResponse(start, "title", null, null, null));
 
         when(calendarEventService.loadBetween(start, end)).thenReturn(events);
         when(calendarEventMapper.toResponseList(events)).thenReturn(responses);

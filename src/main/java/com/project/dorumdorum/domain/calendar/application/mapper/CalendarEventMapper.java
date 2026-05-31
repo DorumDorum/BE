@@ -10,6 +10,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface CalendarEventMapper {
     @Mapping(target = "date", source = "eventDate")
+    @Mapping(target = "time", source = "eventTime")
+    @Mapping(target = "type", source = "eventType")
     CalendarEventResponse toResponse(CalendarEvent event);
     List<CalendarEventResponse> toResponseList(List<CalendarEvent> events);
 }

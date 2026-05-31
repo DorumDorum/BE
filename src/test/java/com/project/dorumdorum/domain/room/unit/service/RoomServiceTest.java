@@ -80,9 +80,9 @@ class RoomServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw when my room is not found")
-    void findMyRoom_WhenMissing_Throws() {
+    @DisplayName("Should return null when my room is not found")
+    void findMyRoom_WhenMissing_ReturnsNull() {
         when(roomRepository.findMyRoom("u1")).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.findMyRoom("u1")).isInstanceOf(RestApiException.class);
+        assertThat(service.findMyRoom("u1")).isNull();
     }
 }
