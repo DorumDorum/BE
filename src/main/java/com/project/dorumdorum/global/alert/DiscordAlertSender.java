@@ -28,8 +28,13 @@ public class DiscordAlertSender {
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     public void send(SystemAlert alert) {
-        if (deduplicationService.isDuplicate(alert)) {
-            log.debug("[Alert] 중복 알림 건너뜀. title={}", alert.title());
+        try {
+            if (deduplicationService.isDuplicate(alert)) {
+                log.debug("[Alert] 중복 알림 건너뜀. title={}", alert.title());
+                return;
+            }
+        } catch (IllegalStateException e) {
+            log.warn("[Alert] Redis 비가용 상태로 중복 검사 건너뜀. title={}", alert.title());
             return;
         }
 
