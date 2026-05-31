@@ -38,7 +38,7 @@ public class ResetPasswordUseCase {
         }
 
         User user = userService.findByEmail(request.email());
-        passwordResetVerifiedRepository.delete(request.email());
         user.updatePassword(passwordEncoder.encode(request.newPassword()));
+        passwordResetVerifiedRepository.delete(request.email());
     }
 }
