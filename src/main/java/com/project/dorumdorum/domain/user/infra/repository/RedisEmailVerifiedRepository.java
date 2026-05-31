@@ -17,7 +17,7 @@ public class RedisEmailVerifiedRepository implements EmailVerifiedRepository {
 
     @Override
     public void save(String email) {
-        redisTemplate.opsForValue().set(EMAIL_VERIFIED + email, VERIFIED_VALUE, Duration.ofMinutes(10));
+        redisTemplate.opsForValue().set(EMAIL_VERIFIED + email, VERIFIED_VALUE, Duration.ofMinutes(30));
     }
 
     @Override
