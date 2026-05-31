@@ -1,19 +1,14 @@
 package com.project.dorumdorum.domain.user.application.usecase;
 
-import com.project.dorumdorum.domain.user.domain.repository.PasswordResetCodeRepository;
 import com.project.dorumdorum.domain.user.domain.repository.PasswordResetVerifiedRepository;
 import com.project.dorumdorum.domain.user.domain.service.EmailVerificationService;
-import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import static com.project.dorumdorum.global.exception.code.status.AuthErrorStatus.FAILED_EMAIL_VERIFICATION;
 
 @Service
 @RequiredArgsConstructor
 public class VerifyPasswordResetCodeUseCase {
 
-    private final PasswordResetCodeRepository passwordResetCodeRepository;
     private final PasswordResetVerifiedRepository passwordResetVerifiedRepository;
     private final EmailVerificationService emailVerificationService;
 
