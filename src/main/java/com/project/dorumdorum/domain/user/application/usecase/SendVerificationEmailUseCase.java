@@ -3,6 +3,7 @@ package com.project.dorumdorum.domain.user.application.usecase;
 import com.project.dorumdorum.domain.user.domain.service.EmailVerificationService;
 import com.project.dorumdorum.domain.user.domain.service.UserService;
 import com.project.dorumdorum.global.exception.RestApiException;
+import com.project.dorumdorum.global.ratelimit.RateLimited;
 import com.project.dorumdorum.global.util.SecureRandomGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class SendVerificationEmailUseCase {
      * - 허용된 대학 이메일 도메인인지 검증
      * - 인증 코드를 생성해 메일로 발송
      */
+    @RateLimited(tag = "verification-email", key = "#email")
     public void send(String email) {
         if (userService.isAlreadyRegistered(email)) {
             throw new RestApiException(DUPLICATE_EMAIL);

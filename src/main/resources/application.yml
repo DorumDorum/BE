@@ -211,3 +211,11 @@ rate-limit:
       permits-per-window: ${CHAT_RATE_LIMIT_PER_WINDOW:30}
       window-millis: ${CHAT_RATE_LIMIT_WINDOW_MILLIS:10000}
       ttl-seconds: ${CHAT_RATE_LIMIT_TTL_SECONDS:20}
+    password-reset-email:
+      permits-per-window: 1
+      window-millis: 30000
+      ttl-seconds: 30
+    verification-email:
+      permits-per-window: 1
+      window-millis: 30000
+      ttl-seconds: 30
