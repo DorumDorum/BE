@@ -103,5 +103,19 @@ class NotificationServiceTest {
         assertThatThrownBy(() -> notificationService.markAsRead("n1", "user-1"))
                 .isInstanceOf(RestApiException.class);
     }
-}
 
+    @Test
+    @DisplayName("markAllAsRead는 사용자의 읽지 않은 알림 벌크 업데이트를 레포지토리에 위임한다")
+    void markAllAsRead_DelegatesToRepository() {
+        // given
+        when(notificationRepository.markAllAsReadByRecipientNo(eq("user-1"), any(LocalDateTime.class)))
+                .thenReturn(2);
+
+        // when
+        int result = notificationService.markAllAsRead("user-1");
+
+        // then
+        assertThat(result).isEqualTo(2);
+        verify(notificationRepository).markAllAsReadByRecipientNo(eq("user-1"), any(LocalDateTime.class));
+    }
+}

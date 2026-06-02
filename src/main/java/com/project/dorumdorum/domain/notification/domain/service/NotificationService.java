@@ -7,6 +7,7 @@ import com.project.dorumdorum.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.project.dorumdorum.global.exception.code.status.NotificationErrorStatus.NOTIFICATION_NOT_FOUND;
@@ -39,5 +40,9 @@ public class NotificationService {
 
         notification.markAsRead();
         notificationRepository.save(notification);
+    }
+
+    public int markAllAsRead(String userNo) {
+        return notificationRepository.markAllAsReadByRecipientNo(userNo, LocalDateTime.now());
     }
 }
