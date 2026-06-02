@@ -56,7 +56,7 @@ class RoomRepositoryImplTest {
         JPAQuery<FindRoomsResponse> jpaQuery = mock(JPAQuery.class, RETURNS_SELF);
         List<FindRoomsResponse> expected = List.of(
                 new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, LocalDateTime.now(),
-                        "title", "host", "경영", "22", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1)
+                        "title", null, "host", "경영", "22", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1)
         );
 
         when(queryFactory.select(org.mockito.ArgumentMatchers.<Expression<FindRoomsResponse>>any())).thenReturn(jpaQuery);
@@ -163,6 +163,7 @@ class RoomRepositoryImplTest {
                 1,
                 createdAt,
                 "title",
+                null,
                 "host",
                 "경영",
                 "22",
@@ -181,7 +182,7 @@ class RoomRepositoryImplTest {
 
         assertThat(result).containsExactly(
                 new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, createdAt,
-                        "title", "host", "경영", "22", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1)
+                        "title", null, "host", "경영", "22", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1)
         );
         ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
         verify(entityManager).createNativeQuery(sqlCaptor.capture());
@@ -270,7 +271,7 @@ class RoomRepositoryImplTest {
         RoomRepositoryImpl repository = new RoomRepositoryImpl(queryFactory, entityManager);
         JPAQuery<FindRoomsResponse> jpaQuery = mock(JPAQuery.class, RETURNS_SELF);
         FindRoomsResponse response = new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, LocalDateTime.now(),
-                "title", "host", "경영", "22", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1);
+                "title", null, "host", "경영", "22", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1);
 
         when(queryFactory.select(org.mockito.ArgumentMatchers.<Expression<FindRoomsResponse>>any())).thenReturn(jpaQuery);
         when(jpaQuery.fetchOne()).thenReturn(response);

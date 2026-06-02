@@ -46,7 +46,7 @@ class FindRoomsUseCaseTest {
     }
 
     private FindRoomsResponse room(String roomNo, int capacity, int current, LocalDateTime createdAt) {
-        return new FindRoomsResponse(roomNo, RoomType.TYPE_1, capacity, current, createdAt, "title",
+        return new FindRoomsResponse(roomNo, RoomType.TYPE_1, capacity, current, createdAt, "title", null,
                 "host", "경영", "22", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), capacity - current);
     }
 

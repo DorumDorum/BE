@@ -32,9 +32,10 @@ class UpdateRoomTitleUseCaseTest {
         when(roomService.findById("r1")).thenReturn(room);
         when(roommateService.isHost("u1", room)).thenReturn(true);
 
-        useCase.execute("u1", "r1", new UpdateRoomTitleRequest("  new title  "));
+        useCase.execute("u1", "r1", new UpdateRoomTitleRequest("  new title  ", "notes"));
 
         verify(room).updateTitle("new title");
+        verify(room).updateNotes("notes");
     }
 
     @Test
@@ -44,7 +45,7 @@ class UpdateRoomTitleUseCaseTest {
         when(roomService.findById("r1")).thenReturn(room);
         when(roommateService.isHost("u1", room)).thenReturn(false);
 
-        assertThatThrownBy(() -> useCase.execute("u1", "r1", new UpdateRoomTitleRequest("title")))
+        assertThatThrownBy(() -> useCase.execute("u1", "r1", new UpdateRoomTitleRequest("title", null)))
                 .isInstanceOf(RestApiException.class);
     }
 }
