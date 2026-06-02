@@ -7,6 +7,7 @@ import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.repository.RoomQueryRepository;
 import com.project.dorumdorum.domain.user.domain.entity.Gender;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -59,7 +60,10 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.currentMateCount,
                                 room.createdAt,
                                 room.title,
+                                room.notes,
                                 user.nickname,
+                                user.major,
+                                user.studentNo.substring(2, 4),
                                 room.roomStatus,
                                 room.residencePeriod.stringValue(),
                                 room.remaining
@@ -80,12 +84,71 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                 );
 
         if (request.sortType() == ChecklistFilterRequest.SortType.REMAINING) {
-            q.orderBy(room.remaining.asc(), room.createdAt.desc(), room.roomNo.desc());
+            q.orderBy(
+                    new CaseBuilder().when(room.remaining.eq(0)).then(1).otherwise(0).asc(),
+                    room.remaining.asc(),
+                    room.createdAt.desc(),
+                    room.roomNo.desc()
+            );
         } else {
             q.orderBy(room.createdAt.desc(), room.roomNo.desc());
         }
 
         return q.limit(limitPlusOne).fetch();
+    }
+
+    @Override
+    public long countByFilter(Gender gender, ChecklistFilterRequest request) {
+        if (hasChecklistFilters(request)) {
+            return countByFilterWithChecklist(gender, request);
+        }
+
+        Long count = query
+                .select(room.count())
+                .from(room)
+                .where(
+                        room.roomStatus.eq(RoomStatus.CONFIRM_PENDING),
+                        room.deletedAt.isNull(),
+                        room.gender.eq(gender),
+                        eqRoomType(request),
+                        eqResidencePeriod(request),
+                        eqCapacity(request)
+                )
+                .fetchOne();
+
+        return count == null ? 0L : count;
+    }
+
+    private long countByFilterWithChecklist(Gender gender, ChecklistFilterRequest request) {
+        StringBuilder sql = new StringBuilder("""
+                SELECT COUNT(*)
+                FROM room r
+                WHERE r.room_status = :roomStatus
+                  AND r.deleted_at IS NULL
+                  AND r.gender = :gender
+                """);
+
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("roomStatus", RoomStatus.CONFIRM_PENDING.name());
+        params.put("gender", gender.name());
+
+        appendCondition(sql, params, "r.room_type", "roomType", enumName(request.roomType()));
+        appendCondition(sql, params, "r.residence_period", "residencePeriod", enumName(request.residencePeriod()));
+        appendCondition(sql, params, "r.capacity", "capacity", request.capacity());
+        sql.append("""
+
+                  AND EXISTS (
+                      SELECT 1
+                      FROM room_rule rr
+                      WHERE rr.room_no = r.room_no
+                """);
+        appendRoomRuleConditions(sql, params, request);
+        sql.append("\n          )");
+
+        Query nativeQuery = entityManager.createNativeQuery(sql.toString());
+        params.forEach(nativeQuery::setParameter);
+
+        return ((Number) nativeQuery.getSingleResult()).longValue();
     }
 
     private List<FindRoomsResponse> findByCursorWithLateral(
@@ -104,7 +167,10 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                     r.current_mate_count,
                     r.created_at,
                     r.title,
+                    r.notes,
                     u.nickname,
+                    u.major,
+                    SUBSTRING(u.student_no FROM 3 FOR 2),
                     r.room_status,
                     r.residence_period::text,
                     r.remaining
@@ -117,30 +183,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
 
         Map<String, Object> params = new LinkedHashMap<>();
 
-        appendCondition(sql, params, "rr.bedtime", "bedtime", request.bedtime());
-        appendCondition(sql, params, "rr.wake_up", "wakeUp", request.wakeUp());
-        appendCondition(sql, params, "rr.return_home", "returnHome", enumName(request.returnHome()));
-        appendCondition(sql, params, "rr.return_home_time", "returnHomeTime", request.returnHomeTime());
-        appendCondition(sql, params, "rr.cleaning", "cleaning", enumName(request.cleaning()));
-        appendCondition(sql, params, "rr.phone_call", "phoneCall", enumName(request.phoneCall()));
-        appendCondition(sql, params, "rr.sleep_light", "sleepLight", enumName(request.sleepLight()));
-        appendCondition(sql, params, "rr.sleep_habit", "sleepHabit", enumName(request.sleepHabit()));
-        appendCondition(sql, params, "rr.snoring", "snoring", enumName(request.snoring()));
-        appendCondition(sql, params, "rr.shower_time", "showerTime", enumName(request.showerTime()));
-        appendCondition(sql, params, "rr.eating", "eating", enumName(request.eating()));
-        appendCondition(sql, params, "rr.lights_out", "lightsOut", enumName(request.lightsOut()));
-        appendCondition(sql, params, "rr.lights_out_time", "lightsOutTime", request.lightsOutTime());
-        appendCondition(sql, params, "rr.home_visit", "homeVisit", enumName(request.homeVisit()));
-        appendCondition(sql, params, "rr.smoking", "smoking", enumName(request.smoking()));
-        appendCondition(sql, params, "rr.refrigerator", "refrigerator", enumName(request.refrigerator()));
-        appendCondition(sql, params, "rr.hair_dryer", "hairDryer", request.hairDryer());
-        appendCondition(sql, params, "rr.alarm", "alarm", enumName(request.alarm()));
-        appendCondition(sql, params, "rr.earphone", "earphone", enumName(request.earphone()));
-        appendCondition(sql, params, "rr.keyskin", "keyskin", enumName(request.keyskin()));
-        appendCondition(sql, params, "rr.heat", "heat", enumName(request.heat()));
-        appendCondition(sql, params, "rr.cold", "cold", enumName(request.cold()));
-        appendCondition(sql, params, "rr.study", "study", enumName(request.study()));
-        appendCondition(sql, params, "rr.trash_can", "trashCan", enumName(request.trashCan()));
+        appendRoomRuleConditions(sql, params, request);
 
         sql.append("""
                         LIMIT 1
@@ -186,7 +229,10 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.currentMateCount,
                                 room.createdAt,
                                 room.title,
+                                room.notes,
                                 user.nickname,
+                                user.major,
+                                user.studentNo.substring(2, 4),
                                 room.roomStatus,
                                 room.residencePeriod.stringValue(),
                                 room.remaining
@@ -217,7 +263,10 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.currentMateCount,
                                 room.createdAt,
                                 room.title,
+                                room.notes,
                                 user.nickname,
+                                user.major,
+                                user.studentNo.substring(2, 4),
                                 room.roomStatus,
                                 room.residencePeriod.stringValue(),
                                 room.remaining
@@ -245,7 +294,10 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                                 room.currentMateCount,
                                 room.createdAt,
                                 room.title,
+                                room.notes,
                                 user.nickname,
+                                user.major,
+                                user.studentNo.substring(2, 4),
                                 room.roomStatus,
                                 room.residencePeriod.stringValue(),
                                 room.remaining
@@ -271,9 +323,16 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
 
     private BooleanExpression remainingCursorPredicate(Integer cursorRemaining, LocalDateTime cursorCreatedAt, String cursorId) {
         if (cursorRemaining == null || cursorCreatedAt == null || cursorId == null) return null;
-        return room.remaining.gt(cursorRemaining)
-                .or(room.remaining.eq(cursorRemaining).and(room.createdAt.lt(cursorCreatedAt)))
+        BooleanExpression sameRemainingNext = room.remaining.eq(cursorRemaining).and(room.createdAt.lt(cursorCreatedAt))
                 .or(room.remaining.eq(cursorRemaining).and(room.createdAt.eq(cursorCreatedAt)).and(room.roomNo.lt(cursorId)));
+
+        if (cursorRemaining == 0) {
+            return sameRemainingNext;
+        }
+
+        return room.remaining.gt(cursorRemaining).and(room.remaining.ne(0))
+                .or(room.remaining.eq(0))
+                .or(sameRemainingNext);
     }
 
     private BooleanExpression eqRoomType(ChecklistFilterRequest request) {
@@ -330,6 +389,37 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
         params.put(parameterName, value);
     }
 
+    private void appendRoomRuleConditions(
+            StringBuilder sql,
+            Map<String, Object> params,
+            ChecklistFilterRequest request
+    ) {
+        appendCondition(sql, params, "rr.bedtime", "bedtime", request.bedtime());
+        appendCondition(sql, params, "rr.wake_up", "wakeUp", request.wakeUp());
+        appendCondition(sql, params, "rr.return_home", "returnHome", enumName(request.returnHome()));
+        appendCondition(sql, params, "rr.return_home_time", "returnHomeTime", request.returnHomeTime());
+        appendCondition(sql, params, "rr.cleaning", "cleaning", enumName(request.cleaning()));
+        appendCondition(sql, params, "rr.phone_call", "phoneCall", enumName(request.phoneCall()));
+        appendCondition(sql, params, "rr.sleep_light", "sleepLight", enumName(request.sleepLight()));
+        appendCondition(sql, params, "rr.sleep_habit", "sleepHabit", enumName(request.sleepHabit()));
+        appendCondition(sql, params, "rr.snoring", "snoring", enumName(request.snoring()));
+        appendCondition(sql, params, "rr.shower_time", "showerTime", enumName(request.showerTime()));
+        appendCondition(sql, params, "rr.eating", "eating", enumName(request.eating()));
+        appendCondition(sql, params, "rr.lights_out", "lightsOut", enumName(request.lightsOut()));
+        appendCondition(sql, params, "rr.lights_out_time", "lightsOutTime", request.lightsOutTime());
+        appendCondition(sql, params, "rr.home_visit", "homeVisit", enumName(request.homeVisit()));
+        appendCondition(sql, params, "rr.smoking", "smoking", enumName(request.smoking()));
+        appendCondition(sql, params, "rr.refrigerator", "refrigerator", enumName(request.refrigerator()));
+        appendCondition(sql, params, "rr.hair_dryer", "hairDryer", request.hairDryer());
+        appendCondition(sql, params, "rr.alarm", "alarm", enumName(request.alarm()));
+        appendCondition(sql, params, "rr.earphone", "earphone", enumName(request.earphone()));
+        appendCondition(sql, params, "rr.keyskin", "keyskin", enumName(request.keyskin()));
+        appendCondition(sql, params, "rr.heat", "heat", enumName(request.heat()));
+        appendCondition(sql, params, "rr.cold", "cold", enumName(request.cold()));
+        appendCondition(sql, params, "rr.study", "study", enumName(request.study()));
+        appendCondition(sql, params, "rr.trash_can", "trashCan", enumName(request.trashCan()));
+    }
+
     private void appendCursorCondition(
             StringBuilder sql,
             Map<String, Object> params,
@@ -343,15 +433,29 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                 return;
             }
 
-            sql.append("""
-                    
-                      AND (
-                          r.remaining > :cursorRemaining
-                          OR (r.remaining = :cursorRemaining AND r.created_at < :cursorCreatedAt)
-                          OR (r.remaining = :cursorRemaining AND r.created_at = :cursorCreatedAt AND r.room_no < :cursorId)
-                      )
-                    """);
-            params.put("cursorRemaining", cursorRemaining);
+            if (cursorRemaining == 0) {
+                sql.append("""
+
+                          AND (
+                              r.remaining = 0
+                              AND (
+                                  r.created_at < :cursorCreatedAt
+                                  OR (r.created_at = :cursorCreatedAt AND r.room_no < :cursorId)
+                              )
+                          )
+                        """);
+            } else {
+                sql.append("""
+
+                          AND (
+                              (r.remaining > :cursorRemaining AND r.remaining <> 0)
+                              OR r.remaining = 0
+                              OR (r.remaining = :cursorRemaining AND r.created_at < :cursorCreatedAt)
+                              OR (r.remaining = :cursorRemaining AND r.created_at = :cursorCreatedAt AND r.room_no < :cursorId)
+                          )
+                        """);
+                params.put("cursorRemaining", cursorRemaining);
+            }
             params.put("cursorCreatedAt", cursorCreatedAt);
             params.put("cursorId", cursorId);
             return;
@@ -374,7 +478,8 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
 
     private void appendOrderBy(StringBuilder sql, String alias, ChecklistFilterRequest.SortType sortType) {
         if (sortType == ChecklistFilterRequest.SortType.REMAINING) {
-            sql.append(alias).append(".remaining ASC, ")
+            sql.append("CASE WHEN ").append(alias).append(".remaining = 0 THEN 1 ELSE 0 END ASC, ")
+                    .append(alias).append(".remaining ASC, ")
                     .append(alias).append(".created_at DESC, ")
                     .append(alias).append(".room_no DESC");
             return;
@@ -393,9 +498,12 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                 localDateTimeValue(row[4]),
                 stringValue(row[5]),
                 stringValue(row[6]),
-                enumValue(RoomStatus.class, row[7]),
+                stringValue(row[7]),
                 stringValue(row[8]),
-                intValue(row[9])
+                stringValue(row[9]),
+                enumValue(RoomStatus.class, row[10]),
+                stringValue(row[11]),
+                intValue(row[12])
         );
     }
 

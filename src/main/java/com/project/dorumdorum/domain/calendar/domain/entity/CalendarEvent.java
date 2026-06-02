@@ -36,7 +36,6 @@ public class CalendarEvent extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
     private LocalTime eventTime;
 
     @Enumerated(EnumType.STRING)

@@ -12,5 +12,6 @@ public record RoomCreateRequest(
         @NotNull Integer capacity,
         @NotNull ResidencePeriod residencePeriod,
         @NotBlank String title,
+        String notes,
         @Valid @NotNull CreateRoomRuleRequest rule
 ) {}

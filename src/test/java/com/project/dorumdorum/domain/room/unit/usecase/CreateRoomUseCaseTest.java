@@ -43,7 +43,7 @@ class CreateRoomUseCaseTest {
     void execute_WhenUserAlreadyInRoom_Throws() {
         String userNo = "u1";
         CreateRoomRuleRequest ruleRequest = mock(CreateRoomRuleRequest.class);
-        RoomCreateRequest request = new RoomCreateRequest(RoomType.TYPE_1, 2, ResidencePeriod.SEMESTER, "title", ruleRequest);
+        RoomCreateRequest request = new RoomCreateRequest(RoomType.TYPE_1, 2, ResidencePeriod.SEMESTER, "title", null, ruleRequest);
 
         when(roommateService.existsByUserNo(userNo)).thenReturn(true);
 
@@ -59,7 +59,7 @@ class CreateRoomUseCaseTest {
         String userNo = "u1";
         User host = User.builder().userNo(userNo).gender(Gender.MALE).build();
         CreateRoomRuleRequest ruleRequest = mock(CreateRoomRuleRequest.class);
-        RoomCreateRequest request = new RoomCreateRequest(RoomType.TYPE_1, 2, ResidencePeriod.SEMESTER, "title", ruleRequest);
+        RoomCreateRequest request = new RoomCreateRequest(RoomType.TYPE_1, 2, ResidencePeriod.SEMESTER, "title", null, ruleRequest);
         Room room = Room.builder().roomNo("r1").gender(Gender.MALE).build();
         RoomRule roomRule = mock(RoomRule.class);
 

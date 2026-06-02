@@ -28,6 +28,7 @@ public class RoomService {
                 .roomType(request.roomType())
                 .residencePeriod(request.residencePeriod())
                 .title(request.title())
+                .notes(request.notes())
                 .hostUserNo(userNo)
                 .gender(gender)
                 .build();
@@ -54,6 +55,10 @@ public class RoomService {
             int limitPlusOne
     ) {
         return roomRepository.findByCursor(gender, request, cursorCreatedAt, cursorId, cursorRemaining, limitPlusOne);
+    }
+
+    public long countSearchResults(Gender gender, ChecklistFilterRequest request) {
+        return roomRepository.countByFilter(gender, request);
     }
 
     public FindRoomsResponse findMyRoom(String userNo) {

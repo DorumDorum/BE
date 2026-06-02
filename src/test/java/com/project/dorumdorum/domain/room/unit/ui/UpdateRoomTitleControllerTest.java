@@ -23,7 +23,7 @@ class UpdateRoomTitleControllerTest {
 
     @Test
     void update_CallsUseCase() {
-        UpdateRoomTitleRequest req = new UpdateRoomTitleRequest("new");
+        UpdateRoomTitleRequest req = new UpdateRoomTitleRequest("new", null);
         ResponseEntity<Void> response = controller.update("u1", "r1", req);
         verify(useCase).execute("u1", "r1", req);
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();

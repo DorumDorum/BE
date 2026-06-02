@@ -4,21 +4,21 @@ import com.project.dorumdorum.domain.room.domain.entity.RoomStatus;
 import com.project.dorumdorum.domain.room.domain.entity.RoomType;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
-public record FindRoomsResponse(
+public record RecommendedRoomResponse(
         String roomNo,
+        String title,
         RoomType roomType,
         Integer capacity,
         Integer currentMateCount,
-        LocalDateTime createdAt,
-        String title,
-        String notes,
-        String hostNickname,
-        String hostMajor,
-        String hostStudentYear,
+        Integer remaining,
         RoomStatus roomStatus,
-        String residencePeriod, // 거주기간 (예: "학기(16주)", "반기(24주)", "계절학기")
-        Integer remaining
+        String residencePeriod,
+        String hostNickname,
+        String matchLabel,
+        int matchedCount,
+        int totalCount,
+        List<String> highlights
 ) {}

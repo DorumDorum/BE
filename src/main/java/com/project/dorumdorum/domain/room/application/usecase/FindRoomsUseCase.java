@@ -1,6 +1,7 @@
 package com.project.dorumdorum.domain.room.application.usecase;
 
 import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
+import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsPageResponse;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.domain.service.RoomService;
 import com.project.dorumdorum.domain.user.domain.entity.Gender;
@@ -29,7 +30,7 @@ public class FindRoomsUseCase {
      * - 필터와 커서 기준으로 방 목록을 조회
      * - 다음 페이지 커서를 포함한 결과를 반환
      */
-    public CursorPage<FindRoomsResponse> execute(String userNo, ChecklistFilterRequest request) {
+    public FindRoomsPageResponse execute(String userNo, ChecklistFilterRequest request) {
         Gender gender = userService.findById(userNo).getGender();
         CursorQueryParams params = PaginationHelper.prepareCursorQuery(request.cursor(), LIMIT);
 
@@ -42,12 +43,18 @@ public class FindRoomsUseCase {
                 params.limitPlusOne()
         );
 
-        return PaginationHelper.buildCursorPage(
+        CursorPage<FindRoomsResponse> page = PaginationHelper.buildCursorPage(
                 responses,
                 LIMIT,
                 last -> request.sortType() == ChecklistFilterRequest.SortType.REMAINING
                         ? CursorCodec.encode(last.remaining(), last.createdAt(), last.roomNo())
                         : CursorCodec.encode(last.createdAt(), last.roomNo())
         );
+
+        Long totalCount = request.cursor() == null
+                ? roomService.countSearchResults(gender, request)
+                : null;
+
+        return FindRoomsPageResponse.of(page, totalCount);
     }
 }

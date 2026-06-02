@@ -30,7 +30,7 @@ class CreateRoomControllerTest {
 
     @Test
     void create_CallsUseCase() {
-        RoomCreateRequest req = new RoomCreateRequest(RoomType.TYPE_1, 2, ResidencePeriod.SEMESTER, "title",
+        RoomCreateRequest req = new RoomCreateRequest(RoomType.TYPE_1, 2, ResidencePeriod.SEMESTER, "title", null,
                 mock(CreateRoomRuleRequest.class));
         when(useCase.execute("u1", req)).thenReturn("r1");
         ResponseEntity<Void> response = controller.create("u1", req);
