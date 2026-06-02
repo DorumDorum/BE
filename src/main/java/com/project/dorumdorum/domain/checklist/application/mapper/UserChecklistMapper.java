@@ -15,6 +15,7 @@ public interface UserChecklistMapper {
     @Mapping(target = "userNo", source = "userNo")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
     UserChecklist toUserChecklist(String userNo, CreateUserChecklistRequest request);
 
     @Mapping(target = "userChecklistNo", ignore = true)
