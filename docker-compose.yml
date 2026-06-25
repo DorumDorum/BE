@@ -32,7 +32,7 @@ services:
       - dorumdorum-net
 
   backend:
-    image: ${BACKEND_IMAGE:-koungq/dorumdorum-be:pinpoint}
+    image: ${BACKEND_IMAGE:-koungq/dorumdorum-be:latest}
     container_name: ${CONTAINER_NAME:-dorumdorum-be}
     ports:
       - "8080:8080"
@@ -42,10 +42,6 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - PINPOINT_COLLECTOR_IP=pinpoint-collector
-      - PINPOINT_APPLICATION_NAME=dorumdorum
-      - PINPOINT_AGENT_ID=${PINPOINT_AGENT_ID:-dorumdorum-backend-local}
-      - PINPOINT_AGENT_NAME=${PINPOINT_AGENT_NAME:-dorumdorum-be}
       - JAVA_OPTS=-Xms6g -Xmx6g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/log -XX:+ExitOnOutOfMemoryError -Xlog:gc*,safepoint:file=/var/log/gc.log:time,uptime,level,tags:filecount=10,filesize=50m
     volumes:
       - ./secrets/firebase-service-account.json:/app/firebase-service-account.json:ro
@@ -55,8 +51,6 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
-      pinpoint-collector:
         condition: service_started
     mem_limit: 8G
     cpus: 2.0
@@ -194,7 +188,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_ROOT_URL=http://localhost:3000
-      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+      - GF_INSTALL_PLUGINS=
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
       - grafana_data:/var/lib/grafana

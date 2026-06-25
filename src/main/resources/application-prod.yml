@@ -27,7 +27,7 @@ spring:
       port: ${REDIS_PORT}
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     show-sql: false
 
 jwt:
