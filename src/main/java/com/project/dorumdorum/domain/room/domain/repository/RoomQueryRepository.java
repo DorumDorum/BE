@@ -19,6 +19,8 @@ public interface RoomQueryRepository {
             int limitPlusOne
     );
 
+    long countByFilter(Gender gender, ChecklistFilterRequest request);
+
     Optional<FindRoomsResponse> findMyRoom(String userNo);
 
     List<FindRoomsResponse> findLikedRooms(String userNo);

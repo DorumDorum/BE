@@ -67,4 +67,8 @@ public class User extends BaseEntity {
         this.firebaseToken = firebaseToken;
     }
 
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
 }

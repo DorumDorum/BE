@@ -5,6 +5,8 @@ import com.project.dorumdorum.global.exception.RestApiException;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -15,7 +17,7 @@ public record SignUpRequest(
         @NotBlank String name,
         @NotBlank String nickname,
         @Email @NotBlank String email,
-        @NotBlank String password,
+        @NotBlank @Size(min = 8, message = "비밀번호는 8자 이상이어야 합니다.") @Pattern(regexp = "^[A-Za-z0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]+$", message = "비밀번호는 영문, 숫자, 특수문자만 사용할 수 있습니다.") String password,
         @NotBlank String passwordCheck,
         @NotNull Gender gender,
         @NotBlank String studentNo,

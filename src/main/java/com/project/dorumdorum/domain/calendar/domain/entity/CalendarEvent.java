@@ -8,7 +8,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+
+import javax.annotation.Nullable;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -27,4 +32,13 @@ public class CalendarEvent extends BaseEntity {
 
     @Column(nullable = false)
     private String title;
+
+    @Column(nullable = false)
+    private String content;
+
+    private LocalTime eventTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CalendarEventType eventType;
 }

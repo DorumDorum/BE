@@ -39,7 +39,7 @@ class RoomServiceTest {
     @Test
     @DisplayName("Should create and save room with gender from request")
     void create_SavesRoom() {
-        RoomCreateRequest request = new RoomCreateRequest(RoomType.TYPE_1, 2, ResidencePeriod.SEMESTER, "title", null);
+        RoomCreateRequest request = new RoomCreateRequest(RoomType.TYPE_1, 2, ResidencePeriod.SEMESTER, "title", null, null);
         Room saved = Room.builder().roomNo("r1").hostUserNo("u1").gender(Gender.MALE).build();
         when(roomRepository.save(any(Room.class))).thenReturn(saved);
 
@@ -61,7 +61,7 @@ class RoomServiceTest {
     void searchByCursor_DelegatesToRepository() {
         List<FindRoomsResponse> expected = List.of(
                 new FindRoomsResponse("r1", RoomType.TYPE_1, 2, 1, LocalDateTime.now(),
-                        "title", "host", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1)
+                        "title", null, "host", "경영", "22", RoomStatus.CONFIRM_PENDING, ResidencePeriod.SEMESTER.name(), 1)
         );
         ChecklistFilterRequest request = new ChecklistFilterRequest(
                 ChecklistFilterRequest.SortType.LATEST, null, null, null, null,
@@ -80,9 +80,26 @@ class RoomServiceTest {
     }
 
     @Test
-    @DisplayName("Should throw when my room is not found")
-    void findMyRoom_WhenMissing_Throws() {
+    @DisplayName("Should delegate filtered room count to repository")
+    void countSearchResults_DelegatesToRepository() {
+        ChecklistFilterRequest request = new ChecklistFilterRequest(
+                ChecklistFilterRequest.SortType.LATEST, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null
+        );
+        when(roomRepository.countByFilter(Gender.MALE, request)).thenReturn(42L);
+
+        long result = service.countSearchResults(Gender.MALE, request);
+
+        assertThat(result).isEqualTo(42L);
+        verify(roomRepository).countByFilter(Gender.MALE, request);
+    }
+
+    @Test
+    @DisplayName("Should return null when my room is not found")
+    void findMyRoom_WhenMissing_ReturnsNull() {
         when(roomRepository.findMyRoom("u1")).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.findMyRoom("u1")).isInstanceOf(RestApiException.class);
+        assertThat(service.findMyRoom("u1")).isNull();
     }
 }

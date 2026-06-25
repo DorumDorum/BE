@@ -31,5 +31,6 @@ public class UpdateRoomTitleUseCase {
             throw new RestApiException(NO_PERMISSION_ON_ROOM);
 
         room.updateTitle(request.title().trim());
+        room.updateNotes(request.notes());
     }
 }

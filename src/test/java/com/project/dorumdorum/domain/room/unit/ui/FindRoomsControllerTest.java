@@ -1,10 +1,10 @@
 package com.project.dorumdorum.domain.room.unit.ui;
 
 import com.project.dorumdorum.domain.room.application.dto.request.ChecklistFilterRequest;
+import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsPageResponse;
 import com.project.dorumdorum.domain.room.application.dto.response.FindRoomsResponse;
 import com.project.dorumdorum.domain.room.application.usecase.FindRoomsUseCase;
 import com.project.dorumdorum.domain.room.ui.FindRoomsController;
-import com.project.dorumdorum.global.pagination.CursorPage;
 import org.springframework.http.ResponseEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,10 +36,10 @@ class FindRoomsControllerTest {
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null
         );
-        CursorPage<FindRoomsResponse> page = new CursorPage<>(List.of(), null, false);
+        FindRoomsPageResponse page = new FindRoomsPageResponse(List.of(), null, false, 0L);
         when(useCase.execute(USER_NO, request)).thenReturn(page);
 
-        ResponseEntity<CursorPage<FindRoomsResponse>> response =
+        ResponseEntity<FindRoomsPageResponse> response =
                 controller.loadAll(USER_NO, request);
 
         verify(useCase).execute(USER_NO, request);

@@ -9,4 +9,5 @@ public interface UserChecklistRepository extends JpaRepository<UserChecklist, St
 
     Optional<UserChecklist> findByUserNo(String userNo);
 
+    boolean existsByUserNo(String userNo);
 }

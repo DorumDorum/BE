@@ -14,7 +14,10 @@ public record FindRoomsResponse(
         Integer currentMateCount,
         LocalDateTime createdAt,
         String title,
+        String notes,
         String hostNickname,
+        String hostMajor,
+        String hostStudentYear,
         RoomStatus roomStatus,
         String residencePeriod, // 거주기간 (예: "학기(16주)", "반기(24주)", "계절학기")
         Integer remaining

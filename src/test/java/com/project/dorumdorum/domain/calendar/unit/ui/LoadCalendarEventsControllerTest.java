@@ -29,7 +29,7 @@ class LoadCalendarEventsControllerTest {
     void loadCalendarEvents_ReturnsUseCaseResult() {
         LocalDate start = LocalDate.of(2026, 1, 1);
         LocalDate end = LocalDate.of(2026, 1, 31);
-        List<CalendarEventResponse> payload = List.of(new CalendarEventResponse(start, "event"));
+        List<CalendarEventResponse> payload = List.of(new CalendarEventResponse(start, "event", null, null, null));
         when(loadCalendarEventsUseCase.execute(start, end)).thenReturn(payload);
 
         ResponseEntity<List<CalendarEventResponse>> response = controller.loadCalendarEvents(start, end);
