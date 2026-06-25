@@ -133,7 +133,7 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           CONTAINER_NAME: dorumdorum-be
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           REPO_FULL_NAME: ${{ github.repository }}
         with:
           host: ${{ secrets.SERVER_HOST }}
