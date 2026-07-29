@@ -16,6 +16,7 @@ public enum UserErrorStatus implements BaseCodeInterface {
     AGE_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON400", "나이 계산 파싱 오류입니다."),
     FAILED_SEND_VERIFY_CODE(HttpStatus.INTERNAL_SERVER_ERROR, "MAIL001", "인증번호 전송에 실패하였습니다."),
     EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "USER002", "이메일 인증이 완료되지 않았습니다."),
+    ACTIVE_ROOM_OWNER(HttpStatus.CONFLICT, "USER003", "운영 중인 방이 있어 탈퇴할 수 없습니다."),
     ;
 
     private final HttpStatus httpStatus;

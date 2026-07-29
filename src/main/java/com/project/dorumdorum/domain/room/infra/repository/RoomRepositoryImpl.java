@@ -78,6 +78,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                         eqRoomType(request),
                         eqResidencePeriod(request),
                         eqCapacity(request),
+                        keywordContains(request),
                         request.sortType() == ChecklistFilterRequest.SortType.REMAINING
                                 ? remainingCursorPredicate(cursorRemaining, cursorCreatedAt, cursorId)
                                 : cursorPredicate(cursorCreatedAt, cursorId)
@@ -112,7 +113,8 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
                         room.gender.eq(gender),
                         eqRoomType(request),
                         eqResidencePeriod(request),
-                        eqCapacity(request)
+                        eqCapacity(request),
+                        keywordContains(request)
                 )
                 .fetchOne();
 
@@ -123,6 +125,8 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
         StringBuilder sql = new StringBuilder("""
                 SELECT COUNT(*)
                 FROM room r
+                LEFT JOIN users u
+                    ON u.user_no = r.host_user_no
                 WHERE r.room_status = :roomStatus
                   AND r.deleted_at IS NULL
                   AND r.gender = :gender
@@ -135,6 +139,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
         appendCondition(sql, params, "r.room_type", "roomType", enumName(request.roomType()));
         appendCondition(sql, params, "r.residence_period", "residencePeriod", enumName(request.residencePeriod()));
         appendCondition(sql, params, "r.capacity", "capacity", request.capacity());
+        appendKeywordCondition(sql, params, "r", "u", request.keyword());
         sql.append("""
 
                   AND EXISTS (
@@ -200,6 +205,7 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
         appendCondition(sql, params, "r.room_type", "roomType", enumName(request.roomType()));
         appendCondition(sql, params, "r.residence_period", "residencePeriod", enumName(request.residencePeriod()));
         appendCondition(sql, params, "r.capacity", "capacity", request.capacity());
+        appendKeywordCondition(sql, params, "r", "u", request.keyword());
         appendCursorCondition(sql, params, request.sortType(), cursorCreatedAt, cursorId, cursorRemaining);
 
         sql.append("\n                ORDER BY ");
@@ -347,6 +353,15 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
         return request.capacity() == null ? null : room.capacity.eq(request.capacity());
     }
 
+    private BooleanExpression keywordContains(ChecklistFilterRequest request) {
+        if (isBlank(request.keyword())) {
+            return null;
+        }
+        String keyword = request.keyword().trim();
+        return room.title.containsIgnoreCase(keyword)
+                .or(user.nickname.containsIgnoreCase(keyword));
+    }
+
     private boolean hasChecklistFilters(ChecklistFilterRequest request) {
         return !isBlank(request.bedtime())
                 || !isBlank(request.wakeUp())
@@ -418,6 +433,25 @@ public class RoomRepositoryImpl implements RoomQueryRepository {
         appendCondition(sql, params, "rr.cold", "cold", enumName(request.cold()));
         appendCondition(sql, params, "rr.study", "study", enumName(request.study()));
         appendCondition(sql, params, "rr.trash_can", "trashCan", enumName(request.trashCan()));
+    }
+
+    private void appendKeywordCondition(
+            StringBuilder sql,
+            Map<String, Object> params,
+            String roomAlias,
+            String userAlias,
+            String keyword
+    ) {
+        if (isBlank(keyword)) {
+            return;
+        }
+
+        sql.append("\n          AND (LOWER(")
+                .append(roomAlias)
+                .append(".title) LIKE :keyword OR LOWER(")
+                .append(userAlias)
+                .append(".nickname) LIKE :keyword)");
+        params.put("keyword", "%" + keyword.trim().toLowerCase() + "%");
     }
 
     private void appendCursorCondition(

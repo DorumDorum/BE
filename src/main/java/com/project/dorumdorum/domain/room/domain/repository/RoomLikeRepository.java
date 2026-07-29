@@ -18,5 +18,8 @@ public interface RoomLikeRepository extends JpaRepository<RoomLike, String> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE RoomLike l SET l.deletedAt = CURRENT_TIMESTAMP WHERE l.room = :room AND l.deletedAt IS NULL")
     void deleteAllByRoom(@Param("room") Room room);
-}
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE RoomLike l SET l.deletedAt = CURRENT_TIMESTAMP WHERE l.userNo = :userNo AND l.deletedAt IS NULL")
+    void deleteAllByUserNo(@Param("userNo") String userNo);
+}

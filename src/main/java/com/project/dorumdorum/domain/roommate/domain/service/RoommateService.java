@@ -2,6 +2,7 @@ package com.project.dorumdorum.domain.roommate.domain.service;
 
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.roommate.application.dto.response.MyRoommateResponse;
+import com.project.dorumdorum.domain.roommate.application.dto.response.RoommateHistoryResponse;
 import com.project.dorumdorum.domain.roommate.domain.entity.ConfirmStatus;
 import com.project.dorumdorum.domain.roommate.domain.entity.RoomRole;
 import com.project.dorumdorum.domain.roommate.domain.entity.Roommate;
@@ -72,5 +73,9 @@ public class RoommateService {
 
     public List<MyRoommateResponse> findMyRoommates(String userNo) {
         return roommateRepository.findMyRoommates(userNo);
+    }
+
+    public List<RoommateHistoryResponse> findMyRoommateHistory(String userNo) {
+        return roommateRepository.findMyRoommateHistory(userNo);
     }
 }

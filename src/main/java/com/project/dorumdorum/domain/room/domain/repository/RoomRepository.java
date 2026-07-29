@@ -15,4 +15,6 @@ public interface RoomRepository extends JpaRepository<Room, String>, RoomQueryRe
     @Query("select room from Room room where room.roomNo = :roomNo and room.deletedAt is null")
     Optional<Room> findByRoomNoForUpdate(@Param("roomNo") String roomNo);
 
+    boolean existsByHostUserNoAndDeletedAtIsNull(String hostUserNo);
+
 }

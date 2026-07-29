@@ -3,6 +3,7 @@ package com.project.dorumdorum.domain.roommate.domain.repository;
 import com.project.dorumdorum.domain.room.domain.entity.Room;
 import com.project.dorumdorum.domain.roommate.domain.entity.Roommate;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -25,5 +26,9 @@ public interface RoommateRepository extends JpaRepository<Roommate, String>, Roo
     List<Roommate> findByRoom(Room room);
     Optional<Roommate> findByUserNo(String userNo);
     boolean existsByUserNo(String userNo);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Roommate rm SET rm.deletedAt = CURRENT_TIMESTAMP WHERE rm.userNo = :userNo AND rm.deletedAt IS NULL")
+    void deleteAllByUserNo(@Param("userNo") String userNo);
 
 }

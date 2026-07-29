@@ -59,3 +59,31 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_chat_room_direct
 
 CREATE INDEX IF NOT EXISTS idx_chat_room_room_no
     ON chat_room (room_no);
+
+CREATE TABLE IF NOT EXISTS notification_settings (
+    notification_setting_no VARCHAR(255) PRIMARY KEY,
+    user_no VARCHAR(255) NOT NULL UNIQUE,
+    enabled BOOLEAN NOT NULL,
+    applicants BOOLEAN NOT NULL,
+    applicant_result BOOLEAN NOT NULL,
+    chat BOOLEAN NOT NULL,
+    notice BOOLEAN NOT NULL,
+    schedule BOOLEAN NOT NULL,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS support_inquiries (
+    inquiry_no VARCHAR(255) PRIMARY KEY,
+    user_no VARCHAR(255) NOT NULL,
+    category VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    status VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_support_inquiry_user_created
+    ON support_inquiries (user_no, created_at DESC, inquiry_no DESC);
