@@ -18,5 +18,8 @@ public interface RoomRequestRepository extends JpaRepository<RoomRequest, String
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE RoomRequest r SET r.deletedAt = CURRENT_TIMESTAMP WHERE r.room = :room AND r.deletedAt IS NULL")
     void deleteAllByRoom(@Param("room") Room room);
-}
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE RoomRequest r SET r.deletedAt = CURRENT_TIMESTAMP WHERE r.userNo = :userNo AND r.deletedAt IS NULL")
+    void deleteAllByUserNo(@Param("userNo") String userNo);
+}

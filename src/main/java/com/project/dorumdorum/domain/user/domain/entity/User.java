@@ -71,4 +71,17 @@ public class User extends BaseEntity {
         this.password = encodedPassword;
     }
 
+    public void anonymizeForWithdrawal() {
+        this.nickname = "탈퇴한 사용자";
+        this.name = "탈퇴한 사용자";
+        this.email = "deleted-" + this.userNo + "@dorumdorum.invalid";
+        this.password = "";
+        this.studentNo = "deleted-" + this.userNo;
+        this.major = null;
+        this.grade = null;
+        this.birth = null;
+        this.age = null;
+        this.firebaseToken = null;
+    }
+
 }

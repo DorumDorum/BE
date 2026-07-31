@@ -31,10 +31,10 @@ class FindRoomsControllerTest {
     @Test
     void loadAll_ReturnsUseCaseResult() {
         ChecklistFilterRequest request = new ChecklistFilterRequest(
-                ChecklistFilterRequest.SortType.LATEST, null, null, null, null,
+                ChecklistFilterRequest.SortType.LATEST, null, "조용한", null, null,
                 null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null
+                null, null, null, null, null
         );
         FindRoomsPageResponse page = new FindRoomsPageResponse(List.of(), null, false, 0L);
         when(useCase.execute(USER_NO, request)).thenReturn(page);
