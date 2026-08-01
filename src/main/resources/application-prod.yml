@@ -41,7 +41,7 @@ jwt:
 
 logging:
   policy:
-    include-stack-trace: false
+    include-stack-trace: true
   level:
     root: INFO
     com.project.dorumdorum: INFO
